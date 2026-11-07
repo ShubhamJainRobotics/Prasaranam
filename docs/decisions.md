@@ -79,7 +79,19 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: How should package inter-dependencies be resolved across workspaces?
   - **Choice**: Use TypeScript project references and package exports (`"exports": { ".": { "types": "./src/index.ts", "default": "./src/index.ts" } }`) for fast development and build interoperability across tsx, vite, vitest, and tsc.
   - **Reason**: Satisfies Section 20 without requiring circular intermediate build passes.
+- **Date**: 2026-11-07
+  - **Question**: How should `pgcrypto` functions be referenced inside `SECURITY DEFINER` functions with `search_path = ''`?
+  - **Choice**: Fully schema-qualify all pgcrypto calls as `extensions.digest(...)`.
+  - **Reason**: In Supabase PostgreSQL, extensions are installed in the `extensions` schema. With `search_path = ''`, unqualified function calls fail with `function does not exist`.
+- **Date**: 2026-11-07
+  - **Question**: What should the initial `access_epoch` of a freshly created project be after inserting the initial owner?
+  - **Choice**: Project creation starts at `access_epoch = 1`. In `create_project`, resetting `access_epoch = 1` after inserting the initial owner ensures a fresh project begins at epoch 1 per Section 10 default, with subsequent membership and grant changes incrementing the epoch.
+  - **Reason**: Section 10 defines `access_epoch bigint not null default 1`. The membership-change trigger on `project_members` fires when inserting the owner; resetting to 1 ensures clean initial state.
+- **Date**: 2026-11-07
+  - **Question**: How are string offsets calculated across JavaScript and PostgreSQL for multi-byte Unicode characters and emoji?
+  - **Choice**: Use Unicode code points (characters). PostgreSQL `char_length()` and `substring(... from ... for ...)` operate on code points in a UTF-8 database. In JavaScript, code-point-aware iteration (`[...str].length`) must be used instead of UTF-16 code units (`str.length`).
+  - **Reason**: SPEC Section 2A.6 item 3 explicitly requires zero-based indices in Unicode code points, not UTF-16 code units or bytes.
 
 ## Spec issues
 
-- None identified in Phase 0 or Phase 1.
+- None identified in Phase 0, Phase 1, or Phase 2. All constraints followed the safer, more restrictive reading.

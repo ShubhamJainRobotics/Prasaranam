@@ -1,14 +1,39 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import dotenv from 'dotenv';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createUserClient } from '@relay/database';
 import type { ServerEnvironment, WebEnvironment } from '@relay/contracts';
+
+// Try loading root .env if environment variables are not already set
+function loadEnvIfNeeded() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    let dir = process.cwd();
+    for (let i = 0; i < 5; i++) {
+      const candidate = path.join(dir, '.env');
+      if (fs.existsSync(candidate)) {
+        dotenv.config({ path: candidate });
+        break;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+}
+
+loadEnvIfNeeded();
 
 export const mockDevServerEnv: ServerEnvironment = {
   NODE_ENV: 'development',
   PORT: 4000,
   APP_ORIGIN: 'http://localhost:5173',
   CORS_ALLOWED_ORIGINS: ['http://localhost:5173'],
-  SUPABASE_URL: 'http://127.0.0.1:54321',
-  SUPABASE_ANON_KEY: 'test-anon-key',
-  SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
-  DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+  SUPABASE_URL: process.env.SUPABASE_URL || 'http://127.0.0.1:54321',
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'test-anon-key',
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key',
+  DATABASE_URL:
+    process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
   GEMINI_API_KEY: 'test-gemini-key',
   GEMINI_MODEL: 'gemini-2.5-flash',
   AI_PROVIDER: 'gemini',
@@ -51,3 +76,123 @@ export const mockWebEnv: WebEnvironment = {
   VITE_SUPABASE_ANON_KEY: 'test-anon-key',
   VITE_DEMO_MODE: false,
 };
+
+// ─── Real Supabase Auth Helpers for Integration & Security Tests ─────────────
+
+export interface TestUser {
+  userId: string;
+  email: string;
+  password: string;
+  displayName: string;
+  accessToken: string;
+  client: SupabaseClient;
+}
+
+export function getTestSupabaseConfig() {
+  loadEnvIfNeeded();
+  const url = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
+  const anonKey = process.env.SUPABASE_ANON_KEY || '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const databaseUrl =
+    process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+  return { url, anonKey, serviceRoleKey, databaseUrl };
+}
+
+export function createAdminClient(): SupabaseClient {
+  const { url, serviceRoleKey } = getTestSupabaseConfig();
+  return createClient(url, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+export function createAnonClient(): SupabaseClient {
+  const { url, anonKey } = getTestSupabaseConfig();
+  return createClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+/**
+ * Creates a real Supabase Auth user through the admin API with confirmed email,
+ * signs in via the anon client to obtain a real access token, and returns a user-scoped client.
+ * Never uses fake tokens.
+ */
+export async function createRealTestUser(
+  email: string,
+  password = 'TestPassword123!',
+  displayName = 'Test User'
+): Promise<TestUser> {
+  const adminClient = createAdminClient();
+  const anonClient = createAnonClient();
+  const { url, anonKey } = getTestSupabaseConfig();
+
+  // Try to create the user via admin API
+  const { data: created, error: createError } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { display_name: displayName },
+  });
+
+  let userId: string;
+  if (createError) {
+    // If user already exists, sign in directly
+    if (
+      createError.message.includes('already registered') ||
+      createError.message.includes('unique')
+    ) {
+      const { data: signInData, error: signInError } = await anonClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError || !signInData.session) {
+        throw new Error(`Failed to sign in existing test user ${email}: ${signInError?.message}`);
+      }
+      userId = signInData.user.id;
+      const accessToken = signInData.session.access_token;
+      const client = createUserClient(url, anonKey, accessToken);
+      return { userId, email, password, displayName, accessToken, client };
+    }
+    throw new Error(`Failed to create test user ${email}: ${createError.message}`);
+  }
+
+  userId = created.user.id;
+
+  // Sign in with the credentials to get a real access token
+  const { data: signInData, error: signInError } = await anonClient.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (signInError || !signInData.session) {
+    throw new Error(`Failed to sign in created test user ${email}: ${signInError?.message}`);
+  }
+
+  const accessToken = signInData.session.access_token;
+  const client = createUserClient(url, anonKey, accessToken);
+
+  return {
+    userId,
+    email,
+    password,
+    displayName,
+    accessToken,
+    client,
+  };
+}
+
+/**
+ * Deletes a test user using the admin API.
+ */
+export async function deleteRealTestUser(userId: string): Promise<void> {
+  const adminClient = createAdminClient();
+  await adminClient.auth.admin.deleteUser(userId);
+}

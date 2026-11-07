@@ -1,6 +1,7 @@
 # Phase 1 Report: Foundation
 
 ## 1. Implemented
+
 - Initialized npm workspaces monorepo: `apps/web`, `apps/api`, `apps/worker`, `packages/contracts`, `packages/database`, `packages/test-fixtures`.
 - Configured root `package.json` with `"type": "module"`, `"engines": { "node": "^24.21.0", "npm": "^12.1.0" }`, and project scripts for all Section 22.5 commands.
 - Established `tsconfig.base.json` with `strict: true` and `noUncheckedIndexedAccess: true`; configured workspace project references.
@@ -20,6 +21,7 @@
 - Created `.github/workflows/ci.yml` and `README.md`.
 
 ## 2. Commands run
+
 - `npm install`: passed (added 510 packages, generated `package-lock.json`)
 - `npm run typecheck`: passed (`tsc --build` exited with code 0)
 - `npm run lint`: passed (`eslint .` exited with 0 errors and 0 warnings)
@@ -38,6 +40,7 @@
 - `npm run db:stop`: passed (local Supabase stack stopped cleanly)
 
 ## 3. Exit criteria
+
 - `All verify commands pass or are marked not run with a reason`: met (all verify commands passed directly in this session: `npm install`, `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test`, `npm run test:integration`, `npm run test:security`, `npm run build`, `npm run schemas:generate`, `npm run dev` health check, `npm run db:start`, `npm run bootstrap:local`, `GET /health/ready`, `npm run db:stop`).
 - `Services start`: met (verified API server on port 4000, worker logging startup line, and web dev server on port 5173 via `npm run dev`).
 - `Type checking passes`: met (verified via `npm run typecheck` across all workspace project references).
@@ -45,6 +48,7 @@
 - `No secrets in any committed file`: met (verified with `git status --ignored --short`; `.env` and `apps/web/.env.local` are gitignored, no credentials committed).
 
 ## 4. Decisions and spec issues recorded
+
 - **Decisions**:
   - Recorded resolved library major versions in `docs/decisions.md`.
   - Pinned `zod@^3.24.2` after empirically verifying that `zod-to-json-schema` fails property extraction against `zod@4.6.7`.
@@ -54,6 +58,7 @@
   - None identified for Phase 1.
 
 ## 5. Known limitations
+
 - Database tables, RLS policies, and SQL mutation functions are not yet defined; these are scheduled for Phase 2. The database readiness endpoint currently tests connectivity via `SELECT 1;`.
 - Background worker connects to the database and handles process signals, but does not execute a job loop; the lease-based job loop will be built in Phase 5 per specification.
 - Web application routes currently comprise `/` (landing page) and `*` (not-found); authentication and authenticated workspace routes are scheduled for Phase 3.

@@ -13,10 +13,13 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@relay/contracts": "*"
+    "@relay/contracts": "*",
+    "@relay/database": "*",
+    "@supabase/supabase-js": "^2.119.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "typescript": "^5.8.2"
