@@ -64,6 +64,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <NavLink to={`/app/projects/${projectId}`} end className={linkClass}>
               Dashboard
             </NavLink>
+            <NavLink to={`/app/projects/${projectId}/sources`} className={linkClass}>
+              Sources
+            </NavLink>
             <NavLink to={`/app/projects/${projectId}/members`} className={linkClass}>
               Members
             </NavLink>

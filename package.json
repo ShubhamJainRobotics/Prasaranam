@@ -24,6 +24,7 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
+    "demo:seed": "tsx scripts/seed-demo.ts",
     "schemas:generate": "tsx scripts/generate-json-schemas.ts",
     "bootstrap:local": "tsx scripts/bootstrap-local.ts",
     "verify:env": "tsx scripts/verify-environment.ts"

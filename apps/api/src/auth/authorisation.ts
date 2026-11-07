@@ -9,11 +9,16 @@ export type Action =
   | 'PROJECT_VIEW'
   | 'PROJECT_EDIT_SETTINGS'
   | 'PROJECT_MANAGE_MEMBERS'
-  | 'PROJECT_VIEW_DASHBOARD';
+  | 'PROJECT_VIEW_DASHBOARD'
+  | 'PROJECT_IMPORT_SOURCES'
+  | 'PROJECT_VIEW_SOURCES'
+  | 'SOURCE_MANAGE_ACCESS'
+  | 'SOURCE_ARCHIVE';
 
 export interface AuthorisationContext {
   orgId?: string;
   projectId?: string;
+  sourceId?: string;
 }
 
 /**
@@ -96,6 +101,60 @@ export async function authorizeAction(
       }
       return 'FORBIDDEN';
     }
+  }
+
+  // Source-scoped & source-import actions
+  if (action === 'PROJECT_IMPORT_SOURCES' || action === 'PROJECT_VIEW_SOURCES') {
+    if (!projectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(projectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    if (action === 'PROJECT_VIEW_SOURCES') {
+      return 'ALLOWED';
+    }
+
+    if (action === 'PROJECT_IMPORT_SOURCES') {
+      // owner, reviewer, contributor can import (SPEC 2A.2 line 80)
+      if (
+        projectMembership.role === 'owner' ||
+        projectMembership.role === 'reviewer' ||
+        projectMembership.role === 'contributor'
+      ) {
+        return 'ALLOWED';
+      }
+      return 'FORBIDDEN';
+    }
+  }
+
+  if (action === 'SOURCE_MANAGE_ACCESS' || action === 'SOURCE_ARCHIVE') {
+    let targetProjectId = projectId;
+
+    if (!targetProjectId && context.sourceId) {
+      const sourceRes = await pool.query(
+        'SELECT project_id FROM public.sources WHERE id = $1 AND archived_at IS NULL',
+        [context.sourceId]
+      );
+      if (sourceRes.rows.length === 0) {
+        return 'NOT_FOUND';
+      }
+      targetProjectId = sourceRes.rows[0].project_id as string;
+    }
+
+    if (!targetProjectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(targetProjectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    // Changing access or archiving requires project owner role (SPEC 2A.2 line 79)
+    if (projectMembership.role === 'owner') {
+      return 'ALLOWED';
+    }
+    return 'FORBIDDEN';
   }
 
   return 'NOT_FOUND';

@@ -13,6 +13,7 @@ import { createHealthRouter } from './routes/health.js';
 import { createMeRouter } from './routes/me.js';
 import { createOrganisationsRouter } from './routes/organisations.js';
 import { createProjectsRouter } from './routes/projects.js';
+import { createSourcesRouter } from './routes/sources.js';
 
 export interface AppOptions {
   env: ServerEnvironment;
@@ -75,6 +76,7 @@ export function createApp(options: AppOptions): Express {
     apiV1Router.use('/me', createMeRouter(pool));
     apiV1Router.use('/organisations', createOrganisationsRouter(pool));
     apiV1Router.use('/projects', createProjectsRouter(pool));
+    apiV1Router.use(createSourcesRouter(pool));
   }
 
   app.use('/api/v1', apiV1Router);

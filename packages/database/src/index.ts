@@ -277,3 +277,68 @@ export async function requestCancelJob(
 ): Promise<void> {
   await callMutation<void>(db, 'request_cancel_job', [actorId, jobId]);
 }
+
+// ─── Source Ingestion & Access Mutations ─────────────────────────────────────
+
+export interface ImportSourceParams {
+  actorId: string;
+  projectId: string;
+  title: string;
+  kind: string;
+  visibility: string;
+  content: string;
+  contentSha256: string;
+  originalUrl?: string | null;
+  authorLabel?: string | null;
+  eventAt?: string | null;
+  chunks?: unknown[];
+  grantUserIds?: string[];
+  replacesSourceId?: string | null;
+}
+
+export async function importSource(
+  db: pg.Pool | pg.PoolClient,
+  params: ImportSourceParams
+): Promise<string> {
+  return callMutation<string>(db, 'import_source', [
+    params.actorId,
+    params.projectId,
+    params.title,
+    params.kind,
+    params.visibility,
+    params.content,
+    params.contentSha256,
+    params.originalUrl ?? null,
+    params.authorLabel ?? null,
+    params.eventAt ?? null,
+    JSON.stringify(params.chunks ?? []),
+    params.grantUserIds ?? [],
+    params.replacesSourceId ?? null,
+  ]);
+}
+
+export async function setSourceAccess(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  sourceId: string,
+  visibility: string,
+  grantUserIds: string[] = []
+): Promise<void> {
+  await callMutation<void>(db, 'set_source_access', [
+    actorId,
+    projectId,
+    sourceId,
+    visibility,
+    grantUserIds,
+  ]);
+}
+
+export async function archiveSource(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  sourceId: string
+): Promise<void> {
+  await callMutation<void>(db, 'archive_source', [actorId, projectId, sourceId]);
+}

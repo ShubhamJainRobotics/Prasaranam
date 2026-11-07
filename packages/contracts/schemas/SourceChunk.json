@@ -1,0 +1,76 @@
+{
+  "$ref": "#/definitions/SourceChunk",
+  "definitions": {
+    "SourceChunk": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sourceId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recordRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authorLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "eventAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "originalUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "startOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endOffset": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sourceId",
+        "projectId",
+        "ordinal",
+        "recordRef",
+        "authorLabel",
+        "eventAt",
+        "originalUrl",
+        "startOffset",
+        "endOffset",
+        "content"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

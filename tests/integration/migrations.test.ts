@@ -18,7 +18,7 @@ describe('Database Migrations and Schema', () => {
     const res = await pool.query(
       'SELECT version, name FROM supabase_migrations.schema_migrations ORDER BY version ASC;'
     );
-    expect(res.rows.length).toBe(17);
+    expect(res.rows.length).toBe(19);
     const names = res.rows.map((r) => r.name);
     expect(names).toContain('baseline_schema');
     expect(names).toContain('app_private_schema');
@@ -36,6 +36,8 @@ describe('Database Migrations and Schema', () => {
     expect(names).toContain('mutation_functions');
     expect(names).toContain('trigger_active_org_membership');
     expect(names).toContain('last_owner_protection');
+    expect(names).toContain('source_ingestion_functions');
+    expect(names).toContain('fix_source_ingestion_audit_calls');
   });
 
   it('creates all expected public application tables', async () => {

@@ -1,0 +1,118 @@
+{
+  "$ref": "#/definitions/SourceSummary",
+  "definitions": {
+    "SourceSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "text",
+            "markdown",
+            "messages",
+            "issues",
+            "reviewer_context"
+          ]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "project",
+            "restricted"
+          ]
+        },
+        "originalUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authorLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "eventAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contentSha256": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "lineageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "processingStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "processing",
+            "ready",
+            "failed"
+          ]
+        },
+        "processingErrorCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "archivedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdBy": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "chunkCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "title",
+        "kind",
+        "visibility",
+        "originalUrl",
+        "authorLabel",
+        "eventAt",
+        "contentSha256",
+        "revision",
+        "lineageId",
+        "processingStatus",
+        "processingErrorCode",
+        "archivedAt",
+        "createdBy",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

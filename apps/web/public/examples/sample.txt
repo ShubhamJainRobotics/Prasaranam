@@ -1,0 +1,6 @@
+Project Handover Notes: Ledger Infrastructure
+
+Initial proposal to use MongoDB for transaction storage was rejected during design review on 2026-03-02 due to compliance audit risks.
+PostgreSQL 16 was approved with strict transactional schema.
+
+Open Blocker: Sandbox API credentials for the test environment have not been provisioned. Contact DevSecOps to obtain access before running e2e tests.

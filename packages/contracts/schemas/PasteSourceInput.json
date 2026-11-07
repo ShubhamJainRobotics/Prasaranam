@@ -1,0 +1,66 @@
+{
+  "$ref": "#/definitions/PasteSourceInput",
+  "definitions": {
+    "PasteSourceInput": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "text",
+            "markdown"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5242880
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "project",
+            "restricted"
+          ],
+          "default": "project"
+        },
+        "grantUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "originalUrl": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "authorLabel": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "eventAt": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+        },
+        "replacesSourceId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "title",
+        "kind",
+        "content"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

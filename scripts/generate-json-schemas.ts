@@ -41,6 +41,18 @@ const targetSchemas: Record<string, any> = {
   UpdateProjectInput: contracts.updateProjectSchema,
   AddProjectMemberInput: contracts.addProjectMemberSchema,
   UpdateProjectMemberInput: contracts.updateProjectMemberSchema,
+  SourceKind: contracts.SourceKindSchema,
+  SourceVisibility: contracts.SourceVisibilitySchema,
+  SourceProcessingStatus: contracts.SourceProcessingStatusSchema,
+  MessageRecord: contracts.MessageRecordSchema,
+  MessagesEnvelope: contracts.MessagesEnvelopeSchema,
+  IssueRecord: contracts.IssueRecordSchema,
+  IssuesEnvelope: contracts.IssuesEnvelopeSchema,
+  PasteSourceInput: contracts.PasteSourceInputSchema,
+  SetSourceAccess: contracts.SetSourceAccessSchema,
+  SourceChunk: contracts.SourceChunkSchema,
+  SourceSummary: contracts.SourceSummarySchema,
+  SourceDetail: contracts.SourceDetailSchema,
 };
 
 for (const [name, schema] of Object.entries(targetSchemas)) {

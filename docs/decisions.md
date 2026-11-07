@@ -112,7 +112,19 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: What should the schema requirement be for `updateProjectMemberSchema`?
   - **Choice**: Define both `role` and `active` as optional (`z.object({ role: ProjectRoleSchema.optional(), active: z.boolean().optional() })`), symmetrical with `updateOrgMemberSchema`.
   - **Reason**: Enables clean member deactivation without re-specifying role, and role promotion/demotion without toggling active status.
+- **Date**: 2026-11-07
+  - **Question**: Who is authorised to supply `replaces_source_id` during source import?
+  - **Choice**: Project `owner` only.
+  - **Reason**: Re-importing with `replaces_source_id` archives the existing source version and increments the project access epoch. Section 2A.2 line 79 restricts source archival to project owners. Following Rule 5, the safer, more restrictive reading was implemented.
+- **Date**: 2026-11-07
+  - **Question**: How should multi-file uploads name individual sources when a form title is supplied?
+  - **Choice**: With exactly one file, the form title applies; with several files, each source title is its file's basename.
+  - **Reason**: SPEC Section 2A.7 explicitly mandates this rule.
+- **Date**: 2026-11-07
+  - **Question**: How should `audit_events` be inserted in source ingestion functions?
+  - **Choice**: Use `app_private.write_audit_event(organisation_id, project_id, actor_id, action, entity_type, entity_id, metadata)` with `entity_type` and `entity_id` columns.
+  - **Reason**: Baseline schema in Section 10 defined `entity_type` and `entity_id` (not `resource_type`/`resource_id`). Using the established `app_private.write_audit_event` helper standardizes audit persistence.
 
 ## Spec issues
 
-- None identified in Phase 0, Phase 1, Phase 2, or Phase 3. All constraints followed the safer, more restrictive reading.
+- **Section 2A.2 line 79 vs Replace-by-Revision**: The specification notes that contributors can import sources, but also states that replace-by-revision archives the prior source version. Since archiving sources requires the `owner` role, replace-by-revision was restricted to project owners to prevent privilege escalation (archiving sources without owner permission).

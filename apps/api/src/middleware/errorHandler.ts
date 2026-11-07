@@ -24,7 +24,12 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
     return;
   }
 
-  if (err.type === 'entity.too.large' || err.status === 413) {
+  if (
+    err.type === 'entity.too.large' ||
+    err.status === 413 ||
+    err.code === 'LIMIT_FILE_SIZE' ||
+    err.code === 'LIMIT_FILE_COUNT'
+  ) {
     const envelope: ErrorEnvelope = {
       error: {
         code: 'PAYLOAD_TOO_LARGE',
@@ -34,6 +39,33 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
       requestId,
     };
     res.status(413).json(envelope);
+    return;
+  }
+
+  if (err.name === 'MulterError') {
+    const envelope: ErrorEnvelope = {
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: err.message || 'File upload error.',
+        details: [],
+      },
+      requestId,
+    };
+    res.status(422).json(envelope);
+    return;
+  }
+
+  if (err.name === 'IngestionError') {
+    const statusCode = err.status || 422;
+    const envelope: ErrorEnvelope = {
+      error: {
+        code: err.code || 'VALIDATION_ERROR',
+        message: err.message,
+        details: [],
+      },
+      requestId,
+    };
+    res.status(statusCode).json(envelope);
     return;
   }
 

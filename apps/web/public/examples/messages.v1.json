@@ -1,0 +1,19 @@
+{
+  "format": "relay.messages.v1",
+  "records": [
+    {
+      "id": "msg-001",
+      "text": "We should use Postgres for the ledger to guarantee atomic transactions and strict consistency.",
+      "author": "Asha Rao",
+      "timestamp": "2026-03-02T10:15:00Z",
+      "url": null
+    },
+    {
+      "id": "msg-002",
+      "text": "Agreed. MongoDB does not provide the multi-table isolation guarantees required by our payment audit compliance.",
+      "author": "Devin Chen",
+      "timestamp": "2026-03-02T10:20:00Z",
+      "url": "https://chat.relay.local/thread/p-101"
+    }
+  ]
+}
