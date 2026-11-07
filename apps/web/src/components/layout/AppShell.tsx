@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Outlet, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Topbar } from './Topbar.js';
 import { Sidebar } from './Sidebar.js';
+import { DemoModeBanner } from './DemoModeBanner.js';
 import { apiFetch } from '../../lib/api.js';
 import { LoadingSkeleton } from '../ui/LoadingSkeleton.js';
 import type { OrgSummary } from '../organisation/OrganisationSwitcher.js';
@@ -99,6 +100,7 @@ export const AppShell: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] flex flex-col text-[var(--color-text)]">
+      <DemoModeBanner />
       <Topbar />
       <div className="flex flex-1">
         <Sidebar

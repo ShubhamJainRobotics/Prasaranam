@@ -21,6 +21,8 @@ import { ProjectMembersPage } from './routes/ProjectMembersPage.js';
 import { ProjectSettingsPage } from './routes/ProjectSettingsPage.js';
 import { ProjectSourcesPage } from './routes/ProjectSourcesPage.js';
 import { SourceDetailPage } from './routes/SourceDetailPage.js';
+import { ProjectKnowledgePage } from './routes/ProjectKnowledgePage.js';
+import { ProjectQuestionsPage } from './routes/ProjectQuestionsPage.js';
 import { AccountSettingsPage } from './routes/AccountSettingsPage.js';
 import { NotFoundPage } from './routes/NotFoundPage.js';
 
@@ -72,6 +74,8 @@ export const App: React.FC = () => {
                   path="projects/:projectId/sources/:sourceId"
                   element={<SourceDetailPage />}
                 />
+                <Route path="projects/:projectId/knowledge" element={<ProjectKnowledgePage />} />
+                <Route path="projects/:projectId/questions" element={<ProjectQuestionsPage />} />
                 <Route path="projects/:projectId/members" element={<ProjectMembersPage />} />
                 <Route path="projects/:projectId/settings" element={<ProjectSettingsPage />} />
                 <Route path="settings" element={<AccountSettingsPage />} />

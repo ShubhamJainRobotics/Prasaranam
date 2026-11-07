@@ -69,19 +69,12 @@ async function seed() {
   // 1. Create or retrieve users via Supabase Auth Admin
   const credentials: Record<string, { id: string; password?: string; existing: boolean }> = {};
 
-  // List existing users to avoid re-creation
-  const { data: userList, error: listErr } = await supabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 100,
-  });
-
-  if (listErr) {
-    console.error('Failed to list auth users:', listErr.message);
-    process.exit(1);
-  }
-
+  // List existing users from database to avoid re-creation
+  const userRows = await pool.query<{ id: string; email: string }>(
+    'SELECT id, email FROM auth.users;'
+  );
   const existingMap = new Map<string, string>();
-  for (const u of userList.users) {
+  for (const u of userRows.rows) {
     if (u.email) {
       existingMap.set(u.email.toLowerCase(), u.id);
     }

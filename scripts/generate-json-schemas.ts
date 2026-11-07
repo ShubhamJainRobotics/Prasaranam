@@ -53,6 +53,20 @@ const targetSchemas: Record<string, any> = {
   SourceChunk: contracts.SourceChunkSchema,
   SourceSummary: contracts.SourceSummarySchema,
   SourceDetail: contracts.SourceDetailSchema,
+  ChunkInput: contracts.ChunkInputSchema,
+  ClaimInput: contracts.ClaimInputSchema,
+  ExtractionInput: contracts.ExtractionInputSchema,
+  ExtractionOutput: contracts.ExtractionOutputSchema,
+  RelationshipInput: contracts.RelationshipInputSchema,
+  RelationshipOutput: contracts.RelationshipOutputSchema,
+  ClarificationInput: contracts.ClarificationInputSchema,
+  ClarificationOutput: contracts.ClarificationOutputSchema,
+  JobSummary: contracts.JobSummarySchema,
+  JobDetail: contracts.JobDetailSchema,
+  ClaimSummary: contracts.ClaimSummarySchema,
+  ClaimDetail: contracts.ClaimDetailSchema,
+  ClarificationQuestionSummary: contracts.ClarificationQuestionSummarySchema,
+  AiUsageSummary: contracts.AiUsageSummarySchema,
 };
 
 for (const [name, schema] of Object.entries(targetSchemas)) {

@@ -1,0 +1,102 @@
+{
+  "$ref": "#/definitions/JobDetail",
+  "definitions": {
+    "JobDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/JobDetail/properties/id"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/JobDetail/properties/id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "extract",
+            "analyze_relationships",
+            "generate_questions",
+            "generate_handover"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "progress": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastErrorCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "result": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cancelRequested": {
+          "type": "boolean"
+        },
+        "heartbeatAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "requestedBy",
+        "kind",
+        "status",
+        "progress",
+        "attempts",
+        "lastErrorCode",
+        "createdAt",
+        "updatedAt",
+        "payload",
+        "result",
+        "cancelRequested",
+        "heartbeatAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

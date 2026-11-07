@@ -1,0 +1,77 @@
+{
+  "$ref": "#/definitions/ExtractionInput",
+  "definitions": {
+    "ExtractionInput": {
+      "type": "object",
+      "properties": {
+        "projectContext": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "description"
+          ],
+          "additionalProperties": false
+        },
+        "chunks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chunkId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "sourceId": {
+                "$ref": "#/definitions/ExtractionInput/properties/chunks/items/properties/chunkId"
+              },
+              "recordRef": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "authorLabel": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "eventAt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "chunkId",
+              "sourceId",
+              "recordRef",
+              "authorLabel",
+              "eventAt",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "projectContext",
+        "chunks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

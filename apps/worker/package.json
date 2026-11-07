@@ -11,6 +11,8 @@
   "dependencies": {
     "@relay/contracts": "*",
     "@relay/database": "*",
+    "@relay/api": "*",
+    "@google/genai": "^3.0.0",
     "pg": "^8.13.3",
     "pino": "^9.6.0",
     "zod": "^3.24.2"

@@ -81,3 +81,42 @@ export type AccessMode = z.infer<typeof AccessModeSchema>;
 
 export const AiProviderSchema = z.enum(['gemini', 'fake']);
 export type AiProvider = z.infer<typeof AiProviderSchema>;
+
+export const RelationTypeSchema = z.enum(['depends_on', 'supersedes', 'contradicts', 'related_to']);
+export type RelationType = z.infer<typeof RelationTypeSchema>;
+
+export const JobKindSchema = z.enum([
+  'extract',
+  'analyze_relationships',
+  'generate_questions',
+  'generate_handover',
+]);
+export type JobKind = z.infer<typeof JobKindSchema>;
+
+export const JobStatusSchema = z.enum(['queued', 'running', 'succeeded', 'failed', 'cancelled']);
+export type JobStatus = z.infer<typeof JobStatusSchema>;
+
+export const ClarificationPrioritySchema = z.enum(['high', 'medium', 'low']);
+export type ClarificationPriority = z.infer<typeof ClarificationPrioritySchema>;
+
+export const ClarificationStatusSchema = z.enum(['open', 'answered', 'dismissed']);
+export type ClarificationStatus = z.infer<typeof ClarificationStatusSchema>;
+
+export const AiUsagePurposeSchema = z.enum([
+  'extract',
+  'analyze_relationships',
+  'generate_questions',
+  'generate_handover',
+  'answer',
+  'schema_repair',
+]);
+export type AiUsagePurpose = z.infer<typeof AiUsagePurposeSchema>;
+
+export const AiUsageOutcomeSchema = z.enum([
+  'ok',
+  'validation_failed',
+  'timeout',
+  'provider_error',
+  'cancelled',
+]);
+export type AiUsageOutcome = z.infer<typeof AiUsageOutcomeSchema>;

@@ -2,6 +2,16 @@
   "name": "@relay/api",
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/app.ts",
+      "default": "./src/app.ts"
+    },
+    "./ai": {
+      "types": "./src/ai/index.ts",
+      "default": "./src/ai/index.ts"
+    }
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -b",
@@ -11,6 +21,7 @@
   "dependencies": {
     "@relay/contracts": "*",
     "@relay/database": "*",
+    "@google/genai": "^3.0.0",
     "@supabase/supabase-js": "^2.49.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",

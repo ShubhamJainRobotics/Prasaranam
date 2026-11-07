@@ -205,6 +205,7 @@ export async function enqueueJob(
 export interface LeasedJob {
   id: string;
   project_id: string;
+  requested_by: string;
   kind: string;
   payload: unknown;
   lock_token: string;
@@ -341,4 +342,147 @@ export async function archiveSource(
   sourceId: string
 ): Promise<void> {
   await callMutation<void>(db, 'archive_source', [actorId, projectId, sourceId]);
+}
+
+// ─── Phase 5 AI Persistence & Claims Mutations ──────────────────────────────
+
+export async function persistClaims(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  jobId: string,
+  claims: unknown[],
+  accessEpoch: number | string
+): Promise<{ inserted: number; existing: number }> {
+  return callMutation<{ inserted: number; existing: number }>(db, 'persist_claims', [
+    actorId,
+    projectId,
+    jobId,
+    JSON.stringify(claims),
+    accessEpoch,
+  ]);
+}
+
+export async function persistRelationships(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  jobId: string,
+  relationships: unknown[],
+  conflicts: unknown[],
+  accessEpoch: number | string
+): Promise<{ relationships: number; conflicts: number }> {
+  return callMutation<{ relationships: number; conflicts: number }>(db, 'persist_relationships', [
+    actorId,
+    projectId,
+    jobId,
+    JSON.stringify(relationships),
+    JSON.stringify(conflicts),
+    accessEpoch,
+  ]);
+}
+
+export async function persistQuestions(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  jobId: string,
+  questions: unknown[],
+  createdFor: string,
+  accessEpoch: number | string
+): Promise<{ inserted: number }> {
+  return callMutation<{ inserted: number }>(db, 'persist_questions', [
+    actorId,
+    projectId,
+    jobId,
+    JSON.stringify(questions),
+    createdFor,
+    accessEpoch,
+  ]);
+}
+
+export async function recordAiUsage(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string,
+  jobId: string | null,
+  purpose: string,
+  modelName: string,
+  promptVersion: string,
+  inputTokens: number | null,
+  outputTokens: number | null,
+  latencyMs: number,
+  outcome: string
+): Promise<string> {
+  return callMutation<string>(db, 'record_ai_usage', [
+    actorId,
+    projectId,
+    jobId,
+    purpose,
+    modelName,
+    promptVersion,
+    inputTokens,
+    outputTokens,
+    latencyMs,
+    outcome,
+  ]);
+}
+
+export async function reviewClaim(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  claimId: string,
+  reviewState: string
+): Promise<{ claimId: string; reviewState: string }> {
+  return callMutation<{ claimId: string; reviewState: string }>(db, 'review_claim', [
+    actorId,
+    claimId,
+    reviewState,
+  ]);
+}
+
+export async function setClaimOwner(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  claimId: string,
+  ownerUserId: string | null
+): Promise<{ claimId: string; ownerUserId: string | null }> {
+  return callMutation<{ claimId: string; ownerUserId: string | null }>(db, 'set_claim_owner', [
+    actorId,
+    claimId,
+    ownerUserId,
+  ]);
+}
+
+export async function flagClaim(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  claimId: string,
+  reason: string,
+  newEvidenceState: string
+): Promise<{ flagId: string; claimId: string; evidenceState: string }> {
+  return callMutation<{
+    flagId: string;
+    claimId: string;
+    evidenceState: string;
+  }>(db, 'flag_claim', [actorId, claimId, reason, newEvidenceState]);
+}
+
+export async function dismissQuestion(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  questionId: string
+): Promise<{ questionId: string; status: string }> {
+  return callMutation<{ questionId: string; status: string }>(db, 'dismiss_question', [
+    actorId,
+    questionId,
+  ]);
+}
+
+export async function retryJob(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  jobId: string
+): Promise<{ jobId: string; status: string }> {
+  return callMutation<{ jobId: string; status: string }>(db, 'retry_job', [actorId, jobId]);
 }

@@ -3,7 +3,11 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import { serverEnvironmentSchema } from '@relay/contracts';
 import { createDbPool, closeDbPool, type DbPool } from '@relay/database';
+import { RelayWorker } from './worker.js';
 import { pino } from 'pino';
+
+export * from './worker.js';
+export * from './leasing/index.js';
 
 const envCandidates = [
   path.resolve(process.cwd(), '.env'),
@@ -29,17 +33,19 @@ const env = parsedEnv.data;
 const logger = pino({ level: env.LOG_LEVEL });
 
 let pool: DbPool | undefined;
+let worker: RelayWorker | undefined;
+
 if (env.DATABASE_URL) {
   pool = createDbPool(env.DATABASE_URL);
+  worker = new RelayWorker(pool, env);
+  worker.start();
 }
-
-logger.info(
-  { nodeEnv: env.NODE_ENV, concurrency: env.WORKER_CONCURRENCY },
-  'Relay background worker started'
-);
 
 async function shutdown(signal: string) {
   logger.info({ signal }, 'Shutting down Relay background worker...');
+  if (worker) {
+    await worker.stop();
+  }
   if (pool) {
     await closeDbPool(pool);
   }

@@ -1,6 +1,7 @@
 # Phase 4 Report: Ingestion and Evidence
 
 ## 1. Implemented
+
 - **Ingestion Engine (`apps/api/src/ingestion`)**:
   - Strict UTF-8 decoding (`TextDecoder('utf-8', { fatal: true })`), single leading BOM stripping (`\uFEFF`), newline normalisation (`\r\n` / `\r` to `\n`), rejection of NUL and forbidden C0 control characters, and strict rejection of binary content.
   - Zero-based Unicode code-point offset handling (`[...str].length`) across JavaScript and PostgreSQL, tested against emoji (`👍`, `🎉`, `👩‍💻`), combining marks (`e\u0301`), and non-Latin scripts (Arabic, Devanagari, Japanese).
@@ -38,6 +39,7 @@
   - Seeds synthetic "Payments Infrastructure" project with database proposal, approved ADR, sandbox credentials blocker, ownerless task, conflicting Friday/Monday statements, completed task, task dependency, malicious prompt injection attempt, and restricted budget note.
 
 ## 2. Commands Run
+
 - `npx supabase migration up`: PASSED (Applied `20261107100018_source_ingestion_functions.sql` and `20261107100019_fix_source_ingestion_audit_calls.sql`).
 - `npm run demo:seed`: PASSED (Synthetic identities, payments project, and 9 synthetic sources created idempotently).
 - `npm run schemas:generate`: PASSED (Generated 46 JSON schemas in `packages/contracts/schemas`).
@@ -52,17 +54,20 @@
 - `npm run build`: PASSED (All workspaces built cleanly; production web bundle contains no secrets).
 
 ## 3. Exit Criteria
+
 - **Inspectable imports**: MET (`tests/integration/sources-routes.test.ts` imports plain text, markdown, messages, issues, and downloadable example files; `GET /sources/:id` and `GET /sources/:id/chunks` return full metadata and chunk records).
 - **Exact highlighting**: MET (`tests/e2e/sources.spec.ts` verifies interactive chunk highlighting in browser; `apps/api/test/ingestion.test.ts` validates zero-based code-point offset matching with emoji, combining marks, and non-Latin scripts).
 - **Restricted metadata hidden**: MET (`tests/security/sources-security.test.ts` proves that ungranted project members receive 404 for restricted sources, restricted sources are excluded from project listings, and counts exclude inaccessible sources).
 
 ## 4. Decisions and Spec Issues Recorded
+
 - **Replace-by-revision permissions**: Re-importing with `replaces_source_id` archives the prior source version and increments the project access epoch. Per Section 2A.2 line 79, source archival requires project owner role; following Rule 5, replace-by-revision is restricted to project owners to prevent privilege escalation.
 - **Audit event schema alignment**: Corrected column references in `import_source`, `set_source_access`, and `archive_source` to use `app_private.write_audit_event` with `entity_type` and `entity_id` columns, matching `public.audit_events`.
 - **Title inheritance**: With single file uploads, form title applies if provided; with multi-file uploads, each source title defaults to its file basename per Section 2A.7.
 - Recorded in `docs/decisions.md` under Decisions and Spec Issues.
 
 ## 5. Known Limitations
+
 - Initial release supports file uploads (`.txt`, `.md`, `.json`) and pasted text; live Slack, GitHub, Jira, or Notion direct integrations are not enabled.
 - External URLs supplied with imports are stored purely as metadata strings and are never fetched by the server.
 - Relationships and conflicts analysis over ingested evidence will be executed in Phase 5.

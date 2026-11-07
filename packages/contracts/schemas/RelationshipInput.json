@@ -1,0 +1,116 @@
+{
+  "$ref": "#/definitions/RelationshipInput",
+  "definitions": {
+    "RelationshipInput": {
+      "type": "object",
+      "properties": {
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "decision",
+                  "proposal",
+                  "task",
+                  "blocker",
+                  "risk",
+                  "dependency",
+                  "responsibility",
+                  "contact",
+                  "open_question"
+                ]
+              },
+              "statement": {
+                "type": "string"
+              },
+              "workState": {
+                "type": "string",
+                "enum": [
+                  "proposed",
+                  "open",
+                  "in_progress",
+                  "blocked",
+                  "completed",
+                  "cancelled",
+                  "superseded",
+                  "unknown"
+                ]
+              },
+              "evidenceState": {
+                "type": "string",
+                "enum": [
+                  "supported",
+                  "corroborated",
+                  "needs_confirmation",
+                  "conflicting",
+                  "unknown"
+                ]
+              },
+              "ownerLabel": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "observedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "quote": {
+                      "type": "string"
+                    },
+                    "sourceTitle": {
+                      "type": "string"
+                    },
+                    "recordRef": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "quote",
+                    "sourceTitle",
+                    "recordRef"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "claimId",
+              "kind",
+              "statement",
+              "workState",
+              "evidenceState",
+              "ownerLabel",
+              "observedAt",
+              "evidence"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "claims"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

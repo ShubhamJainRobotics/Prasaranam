@@ -1,0 +1,117 @@
+{
+  "$ref": "#/definitions/ClaimSummary",
+  "definitions": {
+    "ClaimSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/ClaimSummary/properties/id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "decision",
+            "proposal",
+            "task",
+            "blocker",
+            "risk",
+            "dependency",
+            "responsibility",
+            "contact",
+            "open_question"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        },
+        "workState": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "open",
+            "in_progress",
+            "blocked",
+            "completed",
+            "cancelled",
+            "superseded",
+            "unknown"
+          ]
+        },
+        "evidenceState": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "corroborated",
+            "needs_confirmation",
+            "conflicting",
+            "unknown"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "ownerUserId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ClaimSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ownerLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ownerDisplayName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidenceCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "kind",
+        "statement",
+        "workState",
+        "evidenceState",
+        "reviewState",
+        "ownerUserId",
+        "ownerLabel",
+        "ownerDisplayName",
+        "observedAt",
+        "evidenceCount",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

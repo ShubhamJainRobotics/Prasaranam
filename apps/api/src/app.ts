@@ -14,6 +14,9 @@ import { createMeRouter } from './routes/me.js';
 import { createOrganisationsRouter } from './routes/organisations.js';
 import { createProjectsRouter } from './routes/projects.js';
 import { createSourcesRouter } from './routes/sources.js';
+import { createJobsRouter } from './routes/jobs.js';
+import { createClaimsRouter } from './routes/claims.js';
+import { createQuestionsRouter } from './routes/questions.js';
 
 export interface AppOptions {
   env: ServerEnvironment;
@@ -77,6 +80,9 @@ export function createApp(options: AppOptions): Express {
     apiV1Router.use('/organisations', createOrganisationsRouter(pool));
     apiV1Router.use('/projects', createProjectsRouter(pool));
     apiV1Router.use(createSourcesRouter(pool));
+    apiV1Router.use(createJobsRouter(pool));
+    apiV1Router.use(createClaimsRouter(pool));
+    apiV1Router.use(createQuestionsRouter(pool));
   }
 
   app.use('/api/v1', apiV1Router);

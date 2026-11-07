@@ -124,7 +124,31 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: How should `audit_events` be inserted in source ingestion functions?
   - **Choice**: Use `app_private.write_audit_event(organisation_id, project_id, actor_id, action, entity_type, entity_id, metadata)` with `entity_type` and `entity_id` columns.
   - **Reason**: Baseline schema in Section 10 defined `entity_type` and `entity_id` (not `resource_type`/`resource_id`). Using the established `app_private.write_audit_event` helper standardizes audit persistence.
+- **Date**: 2026-11-07
+  - **Question**: What are the exact method names and structured-output configuration fields in `@google/genai` (v3.0.0) for the Gemini adapter?
+  - **Choice**: Verified against `node_modules/@google/genai/dist/genai.d.ts`:
+    - Class initialization: `new GoogleGenAI({ apiKey: serverEnvironment.GEMINI_API_KEY })`.
+    - Model listing: `ai.models.list()`, returning `Promise<Pager<types.Model>>` which implements `AsyncIterable<types.Model>`, inspecting `model.name` and `model.supportedActions` (must include `'generateContent'`).
+    - Generation call: `ai.models.generateContent({ model, contents, config })`.
+    - Configuration fields in `GenerateContentConfig`: `systemInstruction` (string), `responseMimeType: 'application/json'`, `responseSchema` (OpenAPI 3.0 schema projection) or `responseJsonSchema` (JSON schema object), `temperature: number`, `maxOutputTokens: number`, `abortSignal: AbortSignal`.
+    - Tool parameter rule: Never pass `tools` or `toolConfig` (omitted entirely to prevent code execution or function calling).
+    - Response parsing: `response.text` for candidate text output.
+    - Usage token metadata: `response.usageMetadata.promptTokenCount` (input tokens), `response.usageMetadata.candidatesTokenCount` (output tokens), and `response.usageMetadata.totalTokenCount`.
+  - **Reason**: SPEC Phase 5 step 1 and Section 13 require verifying the installed SDK type definitions directly rather than guessing symbol or option names.
+- **Date**: 2026-11-07
+  - **Question**: How should `ai_usage` associate token usage and quota metrics when background worker executes leased jobs?
+  - **Choice**: Include `requested_by uuid` in the return table of `app_private.lease_job(integer)`.
+  - **Reason**: `public.ai_usage` requires `user_id uuid not null references auth.users(id)` and `project_id uuid not null`. When the worker executes leased jobs, it attributes usage to the requesting user who enqueued the job.
+- **Date**: 2026-11-07
+  - **Question**: What columns must be populated when inserting into `public.claim_flags`?
+  - **Choice**: Include `project_id` in `insert into public.claim_flags` within `app_private.flag_claim`.
+  - **Reason**: `public.claim_flags` requires `project_id uuid not null` with composite foreign key `(claim_id, project_id) references public.claims(id, project_id)`.
+- **Date**: 2026-11-07
+  - **Question**: How should job enqueue endpoints handle payload mismatch conflicts?
+  - **Choice**: In `POST /projects/:id/extractions` and `POST /projects/:id/questions/generate`, catch `IDEMPOTENCY_CONFLICT` raised by `app_private.enqueue_job` and return HTTP 422 with `code: 'IDEMPOTENCY_PAYLOAD_MISMATCH'`.
+  - **Reason**: Follows Section 2A.10 item 2 and Section 2A.11 item 4 idempotency requirements.
 
 ## Spec issues
 
 - **Section 2A.2 line 79 vs Replace-by-Revision**: The specification notes that contributors can import sources, but also states that replace-by-revision archives the prior source version. Since archiving sources requires the `owner` role, replace-by-revision was restricted to project owners to prevent privilege escalation (archiving sources without owner permission).
+- **Leased Job Return Columns**: SPEC Section 2A.11 mentions `lease_job` returns job fields for execution. Because `public.ai_usage` requires `user_id` to log AI token consumption and latency per Section 10, `requested_by` was explicitly returned from `app_private.lease_job` to satisfy the database foreign key invariant without additional queries.

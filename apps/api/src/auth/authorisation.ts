@@ -13,7 +13,13 @@ export type Action =
   | 'PROJECT_IMPORT_SOURCES'
   | 'PROJECT_VIEW_SOURCES'
   | 'SOURCE_MANAGE_ACCESS'
-  | 'SOURCE_ARCHIVE';
+  | 'SOURCE_ARCHIVE'
+  | 'PROJECT_TRIGGER_EXTRACTION'
+  | 'PROJECT_TRIGGER_QUESTIONS'
+  | 'PROJECT_VIEW_CLAIMS'
+  | 'PROJECT_MANAGE_CLAIMS'
+  | 'PROJECT_VIEW_QUESTIONS'
+  | 'PROJECT_VIEW_JOBS';
 
 export interface AuthorisationContext {
   orgId?: string;
@@ -155,6 +161,39 @@ export async function authorizeAction(
       return 'ALLOWED';
     }
     return 'FORBIDDEN';
+  }
+
+  // Phase 5: Claims, Questions, Extractions, Jobs
+  if (
+    action === 'PROJECT_TRIGGER_EXTRACTION' ||
+    action === 'PROJECT_TRIGGER_QUESTIONS' ||
+    action === 'PROJECT_VIEW_CLAIMS' ||
+    action === 'PROJECT_MANAGE_CLAIMS' ||
+    action === 'PROJECT_VIEW_QUESTIONS' ||
+    action === 'PROJECT_VIEW_JOBS'
+  ) {
+    if (!projectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(projectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    if (action === 'PROJECT_VIEW_CLAIMS' || action === 'PROJECT_VIEW_QUESTIONS') {
+      return 'ALLOWED';
+    }
+
+    if (
+      action === 'PROJECT_TRIGGER_EXTRACTION' ||
+      action === 'PROJECT_TRIGGER_QUESTIONS' ||
+      action === 'PROJECT_MANAGE_CLAIMS' ||
+      action === 'PROJECT_VIEW_JOBS'
+    ) {
+      if (projectMembership.role === 'owner' || projectMembership.role === 'reviewer') {
+        return 'ALLOWED';
+      }
+      return 'FORBIDDEN';
+    }
   }
 
   return 'NOT_FOUND';

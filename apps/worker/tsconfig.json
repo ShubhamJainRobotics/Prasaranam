@@ -4,6 +4,10 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "references": [{ "path": "../../packages/contracts" }, { "path": "../../packages/database" }],
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/database" },
+    { "path": "../api" }
+  ],
   "include": ["src/**/*"]
 }

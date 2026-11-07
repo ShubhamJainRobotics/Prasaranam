@@ -1,0 +1,100 @@
+{
+  "$ref": "#/definitions/AiUsageSummary",
+  "definitions": {
+    "AiUsageSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/AiUsageSummary/properties/id"
+        },
+        "userId": {
+          "$ref": "#/definitions/AiUsageSummary/properties/id"
+        },
+        "jobId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AiUsageSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "extract",
+            "analyze_relationships",
+            "generate_questions",
+            "generate_handover",
+            "answer",
+            "schema_repair"
+          ]
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "promptVersion": {
+          "type": "string"
+        },
+        "inputTokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outputTokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "validation_failed",
+            "timeout",
+            "provider_error",
+            "cancelled"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "userId",
+        "jobId",
+        "purpose",
+        "modelName",
+        "promptVersion",
+        "inputTokens",
+        "outputTokens",
+        "latencyMs",
+        "outcome",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,86 @@
+{
+  "$ref": "#/definitions/RelationshipOutput",
+  "definitions": {
+    "RelationshipOutput": {
+      "type": "object",
+      "properties": {
+        "relationships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fromClaimId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "toClaimId": {
+                "$ref": "#/definitions/RelationshipOutput/properties/relationships/items/properties/fromClaimId"
+              },
+              "relation": {
+                "type": "string",
+                "enum": [
+                  "depends_on",
+                  "supersedes",
+                  "contradicts",
+                  "related_to"
+                ]
+              },
+              "explanation": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "fromClaimId",
+              "toClaimId",
+              "relation",
+              "explanation"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 200
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RelationshipOutput/properties/relationships/items/properties/fromClaimId"
+                },
+                "minItems": 2,
+                "maxItems": 10
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "clarificationQuestion": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "claimIds",
+              "description",
+              "clarificationQuestion"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 50
+        }
+      },
+      "required": [
+        "relationships",
+        "conflicts"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,135 @@
+{
+  "$ref": "#/definitions/ClarificationQuestionSummary",
+  "definitions": {
+    "ClarificationQuestionSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/ClarificationQuestionSummary/properties/id"
+        },
+        "createdFor": {
+          "$ref": "#/definitions/ClarificationQuestionSummary/properties/id"
+        },
+        "createdForDisplayName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "answered",
+            "dismissed"
+          ]
+        },
+        "answerSourceId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ClarificationQuestionSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "answeredBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ClarificationQuestionSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "answeredByDisplayName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "answeredAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relatedClaims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/ClarificationQuestionSummary/properties/id"
+              },
+              "statement": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "decision",
+                  "proposal",
+                  "task",
+                  "blocker",
+                  "risk",
+                  "dependency",
+                  "responsibility",
+                  "contact",
+                  "open_question"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "statement",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "createdFor",
+        "createdForDisplayName",
+        "question",
+        "reason",
+        "priority",
+        "status",
+        "answerSourceId",
+        "answeredBy",
+        "answeredByDisplayName",
+        "answeredAt",
+        "relatedClaims",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
