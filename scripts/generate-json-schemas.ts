@@ -67,6 +67,22 @@ const targetSchemas: Record<string, any> = {
   ClaimDetail: contracts.ClaimDetailSchema,
   ClarificationQuestionSummary: contracts.ClarificationQuestionSummarySchema,
   AiUsageSummary: contracts.AiUsageSummarySchema,
+  HandoverStatus: contracts.HandoverStatusSchema,
+  ReviewAction: contracts.ReviewActionSchema,
+  HandoverConfiguration: contracts.HandoverConfigurationSchema,
+  CreateHandoverInput: contracts.CreateHandoverInputSchema,
+  UpdateHandoverItem: contracts.UpdateHandoverItemSchema,
+  AddItemFromClaims: contracts.AddItemFromClaimsSchema,
+  AttachClaims: contracts.AttachClaimsSchema,
+  FlagHandoverItem: contracts.FlagHandoverItemSchema,
+  AddReviewerContext: contracts.AddReviewerContextSchema,
+  ApproveHandover: contracts.ApproveHandoverSchema,
+  HandoverItem: contracts.HandoverItemSchema,
+  HandoverSummary: contracts.HandoverSummarySchema,
+  HandoverDetail: contracts.HandoverDetailSchema,
+  ReviewRecord: contracts.ReviewRecordSchema,
+  HandoverInput: contracts.HandoverInputSchema,
+  HandoverOutput: contracts.HandoverOutputSchema,
 };
 
 for (const [name, schema] of Object.entries(targetSchemas)) {

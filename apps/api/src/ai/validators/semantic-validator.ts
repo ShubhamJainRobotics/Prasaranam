@@ -5,6 +5,9 @@ import type {
   WorkState,
   RelationshipItem,
   ConflictItem,
+  HandoverOutput,
+  HandoverConfiguration,
+  HandoverSectionKey,
 } from '@relay/contracts';
 
 export interface ValidatedEvidenceEntry {
@@ -278,4 +281,153 @@ export function validateRelationships(
   }
 
   return { validRelationships, validConflicts };
+}
+
+export interface ValidatedHandoverItem {
+  section: HandoverSectionKey;
+  ordinal: number;
+  text: string;
+  itemKind: 'fact' | 'suggestion' | 'unknown';
+  evidenceState: EvidenceState;
+  claimIds: string[];
+}
+
+export interface ValidatedHandoverResult {
+  valid: boolean;
+  title: string;
+  items: ValidatedHandoverItem[];
+  errors: string[];
+}
+
+/**
+ * Validates handover generation output semantically per SPEC Sections 15.3, 2A.4, 2A.5, and 2A.13:
+ * - No unrequested or duplicate sections.
+ * - Per-section item ceilings based on detailLevel (concise: 8, standard: 15, detailed: 30).
+ * - If includeProposedNextActions is false, forbid any suggestion items.
+ * - Facts and suggestions require valid supplied claim IDs.
+ * - Unknown items describe missing info without claiming facts.
+ * - Every cited claim ID must have been supplied in the input context.
+ * - Derives item evidenceState as the weakest among cited claims (clamped to model's if lower).
+ * - Rejects uncited executive summaries.
+ */
+export function validateHandoverOutput(
+  output: HandoverOutput,
+  suppliedClaimsMap: Map<string, { evidenceState: EvidenceState }>,
+  config: HandoverConfiguration
+): ValidatedHandoverResult {
+  const errors: string[] = [];
+  const validItems: ValidatedHandoverItem[] = [];
+
+  const requestedSections = new Set<string>(config.includedSections);
+  const seenSections = new Set<string>();
+
+  // Determine section ceiling
+  const ceiling =
+    config.detailLevel === 'concise' ? 8 : config.detailLevel === 'detailed' ? 30 : 15;
+
+  for (const sec of output.sections) {
+    if (!requestedSections.has(sec.key)) {
+      errors.push(`Unrequested section "${sec.key}" returned by model`);
+      continue;
+    }
+
+    if (seenSections.has(sec.key)) {
+      errors.push(`Duplicate section "${sec.key}" returned by model`);
+      continue;
+    }
+    seenSections.add(sec.key);
+
+    let ordinal = 0;
+    if (sec.items.length > ceiling) {
+      errors.push(
+        `Section "${sec.key}" exceeds detail ceiling of ${ceiling} items (got ${sec.items.length})`
+      );
+      continue;
+    }
+    const sectionItems = sec.items;
+
+    for (const item of sectionItems) {
+      const text = item.text.trim();
+      if (!text) continue;
+
+      // Suggestion rule: forbidden if includeProposedNextActions is false
+      if (item.itemKind === 'suggestion' && !config.includeProposedNextActions) {
+        errors.push(
+          `Suggestion item forbidden when includeProposedNextActions is false: "${text}"`
+        );
+        continue;
+      }
+
+      // Check citations against supplied claims
+      const validClaimIds: string[] = [];
+      let minStrength = 4; // 4: corroborated, 3: supported, 2: needs_confirmation, 1: conflicting
+
+      for (const cid of item.claimIds) {
+        const claimInfo = suppliedClaimsMap.get(cid);
+        if (!claimInfo) {
+          // Model hallucinated or fabricated an out-of-scope claim ID
+          errors.push(`Item cites unsupplied claim ID: ${cid}`);
+          continue;
+        }
+        validClaimIds.push(cid);
+
+        const strength = EVIDENCE_STATE_RANKS[claimInfo.evidenceState] ?? 1;
+        if (strength < minStrength) {
+          minStrength = strength;
+        }
+      }
+
+      // Facts and suggestions must have valid supporting claims
+      if (
+        (item.itemKind === 'fact' || item.itemKind === 'suggestion') &&
+        validClaimIds.length === 0
+      ) {
+        errors.push(
+          `${item.itemKind.toUpperCase()} item missing valid evidence citations: "${text}"`
+        );
+        continue;
+      }
+
+      // Unknown items cannot assert claims
+      if (item.itemKind === 'unknown' && validClaimIds.length > 0) {
+        // Unknown items may omit claims, but cannot assert claims
+        validClaimIds.length = 0;
+      }
+
+      // Calculate weakest derived evidence state
+      let derivedEvidenceState: EvidenceState = 'unknown';
+      if (validClaimIds.length > 0) {
+        if (minStrength === 1) derivedEvidenceState = 'conflicting';
+        else if (minStrength === 2) derivedEvidenceState = 'needs_confirmation';
+        else if (minStrength === 3) derivedEvidenceState = 'supported';
+        else derivedEvidenceState = 'corroborated';
+      }
+
+      // Model may lower evidence state, but never raise it
+      const modelRank = EVIDENCE_STATE_RANKS[item.evidenceState] ?? 0;
+      const derivedRank = EVIDENCE_STATE_RANKS[derivedEvidenceState] ?? 0;
+      if (modelRank < derivedRank && item.evidenceState !== 'unknown') {
+        derivedEvidenceState = item.evidenceState;
+      }
+
+      validItems.push({
+        section: sec.key,
+        ordinal: ordinal++,
+        text,
+        itemKind: item.itemKind,
+        evidenceState: derivedEvidenceState,
+        claimIds: validClaimIds,
+      });
+    }
+  }
+
+  // Reject empty results or if critical errors occurred
+  const valid = errors.length === 0 && validItems.length > 0;
+
+  return {
+    valid,
+    title: output.title.trim() || config.title,
+    items: validItems,
+    errors,
+  };
 }

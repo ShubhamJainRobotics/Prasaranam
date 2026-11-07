@@ -1,0 +1,54 @@
+{
+  "$ref": "#/definitions/AddItemFromClaims",
+  "definitions": {
+    "AddItemFromClaims": {
+      "type": "object",
+      "properties": {
+        "section": {
+          "type": "string",
+          "enum": [
+            "snapshot",
+            "decisions",
+            "work_in_progress",
+            "owners_contacts",
+            "risks_dependencies",
+            "open_questions",
+            "next_actions"
+          ]
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "itemKind": {
+          "type": "string",
+          "enum": [
+            "fact",
+            "suggestion",
+            "unknown"
+          ]
+        },
+        "claimIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "required": [
+        "section",
+        "text",
+        "itemKind",
+        "claimIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

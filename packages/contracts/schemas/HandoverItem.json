@@ -1,0 +1,153 @@
+{
+  "$ref": "#/definitions/HandoverItem",
+  "definitions": {
+    "HandoverItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "handoverId": {
+          "$ref": "#/definitions/HandoverItem/properties/id"
+        },
+        "projectId": {
+          "$ref": "#/definitions/HandoverItem/properties/id"
+        },
+        "section": {
+          "type": "string",
+          "enum": [
+            "snapshot",
+            "decisions",
+            "work_in_progress",
+            "owners_contacts",
+            "risks_dependencies",
+            "open_questions",
+            "next_actions"
+          ]
+        },
+        "ordinal": {
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        },
+        "itemKind": {
+          "type": "string",
+          "enum": [
+            "fact",
+            "suggestion",
+            "unknown"
+          ]
+        },
+        "evidenceState": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "corroborated",
+            "needs_confirmation",
+            "conflicting",
+            "unknown"
+          ]
+        },
+        "reviewState": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "originalText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "editedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverItem/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "editedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rowVersion": {
+          "type": "integer"
+        },
+        "claimIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HandoverItem/properties/id"
+          }
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "$ref": "#/definitions/HandoverItem/properties/id"
+              },
+              "statement": {
+                "type": "string"
+              },
+              "evidenceState": {
+                "$ref": "#/definitions/HandoverItem/properties/evidenceState"
+              },
+              "quote": {
+                "type": "string"
+              },
+              "sourceTitle": {
+                "type": "string"
+              },
+              "chunkId": {
+                "$ref": "#/definitions/HandoverItem/properties/id"
+              },
+              "quoteStart": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quoteEnd": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "claimId",
+              "statement",
+              "evidenceState"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "handoverId",
+        "projectId",
+        "section",
+        "ordinal",
+        "text",
+        "itemKind",
+        "evidenceState",
+        "reviewState",
+        "originalText",
+        "editedBy",
+        "editedAt",
+        "rowVersion",
+        "claimIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

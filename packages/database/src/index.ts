@@ -486,3 +486,242 @@ export async function retryJob(
 ): Promise<{ jobId: string; status: string }> {
   return callMutation<{ jobId: string; status: string }>(db, 'retry_job', [actorId, jobId]);
 }
+
+// ─── Phase 6: Handover Mutations ─────────────────────────────────────────────
+
+export interface CreateHandoverDraftInput {
+  actorId: string;
+  projectId: string;
+  recipientId: string;
+  departingUserId?: string | null;
+  title: string;
+  configuration: Record<string, unknown>;
+  modelName: string;
+  promptVersion: string;
+  expectedAccessEpoch: number | string;
+  items: Array<{
+    section: string;
+    ordinal: number;
+    text: string;
+    itemKind: string;
+    claimIds: string[];
+    evidenceState?: string;
+  }>;
+}
+
+export async function createHandoverDraftFromGeneration(
+  db: pg.Pool | pg.PoolClient,
+  input: CreateHandoverDraftInput
+): Promise<{ handoverId: string; version: number; rowVersion: number }> {
+  return callMutation<{ handoverId: string; version: number; rowVersion: number }>(
+    db,
+    'create_handover_draft_from_generation',
+    [
+      input.actorId,
+      input.projectId,
+      input.recipientId,
+      input.departingUserId ?? null,
+      input.title,
+      JSON.stringify(input.configuration),
+      input.modelName,
+      input.promptVersion,
+      input.expectedAccessEpoch,
+      JSON.stringify(input.items),
+    ]
+  );
+}
+
+export interface UpdateHandoverItemInput {
+  actorId: string;
+  handoverId: string;
+  itemId: string;
+  expectedRowVersion: number;
+  reviewState?: string | null;
+  text?: string | null;
+  comment?: string | null;
+}
+
+export async function updateHandoverItem(
+  db: pg.Pool | pg.PoolClient,
+  input: UpdateHandoverItemInput
+): Promise<{
+  itemId: string;
+  rowVersion: number;
+  reviewState: string;
+  text: string;
+  originalText: string | null;
+}> {
+  return callMutation<{
+    itemId: string;
+    rowVersion: number;
+    reviewState: string;
+    text: string;
+    originalText: string | null;
+  }>(db, 'update_item', [
+    input.actorId,
+    input.handoverId,
+    input.itemId,
+    input.expectedRowVersion,
+    input.reviewState ?? null,
+    input.text ?? null,
+    input.comment ?? null,
+  ]);
+}
+
+export interface AddItemFromClaimsInput {
+  actorId: string;
+  handoverId: string;
+  section: string;
+  ordinal?: number | null;
+  text: string;
+  itemKind: string;
+  claimIds: string[];
+}
+
+export async function addItemFromClaims(
+  db: pg.Pool | pg.PoolClient,
+  input: AddItemFromClaimsInput
+): Promise<{
+  itemId: string;
+  handoverId: string;
+  section: string;
+  ordinal: number;
+  itemKind: string;
+  evidenceState: string;
+  reviewState: string;
+  rowVersion: number;
+}> {
+  return callMutation<{
+    itemId: string;
+    handoverId: string;
+    section: string;
+    ordinal: number;
+    itemKind: string;
+    evidenceState: string;
+    reviewState: string;
+    rowVersion: number;
+  }>(db, 'add_item_from_claims', [
+    input.actorId,
+    input.handoverId,
+    input.section,
+    input.ordinal ?? null,
+    input.text,
+    input.itemKind,
+    input.claimIds,
+  ]);
+}
+
+export interface AttachClaimsInput {
+  actorId: string;
+  handoverId: string;
+  itemId: string;
+  claimIds: string[];
+}
+
+export async function attachClaims(
+  db: pg.Pool | pg.PoolClient,
+  input: AttachClaimsInput
+): Promise<{ itemId: string; evidenceState: string; rowVersion: number }> {
+  return callMutation<{ itemId: string; evidenceState: string; rowVersion: number }>(
+    db,
+    'attach_claims',
+    [input.actorId, input.handoverId, input.itemId, input.claimIds]
+  );
+}
+
+export interface FlagHandoverItemInput {
+  actorId: string;
+  handoverId: string;
+  itemId: string;
+  reason: string;
+  comment?: string | null;
+}
+
+export async function flagHandoverItem(
+  db: pg.Pool | pg.PoolClient,
+  input: FlagHandoverItemInput
+): Promise<{ itemId: string; evidenceState: string; rowVersion: number }> {
+  return callMutation<{ itemId: string; evidenceState: string; rowVersion: number }>(
+    db,
+    'flag_item',
+    [input.actorId, input.handoverId, input.itemId, input.reason, input.comment ?? null]
+  );
+}
+
+export interface AddReviewerContextInput {
+  actorId: string;
+  handoverId: string;
+  title: string;
+  content: string;
+  format: 'text' | 'markdown';
+  visibility: 'project' | 'restricted';
+  grantUserIds?: string[];
+}
+
+export async function addReviewerContext(
+  db: pg.Pool | pg.PoolClient,
+  input: AddReviewerContextInput
+): Promise<{ sourceId: string; jobId: string }> {
+  return callMutation<{ sourceId: string; jobId: string }>(db, 'add_reviewer_context', [
+    input.actorId,
+    input.handoverId,
+    input.title,
+    input.content,
+    input.format,
+    input.visibility,
+    input.grantUserIds ?? null,
+  ]);
+}
+
+export async function createRevision(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  handoverId: string
+): Promise<{ handoverId: string; version: number; rowVersion: number }> {
+  return callMutation<{ handoverId: string; version: number; rowVersion: number }>(
+    db,
+    'create_revision',
+    [actorId, handoverId]
+  );
+}
+
+export interface ApproveHandoverInput {
+  actorId: string;
+  handoverId: string;
+  confirmReviewedForRecipient: boolean;
+  comment?: string | null;
+}
+
+export async function approveHandover(
+  db: pg.Pool | pg.PoolClient,
+  input: ApproveHandoverInput
+): Promise<{
+  handoverId: string;
+  status: string;
+  approvedAccessEpoch: number | string;
+  approvedAt: string;
+}> {
+  return callMutation<{
+    handoverId: string;
+    status: string;
+    approvedAccessEpoch: number | string;
+    approvedAt: string;
+  }>(db, 'approve_handover', [
+    input.actorId,
+    input.handoverId,
+    input.confirmReviewedForRecipient,
+    input.comment ?? null,
+  ]);
+}
+
+export async function shareHandover(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  handoverId: string
+): Promise<{ handoverId: string; status: string; sharedAt: string }> {
+  return callMutation<{ handoverId: string; status: string; sharedAt: string }>(
+    db,
+    'share_handover',
+    [actorId, handoverId]
+  );
+}

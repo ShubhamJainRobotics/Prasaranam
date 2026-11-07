@@ -100,3 +100,22 @@ export async function apiFetchPaginated<T>(
 
   return body as PaginatedResult<T>;
 }
+
+export const api = {
+  get: <T = unknown>(endpoint: string, options?: RequestInit) =>
+    apiFetch<T>(endpoint, { ...options, method: 'GET' }),
+  post: <T = unknown>(endpoint: string, data?: unknown, options?: RequestInit) =>
+    apiFetch<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: data !== undefined ? JSON.stringify(data) : undefined,
+    }),
+  patch: <T = unknown>(endpoint: string, data?: unknown, options?: RequestInit) =>
+    apiFetch<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: data !== undefined ? JSON.stringify(data) : undefined,
+    }),
+  delete: <T = unknown>(endpoint: string, options?: RequestInit) =>
+    apiFetch<T>(endpoint, { ...options, method: 'DELETE' }),
+};

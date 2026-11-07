@@ -1,0 +1,146 @@
+{
+  "$ref": "#/definitions/HandoverSummary",
+  "definitions": {
+    "HandoverSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/HandoverSummary/properties/id"
+        },
+        "rootId": {
+          "$ref": "#/definitions/HandoverSummary/properties/id"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "recipientId": {
+          "$ref": "#/definitions/HandoverSummary/properties/id"
+        },
+        "recipientName": {
+          "type": "string"
+        },
+        "departingUserId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "departingUserName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdBy": {
+          "$ref": "#/definitions/HandoverSummary/properties/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "approved",
+            "shared",
+            "stale",
+            "superseded"
+          ]
+        },
+        "generatedAccessEpoch": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "approvedAccessEpoch": {
+          "anyOf": [
+            {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approvedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approvedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sharedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sharedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverSummary/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowVersion": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "itemCount": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "rootId",
+        "version",
+        "title",
+        "recipientId",
+        "departingUserId",
+        "createdBy",
+        "status",
+        "generatedAccessEpoch",
+        "approvedAccessEpoch",
+        "approvedBy",
+        "approvedAt",
+        "sharedAt",
+        "sharedBy",
+        "rowVersion",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/AddReviewerContext",
+  "definitions": {
+    "AddReviewerContext": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "text",
+            "markdown"
+          ]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "project",
+            "restricted"
+          ]
+        },
+        "grantUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "content",
+        "format",
+        "visibility"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

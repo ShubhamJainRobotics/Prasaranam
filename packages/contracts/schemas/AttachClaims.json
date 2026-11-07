@@ -1,0 +1,23 @@
+{
+  "$ref": "#/definitions/AttachClaims",
+  "definitions": {
+    "AttachClaims": {
+      "type": "object",
+      "properties": {
+        "claimIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "claimIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

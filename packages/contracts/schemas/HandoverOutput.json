@@ -1,0 +1,100 @@
+{
+  "$ref": "#/definitions/HandoverOutput",
+  "definitions": {
+    "HandoverOutput": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "enum": [
+                  "snapshot",
+                  "decisions",
+                  "work_in_progress",
+                  "owners_contacts",
+                  "risks_dependencies",
+                  "open_questions",
+                  "next_actions"
+                ]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "localId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4000
+                    },
+                    "itemKind": {
+                      "type": "string",
+                      "enum": [
+                        "fact",
+                        "suggestion",
+                        "unknown"
+                      ]
+                    },
+                    "evidenceState": {
+                      "type": "string",
+                      "enum": [
+                        "supported",
+                        "corroborated",
+                        "needs_confirmation",
+                        "conflicting",
+                        "unknown"
+                      ]
+                    },
+                    "claimIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "maxItems": 20
+                    }
+                  },
+                  "required": [
+                    "localId",
+                    "text",
+                    "itemKind",
+                    "evidenceState",
+                    "claimIds"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 30
+              }
+            },
+            "required": [
+              "key",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 7
+        }
+      },
+      "required": [
+        "title",
+        "sections"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

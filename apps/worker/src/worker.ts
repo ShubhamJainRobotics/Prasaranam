@@ -5,6 +5,7 @@ import { LeaseManager } from './leasing/index.js';
 import { handleExtractJob } from './handlers/extract.js';
 import { handleAnalyzeRelationshipsJob } from './handlers/relationships.js';
 import { handleGenerateQuestionsJob } from './handlers/questions.js';
+import { handleGenerateHandoverJob } from './handlers/handover.js';
 import { pino } from 'pino';
 
 const logger = pino({ name: 'relay-worker' });
@@ -120,6 +121,14 @@ export class RelayWorker {
         );
       } else if (job.kind === 'generate_questions') {
         result = await handleGenerateQuestionsJob(
+          this.pool,
+          this.env,
+          this.aiProvider,
+          job,
+          checkCancellation
+        );
+      } else if (job.kind === 'generate_handover') {
+        result = await handleGenerateHandoverJob(
           this.pool,
           this.env,
           this.aiProvider,

@@ -1,0 +1,157 @@
+{
+  "$ref": "#/definitions/HandoverConfiguration",
+  "definitions": {
+    "HandoverConfiguration": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "recipientId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "departingUserId": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "not": {}
+                },
+                {
+                  "$ref": "#/definitions/HandoverConfiguration/properties/recipientId"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dateRange": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "not": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "not": {}
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "to": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "not": {}
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "includedSections": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "snapshot",
+              "decisions",
+              "work_in_progress",
+              "owners_contacts",
+              "risks_dependencies",
+              "open_questions",
+              "next_actions"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 7
+        },
+        "detailLevel": {
+          "type": "string",
+          "enum": [
+            "concise",
+            "standard",
+            "detailed"
+          ]
+        },
+        "priorityFocus": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "not": {}
+                },
+                {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "includeCompletedWork": {
+          "type": "boolean"
+        },
+        "includeProposedNextActions": {
+          "type": "boolean"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "professional",
+            "plain_language"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "recipientId",
+        "includedSections",
+        "detailLevel",
+        "includeCompletedWork",
+        "includeProposedNextActions",
+        "tone"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

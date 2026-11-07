@@ -8,6 +8,10 @@ import type {
   ClarificationInput,
   ClarificationOutput,
   ExtractionOutputClaim,
+  HandoverInput,
+  HandoverOutput,
+  HandoverOutputItem,
+  HandoverOutputSection,
 } from '@relay/contracts';
 
 const logger = pino({ name: 'fake-deterministic-provider' });
@@ -18,7 +22,13 @@ export type FakeAdversarialMode =
   | 'altered_quote'
   | 'out_of_batch_chunk'
   | 'injected_instruction'
-  | 'superseded_work_state';
+  | 'superseded_work_state'
+  | 'fabricated_claim_id'
+  | 'fact_without_claim'
+  | 'suggestion_without_claim'
+  | 'unrequested_section'
+  | 'exceed_item_ceiling'
+  | 'uncited_executive_summary';
 
 let currentAdversarialMode: FakeAdversarialMode = 'none';
 
@@ -68,6 +78,14 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
     } else if (payload && typeof payload === 'object' && 'openQuestions' in payload) {
       // Clarification Questions Task
       resultValue = this.generateClarifications(payload as ClarificationInput);
+    } else if (
+      payload &&
+      typeof payload === 'object' &&
+      'recipient' in payload &&
+      'configuration' in payload
+    ) {
+      // Handover Generation Task
+      resultValue = this.generateHandover(payload as HandoverInput);
     } else if (payload && typeof payload === 'object' && 'claims' in payload) {
       // Relationship Analysis Task
       resultValue = this.analyzeRelationships(payload as RelationshipInput);
@@ -374,5 +392,196 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
     }
 
     return { questions };
+  }
+
+  private generateHandover(input: HandoverInput): HandoverOutput {
+    const config = input.configuration;
+    const sections: HandoverOutputSection[] = [];
+    const claims = input.claims;
+
+    // Check adversarial modes
+    const isFabricatedClaim = currentAdversarialMode === 'fabricated_claim_id';
+    const isFactWithoutClaim = currentAdversarialMode === 'fact_without_claim';
+    const isSuggestionWithoutClaim = currentAdversarialMode === 'suggestion_without_claim';
+    const isUnrequestedSection = currentAdversarialMode === 'unrequested_section';
+    const isExceedCeiling = currentAdversarialMode === 'exceed_item_ceiling';
+
+    const ceiling = isExceedCeiling
+      ? 40
+      : config.detailLevel === 'concise'
+        ? 8
+        : config.detailLevel === 'detailed'
+          ? 30
+          : 15;
+
+    for (const secKey of config.includedSections) {
+      const items: HandoverOutputItem[] = [];
+      let itemOrdinal = 1;
+
+      if (secKey === 'snapshot') {
+        const primaryDecision = claims.find((c) => c.claimType === 'decision');
+        const primaryTask = claims.find((c) => c.claimType === 'task');
+
+        if (primaryDecision) {
+          items.push({
+            localId: `item-snap-${itemOrdinal++}`,
+            text: `Core architecture adopted: ${primaryDecision.statement}`,
+            itemKind: isFactWithoutClaim ? 'fact' : 'fact',
+            evidenceState: primaryDecision.evidenceState,
+            claimIds: isFactWithoutClaim
+              ? []
+              : isFabricatedClaim
+                ? ['00000000-0000-0000-0000-000000000000']
+                : [primaryDecision.id],
+          });
+        }
+        if (primaryTask) {
+          items.push({
+            localId: `item-snap-${itemOrdinal++}`,
+            text: `Active work stream: ${primaryTask.statement}`,
+            itemKind: 'fact',
+            evidenceState: primaryTask.evidenceState,
+            claimIds: [primaryTask.id],
+          });
+        }
+        if (items.length === 0) {
+          items.push({
+            localId: `item-snap-${itemOrdinal++}`,
+            text: `Project handover initiated for recipient ${input.recipient.displayName}.`,
+            itemKind: 'unknown',
+            evidenceState: 'unknown',
+            claimIds: [],
+          });
+        }
+      } else if (secKey === 'decisions') {
+        const decisionClaims = claims.filter((c) => c.claimType === 'decision');
+        for (const c of decisionClaims) {
+          if (items.length >= ceiling) break;
+          items.push({
+            localId: `item-dec-${itemOrdinal++}`,
+            text: c.statement,
+            itemKind: 'fact',
+            evidenceState: c.evidenceState,
+            claimIds: [c.id],
+          });
+        }
+      } else if (secKey === 'work_in_progress') {
+        const taskClaims = claims.filter(
+          (c) => c.claimType === 'task' || c.workState === 'open' || c.workState === 'in_progress'
+        );
+        for (const c of taskClaims) {
+          if (items.length >= ceiling) break;
+          items.push({
+            localId: `item-wip-${itemOrdinal++}`,
+            text: c.statement,
+            itemKind: 'fact',
+            evidenceState: c.evidenceState,
+            claimIds: [c.id],
+          });
+        }
+      } else if (secKey === 'owners_contacts') {
+        const ownerClaims = claims.filter((c) => c.ownerLabel != null);
+        for (const c of ownerClaims) {
+          if (items.length >= ceiling) break;
+          items.push({
+            localId: `item-own-${itemOrdinal++}`,
+            text: `${c.ownerLabel} is associated with: ${c.statement}`,
+            itemKind: 'fact',
+            evidenceState: c.evidenceState,
+            claimIds: [c.id],
+          });
+        }
+      } else if (secKey === 'risks_dependencies') {
+        const riskClaims = claims.filter(
+          (c) => c.claimType === 'risk' || c.claimType === 'blocker' || c.claimType === 'dependency'
+        );
+        for (const c of riskClaims) {
+          if (items.length >= ceiling) break;
+          items.push({
+            localId: `item-risk-${itemOrdinal++}`,
+            text: c.statement,
+            itemKind: 'fact',
+            evidenceState: c.evidenceState,
+            claimIds: [c.id],
+          });
+        }
+      } else if (secKey === 'open_questions') {
+        const questionClaims = claims.filter((c) => c.claimType === 'open_question');
+        for (const c of questionClaims) {
+          if (items.length >= ceiling) break;
+          items.push({
+            localId: `item-q-${itemOrdinal++}`,
+            text: c.statement,
+            itemKind: 'unknown',
+            evidenceState: 'unknown',
+            claimIds: [],
+          });
+        }
+        if (items.length === 0) {
+          items.push({
+            localId: `item-q-${itemOrdinal++}`,
+            text: 'No critical open questions identified in current evidence.',
+            itemKind: 'unknown',
+            evidenceState: 'unknown',
+            claimIds: [],
+          });
+        }
+      } else if (secKey === 'next_actions') {
+        if (config.includeProposedNextActions) {
+          const proposalClaims = claims.filter((c) => c.claimType === 'proposal');
+          for (const c of proposalClaims) {
+            if (items.length >= ceiling) break;
+            items.push({
+              localId: `item-next-${itemOrdinal++}`,
+              text: `Recommended follow-up: ${c.statement}`,
+              itemKind: 'suggestion',
+              evidenceState: c.evidenceState,
+              claimIds: isSuggestionWithoutClaim ? [] : [c.id],
+            });
+          }
+        }
+      }
+
+      // If ceiling exceeded mode is requested
+      if (isExceedCeiling && items.length > 0) {
+        const baseItem = items[0]!;
+        while (items.length < 40) {
+          items.push({
+            localId: `item-exceed-${items.length}`,
+            text: baseItem.text,
+            itemKind: baseItem.itemKind,
+            evidenceState: baseItem.evidenceState,
+            claimIds: [...baseItem.claimIds],
+          });
+        }
+      }
+
+      if (items.length > 0) {
+        sections.push({
+          key: secKey,
+          items,
+        });
+      }
+    }
+
+    if (isUnrequestedSection) {
+      sections.push({
+        key: 'decisions', // duplicate or unrequested
+        items: [
+          {
+            localId: 'item-unreq-1',
+            text: 'Unrequested injected section content',
+            itemKind: 'fact',
+            evidenceState: 'supported',
+            claimIds: claims.length > 0 && claims[0] ? [claims[0].id] : [],
+          },
+        ],
+      });
+    }
+
+    return {
+      title: config.title,
+      sections,
+    };
   }
 }

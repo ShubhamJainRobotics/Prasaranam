@@ -1,0 +1,71 @@
+{
+  "$ref": "#/definitions/ReviewRecord",
+  "definitions": {
+    "ReviewRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "handoverId": {
+          "$ref": "#/definitions/ReviewRecord/properties/id"
+        },
+        "itemId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReviewRecord/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reviewerId": {
+          "$ref": "#/definitions/ReviewRecord/properties/id"
+        },
+        "reviewerName": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "approve_item",
+            "reject_item",
+            "edit_item",
+            "comment",
+            "flag",
+            "add_context",
+            "create_version",
+            "approve_version",
+            "share"
+          ]
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confirmedReviewedForRecipient": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "handoverId",
+        "itemId",
+        "reviewerId",
+        "action",
+        "comment",
+        "confirmedReviewedForRecipient",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

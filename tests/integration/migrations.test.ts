@@ -18,7 +18,7 @@ describe('Database Migrations and Schema', () => {
     const res = await pool.query(
       'SELECT version, name FROM supabase_migrations.schema_migrations ORDER BY version ASC;'
     );
-    expect(res.rows.length).toBe(22);
+    expect(res.rows.length).toBe(23);
     const names = res.rows.map((r) => r.name);
     expect(names).toContain('baseline_schema');
     expect(names).toContain('app_private_schema');
@@ -41,6 +41,7 @@ describe('Database Migrations and Schema', () => {
     expect(names).toContain('phase5_ai_persistence_and_mutations');
     expect(names).toContain('lease_job_requested_by');
     expect(names).toContain('fix_flag_claim_project_id');
+    expect(names).toContain('phase6_handover_workflow');
   });
 
   it('creates all expected public application tables', async () => {
@@ -128,6 +129,15 @@ describe('Database Migrations and Schema', () => {
       'fail_job',
       'requeue_expired_jobs',
       'request_cancel_job',
+      'create_handover_draft_from_generation',
+      'update_item',
+      'add_item_from_claims',
+      'attach_claims',
+      'flag_item',
+      'add_reviewer_context',
+      'create_revision',
+      'approve_handover',
+      'share_handover',
     ];
 
     for (const h of expectedHelpers) {

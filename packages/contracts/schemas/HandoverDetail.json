@@ -1,0 +1,444 @@
+{
+  "$ref": "#/definitions/HandoverDetail",
+  "definitions": {
+    "HandoverDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/HandoverDetail/properties/id"
+        },
+        "rootId": {
+          "$ref": "#/definitions/HandoverDetail/properties/id"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "recipientId": {
+          "$ref": "#/definitions/HandoverDetail/properties/id"
+        },
+        "recipientName": {
+          "type": "string"
+        },
+        "departingUserId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverDetail/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "departingUserName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdBy": {
+          "$ref": "#/definitions/HandoverDetail/properties/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "approved",
+            "shared",
+            "stale",
+            "superseded"
+          ]
+        },
+        "generatedAccessEpoch": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "approvedAccessEpoch": {
+          "anyOf": [
+            {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approvedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverDetail/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approvedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sharedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sharedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HandoverDetail/properties/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowVersion": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "itemCount": {
+          "type": "integer"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "recipientId": {
+              "$ref": "#/definitions/HandoverDetail/properties/id"
+            },
+            "departingUserId": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "$ref": "#/definitions/HandoverDetail/properties/id"
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "dateRange": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "not": {}
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "to": {
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "not": {}
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "includedSections": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "snapshot",
+                  "decisions",
+                  "work_in_progress",
+                  "owners_contacts",
+                  "risks_dependencies",
+                  "open_questions",
+                  "next_actions"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 7
+            },
+            "detailLevel": {
+              "type": "string",
+              "enum": [
+                "concise",
+                "standard",
+                "detailed"
+              ]
+            },
+            "priorityFocus": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 1000
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "includeCompletedWork": {
+              "type": "boolean"
+            },
+            "includeProposedNextActions": {
+              "type": "boolean"
+            },
+            "tone": {
+              "type": "string",
+              "enum": [
+                "professional",
+                "plain_language"
+              ]
+            }
+          },
+          "required": [
+            "title",
+            "recipientId",
+            "includedSections",
+            "detailLevel",
+            "includeCompletedWork",
+            "includeProposedNextActions",
+            "tone"
+          ],
+          "additionalProperties": false
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/HandoverDetail/properties/id"
+              },
+              "handoverId": {
+                "$ref": "#/definitions/HandoverDetail/properties/id"
+              },
+              "projectId": {
+                "$ref": "#/definitions/HandoverDetail/properties/id"
+              },
+              "section": {
+                "$ref": "#/definitions/HandoverDetail/properties/configuration/properties/includedSections/items"
+              },
+              "ordinal": {
+                "type": "integer"
+              },
+              "text": {
+                "type": "string"
+              },
+              "itemKind": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "suggestion",
+                  "unknown"
+                ]
+              },
+              "evidenceState": {
+                "type": "string",
+                "enum": [
+                  "supported",
+                  "corroborated",
+                  "needs_confirmation",
+                  "conflicting",
+                  "unknown"
+                ]
+              },
+              "reviewState": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "approved",
+                  "rejected"
+                ]
+              },
+              "originalText": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "editedBy": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/HandoverDetail/properties/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "editedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rowVersion": {
+                "type": "integer"
+              },
+              "claimIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/HandoverDetail/properties/id"
+                }
+              },
+              "citations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "claimId": {
+                      "$ref": "#/definitions/HandoverDetail/properties/id"
+                    },
+                    "statement": {
+                      "type": "string"
+                    },
+                    "evidenceState": {
+                      "$ref": "#/definitions/HandoverDetail/properties/items/items/properties/evidenceState"
+                    },
+                    "quote": {
+                      "type": "string"
+                    },
+                    "sourceTitle": {
+                      "type": "string"
+                    },
+                    "chunkId": {
+                      "$ref": "#/definitions/HandoverDetail/properties/id"
+                    },
+                    "quoteStart": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "quoteEnd": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "claimId",
+                    "statement",
+                    "evidenceState"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "handoverId",
+              "projectId",
+              "section",
+              "ordinal",
+              "text",
+              "itemKind",
+              "evidenceState",
+              "reviewState",
+              "originalText",
+              "editedBy",
+              "editedAt",
+              "rowVersion",
+              "claimIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "isStale": {
+          "type": "boolean"
+        },
+        "reasonCode": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "rootId",
+        "version",
+        "title",
+        "recipientId",
+        "departingUserId",
+        "createdBy",
+        "status",
+        "generatedAccessEpoch",
+        "approvedAccessEpoch",
+        "approvedBy",
+        "approvedAt",
+        "sharedAt",
+        "sharedBy",
+        "rowVersion",
+        "createdAt",
+        "updatedAt",
+        "configuration",
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/FlagHandoverItem",
+  "definitions": {
+    "FlagHandoverItem": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

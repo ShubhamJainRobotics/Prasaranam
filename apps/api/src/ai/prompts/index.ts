@@ -1,4 +1,14 @@
-import type { ExtractionInput, RelationshipInput, ClarificationInput } from '@relay/contracts';
+import type {
+  ExtractionInput,
+  RelationshipInput,
+  ClarificationInput,
+  HandoverInput,
+} from '@relay/contracts';
+
+export const PROMPT_VERSION_EXTRACTION = 'extraction-v1';
+export const PROMPT_VERSION_RELATIONSHIP = 'relationship-v1';
+export const PROMPT_VERSION_CLARIFICATION = 'clarification-v1';
+export const PROMPT_VERSION_HANDOVER = 'handover-v1';
 
 export const SYSTEM_INSTRUCTION = `You are Relay, an evidence-grounded project knowledge handover assistant.
 
@@ -68,4 +78,18 @@ export function buildRelationshipPrompt(input: RelationshipInput): string {
 
 export function buildClarificationPrompt(input: ClarificationInput): string {
   return `${CLARIFICATION_TASK_INSTRUCTION}\n\n${JSON.stringify(input, null, 2)}`;
+}
+
+export const HANDOVER_TASK_INSTRUCTION = `Create an actionable handover for the specified recipient using only the
+supplied recipient-authorised claims and evidence.
+Use the requested sections and detail level.
+Each fact must reference supporting supplied claim IDs.
+Each suggestion must be labelled suggestion and reference the facts motivating it.
+Unknown items must clearly describe missing information without inventing it.
+Do not imply that a person accepted an assignment unless evidence establishes it.
+Do not include facts learned from outside this request.
+Do not flatten conflicts into a single certain conclusion.`;
+
+export function buildHandoverPrompt(input: HandoverInput): string {
+  return `${HANDOVER_TASK_INSTRUCTION}\n\n${JSON.stringify(input, null, 2)}`;
 }

@@ -19,12 +19,19 @@ export type Action =
   | 'PROJECT_VIEW_CLAIMS'
   | 'PROJECT_MANAGE_CLAIMS'
   | 'PROJECT_VIEW_QUESTIONS'
-  | 'PROJECT_VIEW_JOBS';
+  | 'PROJECT_VIEW_JOBS'
+  | 'PROJECT_VIEW_HANDOVERS'
+  | 'PROJECT_CREATE_HANDOVER'
+  | 'HANDOVER_VIEW'
+  | 'HANDOVER_REVIEW'
+  | 'HANDOVER_APPROVE'
+  | 'HANDOVER_SHARE';
 
 export interface AuthorisationContext {
   orgId?: string;
   projectId?: string;
   sourceId?: string;
+  handoverId?: string;
 }
 
 /**
@@ -188,6 +195,51 @@ export async function authorizeAction(
       action === 'PROJECT_TRIGGER_QUESTIONS' ||
       action === 'PROJECT_MANAGE_CLAIMS' ||
       action === 'PROJECT_VIEW_JOBS'
+    ) {
+      if (projectMembership.role === 'owner' || projectMembership.role === 'reviewer') {
+        return 'ALLOWED';
+      }
+      return 'FORBIDDEN';
+    }
+  }
+
+  // Phase 6: Handovers
+  if (
+    action === 'PROJECT_VIEW_HANDOVERS' ||
+    action === 'PROJECT_CREATE_HANDOVER' ||
+    action === 'HANDOVER_VIEW' ||
+    action === 'HANDOVER_REVIEW' ||
+    action === 'HANDOVER_APPROVE' ||
+    action === 'HANDOVER_SHARE'
+  ) {
+    let targetProjectId = projectId;
+
+    if (!targetProjectId && context.handoverId) {
+      const hRes = await pool.query('SELECT project_id FROM public.handovers WHERE id = $1', [
+        context.handoverId,
+      ]);
+      if (hRes.rows.length === 0) {
+        return 'NOT_FOUND';
+      }
+      targetProjectId = hRes.rows[0].project_id as string;
+    }
+
+    if (!targetProjectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(targetProjectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    if (action === 'PROJECT_VIEW_HANDOVERS' || action === 'HANDOVER_VIEW') {
+      return 'ALLOWED';
+    }
+
+    if (
+      action === 'PROJECT_CREATE_HANDOVER' ||
+      action === 'HANDOVER_REVIEW' ||
+      action === 'HANDOVER_APPROVE' ||
+      action === 'HANDOVER_SHARE'
     ) {
       if (projectMembership.role === 'owner' || projectMembership.role === 'reviewer') {
         return 'ALLOWED';

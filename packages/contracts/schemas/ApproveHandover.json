@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/ApproveHandover",
+  "definitions": {
+    "ApproveHandover": {
+      "type": "object",
+      "properties": {
+        "confirmReviewedForRecipient": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "confirmReviewedForRecipient"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

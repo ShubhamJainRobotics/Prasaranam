@@ -1,0 +1,16 @@
+{
+  "$ref": "#/definitions/HandoverStatus",
+  "definitions": {
+    "HandoverStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "shared",
+        "stale",
+        "superseded"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

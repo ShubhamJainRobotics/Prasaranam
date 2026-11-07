@@ -147,8 +147,22 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: How should job enqueue endpoints handle payload mismatch conflicts?
   - **Choice**: In `POST /projects/:id/extractions` and `POST /projects/:id/questions/generate`, catch `IDEMPOTENCY_CONFLICT` raised by `app_private.enqueue_job` and return HTTP 422 with `code: 'IDEMPOTENCY_PAYLOAD_MISMATCH'`.
   - **Reason**: Follows Section 2A.10 item 2 and Section 2A.11 item 4 idempotency requirements.
+- **Date**: 2026-11-07
+  - **Question**: How is dual-reader claim scoping enforced to prevent restricted data leaks in handovers?
+  - **Choice**: Handover generation filters claims with `app_private.can_read_claim(c.id, reviewer_id) AND app_private.can_read_claim(c.id, recipient_id)`. The database mutation `create_handover_draft_from_generation` re-verifies this condition on every cited claim inside a serialized transaction locked to the project epoch.
+  - **Reason**: SPEC Section 2A.4 item 1 and Section 2A.9 mandate that handovers must never incorporate or expose claims derived from sources inaccessible to the recipient.
+- **Date**: 2026-11-07
+  - **Question**: How are approved and shared handovers guaranteed immutable?
+  - **Choice**: Enforced at the database trigger layer via `handovers_immutability` and `handover_items_immutability`. Any direct SQL `UPDATE` or `DELETE` on `public.handovers` or `public.handover_items` for approved/shared records raises an exception even if executed by `service_role`.
+  - **Reason**: SPEC Section 2A.4 item 2 and Phase 6 exit criteria require strict immutability of approved and shared versions.
+- **Date**: 2026-11-07
+  - **Question**: What happens to previous shared versions when a new revision of a handover is shared?
+  - **Choice**: In `app_private.share_handover`, all previous versions sharing the same `root_id` with status `shared` are atomically updated to `superseded` and an audit event is logged.
+  - **Reason**: SPEC Section 2A.4 item 7 specifies that sharing supersedes older shared versions of the same root, and recipients can only access the active shared version.
 
 ## Spec issues
 
 - **Section 2A.2 line 79 vs Replace-by-Revision**: The specification notes that contributors can import sources, but also states that replace-by-revision archives the prior source version. Since archiving sources requires the `owner` role, replace-by-revision was restricted to project owners to prevent privilege escalation (archiving sources without owner permission).
 - **Leased Job Return Columns**: SPEC Section 2A.11 mentions `lease_job` returns job fields for execution. Because `public.ai_usage` requires `user_id` to log AI token consumption and latency per Section 10, `requested_by` was explicitly returned from `app_private.lease_job` to satisfy the database foreign key invariant without additional queries.
+- **Handover Approval Precondition and Attestation Mapping**: SPEC Section 2A.4 item 7 requires `confirmReviewedForRecipient = true` and 0 pending items. In `app_private.approve_handover`, pending items raise `PRECONDITION_FAILED` (HTTP 409), whereas missing reviewer attestation confirmation raises `VALIDATION_ERROR` (HTTP 422), providing clear and distinct status signals to the UI.
+- **Audit Action for Handover Approval**: `public.reviews` column uses `review_action` enum type (`approve_version`, `approve_claim`, `reject_claim`, etc.). Handover approvals insert `approve_version` into `public.reviews` and `handover.approve` into `public.audit_events`, ensuring both granular review logs and compliance audit trails.

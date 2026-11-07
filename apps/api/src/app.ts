@@ -17,6 +17,7 @@ import { createSourcesRouter } from './routes/sources.js';
 import { createJobsRouter } from './routes/jobs.js';
 import { createClaimsRouter } from './routes/claims.js';
 import { createQuestionsRouter } from './routes/questions.js';
+import { createHandoverRoutes } from './routes/handovers.js';
 
 export interface AppOptions {
   env: ServerEnvironment;
@@ -83,6 +84,7 @@ export function createApp(options: AppOptions): Express {
     apiV1Router.use(createJobsRouter(pool));
     apiV1Router.use(createClaimsRouter(pool));
     apiV1Router.use(createQuestionsRouter(pool));
+    apiV1Router.use(createHandoverRoutes(pool, env));
   }
 
   app.use('/api/v1', apiV1Router);

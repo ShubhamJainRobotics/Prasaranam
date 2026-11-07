@@ -120,3 +120,19 @@ export const AiUsageOutcomeSchema = z.enum([
   'cancelled',
 ]);
 export type AiUsageOutcome = z.infer<typeof AiUsageOutcomeSchema>;
+
+export const HandoverStatusSchema = z.enum(['draft', 'approved', 'shared', 'stale', 'superseded']);
+export type HandoverStatus = z.infer<typeof HandoverStatusSchema>;
+
+export const ReviewActionSchema = z.enum([
+  'approve_item',
+  'reject_item',
+  'edit_item',
+  'comment',
+  'flag',
+  'add_context',
+  'create_version',
+  'approve_version',
+  'share',
+]);
+export type ReviewAction = z.infer<typeof ReviewActionSchema>;
