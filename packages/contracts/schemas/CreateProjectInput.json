@@ -1,0 +1,42 @@
+{
+  "$ref": "#/definitions/CreateProjectInput",
+  "definitions": {
+    "CreateProjectInput": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 3000,
+          "default": ""
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "software_engineering",
+            "research",
+            "student_team",
+            "nonprofit_operations",
+            "business_operations",
+            "general"
+          ],
+          "default": "general"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1,
+          "default": "UTC"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

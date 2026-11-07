@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/UpdateProjectMemberInput",
+  "definitions": {
+    "UpdateProjectMemberInput": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "reviewer",
+            "contributor",
+            "recipient"
+          ]
+        },
+        "active": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

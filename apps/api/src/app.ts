@@ -8,7 +8,11 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { createLoggingMiddleware } from './middleware/logging.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { createAuthMiddleware } from './middleware/auth.js';
 import { createHealthRouter } from './routes/health.js';
+import { createMeRouter } from './routes/me.js';
+import { createOrganisationsRouter } from './routes/organisations.js';
+import { createProjectsRouter } from './routes/projects.js';
 
 export interface AppOptions {
   env: ServerEnvironment;
@@ -61,9 +65,18 @@ export function createApp(options: AppOptions): Express {
   // 7. Health routes served at the root (no /api/v1 prefix)
   app.use('/health', createHealthRouter(pool));
 
-  // 8. API v1 router
+  // 8. API v1 router with auth and workspace routes
   const apiV1Router = Router();
-  // Phase 1 provides empty base for later phases
+  const authMiddleware = createAuthMiddleware(env, pool);
+
+  apiV1Router.use(authMiddleware);
+
+  if (pool) {
+    apiV1Router.use('/me', createMeRouter(pool));
+    apiV1Router.use('/organisations', createOrganisationsRouter(pool));
+    apiV1Router.use('/projects', createProjectsRouter(pool));
+  }
+
   app.use('/api/v1', apiV1Router);
 
   // 9. 404 handler returning standard error envelope

@@ -1,0 +1,28 @@
+{
+  "$ref": "#/definitions/AddOrgMemberInput",
+  "definitions": {
+    "AddOrgMemberInput": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "admin",
+            "member"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "role"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

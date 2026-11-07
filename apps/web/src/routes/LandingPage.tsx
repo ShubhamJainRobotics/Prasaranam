@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const LandingPage: React.FC = () => {
   return (
@@ -26,8 +27,8 @@ export const LandingPage: React.FC = () => {
           </span>
         </div>
         <nav aria-label="Main Navigation">
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="px-4 py-2 rounded font-medium text-sm transition-colors focus:outline-none focus:ring-2"
             style={{
               backgroundColor: 'var(--color-surface)',
@@ -37,7 +38,7 @@ export const LandingPage: React.FC = () => {
             }}
           >
             Sign In
-          </a>
+          </Link>
         </nav>
       </header>
 
@@ -63,8 +64,8 @@ export const LandingPage: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-16">
-          <a
-            href="/register"
+          <Link
+            to="/register"
             className="px-6 py-3 rounded-md font-semibold text-base transition-colors focus:outline-none focus:ring-2 shadow-sm"
             style={{
               backgroundColor: 'var(--color-primary)',
@@ -72,9 +73,9 @@ export const LandingPage: React.FC = () => {
             }}
           >
             Get Started
-          </a>
-          <a
-            href="/login"
+          </Link>
+          <Link
+            to="/login"
             className="px-6 py-3 rounded-md font-semibold text-base transition-colors focus:outline-none focus:ring-2 border"
             style={{
               backgroundColor: 'var(--color-surface)',
@@ -82,8 +83,8 @@ export const LandingPage: React.FC = () => {
               borderColor: 'var(--color-border-strong)',
             }}
           >
-            View Demo Workspace
-          </a>
+            Sign In
+          </Link>
         </div>
 
         <section

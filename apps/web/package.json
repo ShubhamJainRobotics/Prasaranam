@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hookform/resolvers": "^4.1.3",
+    "@hookform/resolvers": "^3.10.0",
     "@relay/contracts": "*",
     "@supabase/supabase-js": "^2.49.1",
     "@tanstack/react-query": "^5.67.1",

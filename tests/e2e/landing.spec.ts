@@ -16,7 +16,7 @@ test.describe('Landing Page E2E', () => {
     const getStartedLink = page.getByRole('link', { name: 'Get Started' });
     await expect(getStartedLink).toBeVisible();
 
-    const signInLink = page.getByRole('link', { name: 'Sign In' });
+    const signInLink = page.getByRole('link', { name: 'Sign In' }).first();
     await expect(signInLink).toBeVisible();
 
     // 4. Verify three capability columns exist

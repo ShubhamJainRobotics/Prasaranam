@@ -29,6 +29,18 @@ const targetSchemas: Record<string, any> = {
   PaginationQuery: contracts.PaginationQuerySchema,
   ServerEnvironment: contracts.serverEnvironmentSchema,
   WebEnvironment: contracts.webEnvironmentSchema,
+  RegisterInput: contracts.registerSchema,
+  LoginInput: contracts.loginSchema,
+  ForgotPasswordInput: contracts.forgotPasswordSchema,
+  ResetPasswordInput: contracts.resetPasswordSchema,
+  UpdateProfileInput: contracts.updateProfileSchema,
+  CreateOrgInput: contracts.createOrgSchema,
+  AddOrgMemberInput: contracts.addOrgMemberSchema,
+  UpdateOrgMemberInput: contracts.updateOrgMemberSchema,
+  CreateProjectInput: contracts.createProjectSchema,
+  UpdateProjectInput: contracts.updateProjectSchema,
+  AddProjectMemberInput: contracts.addProjectMemberSchema,
+  UpdateProjectMemberInput: contracts.updateProjectMemberSchema,
 };
 
 for (const [name, schema] of Object.entries(targetSchemas)) {

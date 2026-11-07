@@ -92,6 +92,27 @@ Results from preflight checks run on 2026-11-07:
   - **Choice**: Use Unicode code points (characters). PostgreSQL `char_length()` and `substring(... from ... for ...)` operate on code points in a UTF-8 database. In JavaScript, code-point-aware iteration (`[...str].length`) must be used instead of UTF-16 code units (`str.length`).
   - **Reason**: SPEC Section 2A.6 item 3 explicitly requires zero-based indices in Unicode code points, not UTF-16 code units or bytes.
 
+- **Date**: 2026-11-07
+  - **Question**: Which `@hookform/resolvers` release should be used with `zod@3.x`?
+  - **Choice**: Use `@hookform/resolvers@^3.10.0` in `apps/web`.
+  - **Reason**: `@hookform/resolvers@4.x` requires `zod@4.x` type definitions. Because Relay standardizes on `zod@3.24.2` (for `zod-to-json-schema` compatibility), version `3.10.0` provides exact type alignment.
+- **Date**: 2026-11-07
+  - **Question**: How to ensure client-side web bundles never include unreferenced server schemas or variable definitions from `@relay/contracts`?
+  - **Choice**: Set `"sideEffects": false` in `packages/contracts/package.json`.
+  - **Reason**: Instructs Vite/Rollup that unused top-level schema exports (such as `serverEnvironmentSchema`) can be safely tree-shaken, ensuring no server environment keys leak into the web client bundle, complying with Security Invariant 7.
+- **Date**: 2026-11-07
+  - **Question**: How should Supabase Auth handle email confirmation redirects for the local web dev server?
+  - **Choice**: Configure `site_url = "http://127.0.0.1:5173"` and `additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]` in `supabase/config.toml`.
+  - **Reason**: GoTrue requires valid redirect allowlisting. Setting the frontend origin enables verification links in emails received via Mailpit to direct callers directly to `/auth/callback`.
+- **Date**: 2026-11-07
+  - **Question**: How should the organization overview page retrieve accessible projects for an organization?
+  - **Choice**: Expose `GET /organisations/:id/projects` enforcing Section 2A.2 rules (organization owners/admins see all projects; members see only projects where they are active members).
+  - **Reason**: Provides clean RESTful access to project summaries while maintaining Section 2A.2 tenant boundaries.
+- **Date**: 2026-11-07
+  - **Question**: What should the schema requirement be for `updateProjectMemberSchema`?
+  - **Choice**: Define both `role` and `active` as optional (`z.object({ role: ProjectRoleSchema.optional(), active: z.boolean().optional() })`), symmetrical with `updateOrgMemberSchema`.
+  - **Reason**: Enables clean member deactivation without re-specifying role, and role promotion/demotion without toggling active status.
+
 ## Spec issues
 
-- None identified in Phase 0, Phase 1, or Phase 2. All constraints followed the safer, more restrictive reading.
+- None identified in Phase 0, Phase 1, Phase 2, or Phase 3. All constraints followed the safer, more restrictive reading.
