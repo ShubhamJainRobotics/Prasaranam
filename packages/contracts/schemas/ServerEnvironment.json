@@ -1,0 +1,203 @@
+{
+  "$ref": "#/definitions/ServerEnvironment",
+  "definitions": {
+    "ServerEnvironment": {
+      "type": "object",
+      "properties": {
+        "NODE_ENV": {
+          "type": "string",
+          "enum": [
+            "development",
+            "test",
+            "production"
+          ],
+          "default": "development"
+        },
+        "PORT": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 4000
+        },
+        "APP_ORIGIN": {
+          "type": "string",
+          "default": "http://localhost:5173"
+        },
+        "CORS_ALLOWED_ORIGINS": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "default": "http://localhost:5173"
+        },
+        "SUPABASE_URL": {
+          "type": "string"
+        },
+        "SUPABASE_ANON_KEY": {
+          "type": "string"
+        },
+        "SUPABASE_SERVICE_ROLE_KEY": {
+          "type": "string"
+        },
+        "DATABASE_URL": {
+          "type": "string"
+        },
+        "GEMINI_API_KEY": {
+          "type": "string"
+        },
+        "GEMINI_MODEL": {
+          "type": "string"
+        },
+        "AI_PROVIDER": {
+          "type": "string",
+          "enum": [
+            "gemini",
+            "fake"
+          ],
+          "default": "gemini"
+        },
+        "AI_TIMEOUT_MS": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 45000
+        },
+        "AI_MAX_INPUT_TOKENS": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 1000000,
+          "default": 24000
+        },
+        "AI_MAX_OUTPUT_TOKENS": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100000,
+          "default": 6000
+        },
+        "AI_PROJECT_DAILY_TOKEN_BUDGET": {
+          "type": "integer",
+          "minimum": 1000,
+          "default": 500000
+        },
+        "AI_MAX_CONCURRENT_CALLS": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 2
+        },
+        "UPLOAD_MAX_BYTES": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 52428800,
+          "default": 5242880
+        },
+        "UPLOAD_MAX_FILES": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 10
+        },
+        "IMPORT_MAX_TOTAL_CHARACTERS": {
+          "type": "integer",
+          "minimum": 1000,
+          "default": 2000000
+        },
+        "IMPORT_MAX_RECORD_CHARACTERS": {
+          "type": "integer",
+          "minimum": 100,
+          "default": 100000
+        },
+        "IMPORT_MAX_JSON_RECORDS": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10000
+        },
+        "CHUNK_MAX_CHARACTERS": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 10000,
+          "default": 1500
+        },
+        "RATE_LIMIT_WINDOW_MS": {
+          "type": "integer",
+          "minimum": 1000,
+          "default": 60000
+        },
+        "RATE_LIMIT_MAX_REQUESTS": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 120
+        },
+        "AI_RATE_LIMIT_PER_USER_PER_HOUR": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20
+        },
+        "WORKER_POLL_INTERVAL_MS": {
+          "type": "integer",
+          "minimum": 100,
+          "default": 1500
+        },
+        "WORKER_CONCURRENCY": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 2
+        },
+        "JOB_MAX_ATTEMPTS": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 3
+        },
+        "JOB_LEASE_SECONDS": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 3600,
+          "default": 120
+        },
+        "JOB_HEARTBEAT_SECONDS": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 300,
+          "default": 30
+        },
+        "JOB_RETRY_BASE_SECONDS": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60,
+          "default": 5
+        },
+        "LOG_LEVEL": {
+          "type": "string",
+          "enum": [
+            "fatal",
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "trace",
+            "silent"
+          ],
+          "default": "info"
+        },
+        "DEMO_MODE": {
+          "type": [
+            "boolean",
+            "string"
+          ],
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

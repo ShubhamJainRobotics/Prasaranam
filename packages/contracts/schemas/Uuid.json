@@ -1,0 +1,10 @@
+{
+  "$ref": "#/definitions/Uuid",
+  "definitions": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

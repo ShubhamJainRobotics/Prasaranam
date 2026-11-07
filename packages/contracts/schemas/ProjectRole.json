@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/ProjectRole",
+  "definitions": {
+    "ProjectRole": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "reviewer",
+        "contributor",
+        "recipient"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

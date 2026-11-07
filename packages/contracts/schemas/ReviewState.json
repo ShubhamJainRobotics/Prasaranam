@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/ReviewState",
+  "definitions": {
+    "ReviewState": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

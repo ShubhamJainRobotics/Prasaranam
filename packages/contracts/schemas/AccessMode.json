@@ -1,0 +1,13 @@
+{
+  "$ref": "#/definitions/AccessMode",
+  "definitions": {
+    "AccessMode": {
+      "type": "string",
+      "enum": [
+        "project",
+        "restricted"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

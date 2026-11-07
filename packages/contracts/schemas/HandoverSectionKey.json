@@ -1,0 +1,18 @@
+{
+  "$ref": "#/definitions/HandoverSectionKey",
+  "definitions": {
+    "HandoverSectionKey": {
+      "type": "string",
+      "enum": [
+        "snapshot",
+        "decisions",
+        "work_in_progress",
+        "owners_contacts",
+        "risks_dependencies",
+        "open_questions",
+        "next_actions"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

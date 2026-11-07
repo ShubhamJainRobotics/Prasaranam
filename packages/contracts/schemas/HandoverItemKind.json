@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/HandoverItemKind",
+  "definitions": {
+    "HandoverItemKind": {
+      "type": "string",
+      "enum": [
+        "fact",
+        "suggestion",
+        "unknown"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/ErrorCode",
+  "definitions": {
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "UNAUTHORIZED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VERSION_CONFLICT",
+        "STALE_CONTEXT",
+        "REGENERATION_REQUIRED",
+        "ACCESS_VALIDATION_FAILED",
+        "LAST_OWNER",
+        "ILLEGAL_STATE",
+        "PAYLOAD_TOO_LARGE",
+        "VALIDATION_ERROR",
+        "RATE_LIMIT_EXCEEDED",
+        "QUOTA_EXCEEDED",
+        "SERVICE_UNAVAILABLE",
+        "INTERNAL_ERROR"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

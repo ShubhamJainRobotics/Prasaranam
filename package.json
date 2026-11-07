@@ -1,0 +1,47 @@
+{
+  "name": "relay",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^24.21.0",
+    "npm": "^12.1.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"api,worker,web\" -c \"blue,magenta,cyan\" \"npm run --workspace=@relay/api dev\" \"npm run --workspace=@relay/worker dev\" \"npm run --workspace=@relay/web dev\"",
+    "build": "npm run --workspaces --if-present build",
+    "typecheck": "tsc --build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:security": "vitest run --config vitest.security.config.ts",
+    "test:e2e": "playwright test",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "schemas:generate": "tsx scripts/generate-json-schemas.ts",
+    "bootstrap:local": "tsx scripts/bootstrap-local.ts",
+    "verify:env": "tsx scripts/verify-environment.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@google/genai": "^3.0.0",
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.13.9",
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.21.0",
+    "prettier": "^3.5.2",
+    "supabase": "^3.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.25.0",
+    "vitest": "^3.0.7",
+    "zod-to-json-schema": "^3.24.3"
+  }
+}

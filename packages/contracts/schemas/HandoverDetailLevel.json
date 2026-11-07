@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/HandoverDetailLevel",
+  "definitions": {
+    "HandoverDetailLevel": {
+      "type": "string",
+      "enum": [
+        "concise",
+        "standard",
+        "detailed"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

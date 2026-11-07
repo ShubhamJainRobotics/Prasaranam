@@ -1,0 +1,14 @@
+{
+  "$ref": "#/definitions/OrganisationRole",
+  "definitions": {
+    "OrganisationRole": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin",
+        "member"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

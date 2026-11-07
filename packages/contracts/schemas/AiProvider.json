@@ -1,0 +1,13 @@
+{
+  "$ref": "#/definitions/AiProvider",
+  "definitions": {
+    "AiProvider": {
+      "type": "string",
+      "enum": [
+        "gemini",
+        "fake"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

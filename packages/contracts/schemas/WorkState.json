@@ -1,0 +1,19 @@
+{
+  "$ref": "#/definitions/WorkState",
+  "definitions": {
+    "WorkState": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "open",
+        "in_progress",
+        "blocked",
+        "completed",
+        "cancelled",
+        "superseded",
+        "unknown"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

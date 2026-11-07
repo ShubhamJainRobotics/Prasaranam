@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+coverage
+playwright-report
+test-results
+supabase
+packages/contracts/schemas
+package-lock.json
+docs/SPEC.md
+AGENTS.md
+*.tsbuildinfo
+
