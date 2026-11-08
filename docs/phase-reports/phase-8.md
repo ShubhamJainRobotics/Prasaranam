@@ -1,6 +1,7 @@
 # Phase 8 Report: Hardening and Delivery
 
 ## 1. Implemented
+
 - **Automated Accessibility Testing (`tests/e2e/accessibility.spec.ts`)**: Automated Axe accessibility audits integrated into Playwright scanning all 20 main authenticated and public application pages at both Desktop (`1280x800`) and Mobile (`375x667`) viewport dimensions with zero critical, serious, or moderate WCAG violations.
 - **Accessible Form Controls and Contrast**:
   - Implemented reusable focus trap hook `apps/web/src/hooks/useFocusTrap.ts` wired into all application modal dialogs and drawers (`ConfirmDialog`, `EvidenceDrawer`, `ApprovalDialog`, `ShareDialog`, `ClaimFlagDialog`, `OwnerLinkDialog`, `ClarificationAnswerDialog`, `CreateOrgDialog`, `CreateProjectDialog`, `AddMemberDialog`, `AddProjectMemberDialog`, `ImportWizard`).
@@ -47,6 +48,7 @@
     5. Access Revocation: project access epoch is incremented; subsequent requests return `409 REGENERATION_REQUIRED`, and Q&A displays generic access change notice.
 
 ## 2. Commands run
+
 - `npm run format:check`: **PASSED** (all matched files use Prettier code style).
 - `npm run lint`: **PASSED** (ESLint passed cleanly across all workspaces with 0 errors and 0 warnings).
 - `npm run typecheck`: **PASSED** (`tsc --build` completed with 0 errors).
@@ -64,12 +66,14 @@
 - `scripts/verify-environment.ts`: **NOT RUN** with live Gemini credentials because `GEMINI_API_KEY` is not configured in the local shell environment; automated test suites executed with `fake-deterministic` provider per Section 2A.12.
 
 ## 3. Exit criteria
+
 - Tests pass: **MET** (all unit, integration, security, and e2e test suites passed: 83 unit + 63 integration + 88 security + 14 e2e suites = 248 automated tests passed).
 - Production build succeeds: **MET** (`npm run build` completed cleanly across all workspaces).
 - Browser contains no secrets: **MET** (`npm run scan:bundle` verified zero occurrences of secrets, `SERVICE_ROLE`, or `GEMINI_API_KEY` in `apps/web/dist`).
 - Limitations documented: **MET** (documented in `docs/security-test-matrix.md`, `docs/threat-model.md`, and `docs/decisions.md` that a finite automated test suite does not guarantee zero leakage).
 
 ## 4. Decisions and spec issues recorded
+
 - Recorded in `docs/decisions.md`:
   - Resolved WCAG 2.5.3 (Label in Name) by removing conflicting `aria-label` where button text node provides accessible name (`ChunkHighlighter.tsx`).
   - Resolved WCAG 2.1.1 (Keyboard Scrollable Regions) by adding focusable region semantics (`tabIndex={0}`, `role="region"`, `aria-label`) to scrollable containers (`SourceViewer.tsx`, `ChatPanel.tsx`).
@@ -79,6 +83,7 @@
   - Recorded Section 22.3 finite test suite limitation disclosure.
 
 ## 5. Known limitations
+
 - **Finite Test Suite Limitation**: In accordance with Section 22.3, a finite automated negative test suite demonstrates the presence of tested defenses and the absence of identified flaws, but does not mathematically guarantee zero leakage under arbitrary unseen multi-tenant edge cases.
 - **Simulated Provider in Test Environment**: Automated test suites and E2E demonstration journeys execute against the deterministic fake provider (`fake-deterministic`) per Section 2A.12. Verification with the live Gemini API requires setting `GEMINI_API_KEY` in the environment and running `scripts/verify-environment.ts`.
 - **In-Memory Rate Limiting**: The API rate limiter uses in-memory tracking suitable for single-node deployments and local development; multi-node distributed deployments require configuring a shared Redis store as outlined in `docs/deployment.md`.

@@ -250,6 +250,19 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
           req.user!.projectMemberships.has(projectId) &&
           ['owner', 'reviewer'].includes(req.user!.projectMemberships.get(projectId)!.role);
 
+        // Security check: only reviewers/owners or the designated recipient may view this handover
+        if (!isRecipient && !isReviewer) {
+          res.status(404).json({
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Resource not found.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
         const currentEpoch = BigInt(h.currentProjectEpoch);
         const genEpoch = BigInt(h.generated_access_epoch);
         const appEpoch = h.approved_access_epoch ? BigInt(h.approved_access_epoch) : null;

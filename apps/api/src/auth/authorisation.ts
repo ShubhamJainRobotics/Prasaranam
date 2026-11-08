@@ -220,13 +220,33 @@ export async function authorizeAction(
     let targetProjectId = projectId;
 
     if (!targetProjectId && context.handoverId) {
-      const hRes = await pool.query('SELECT project_id FROM public.handovers WHERE id = $1', [
-        context.handoverId,
-      ]);
+      const hRes = await pool.query(
+        'SELECT project_id, recipient_id FROM public.handovers WHERE id = $1',
+        [context.handoverId]
+      );
       if (hRes.rows.length === 0) {
         return 'NOT_FOUND';
       }
       targetProjectId = hRes.rows[0].project_id as string;
+      const hRecipientId = hRes.rows[0].recipient_id as string;
+
+      const projectMembership = user.projectMemberships.get(targetProjectId);
+      if (!projectMembership) {
+        return 'NOT_FOUND';
+      }
+
+      if (action === 'HANDOVER_VIEW') {
+        if (projectMembership.role === 'owner' || projectMembership.role === 'reviewer') {
+          return 'ALLOWED';
+        }
+        if (projectMembership.role === 'recipient') {
+          if (hRecipientId === user.id) {
+            return 'ALLOWED';
+          }
+          return 'NOT_FOUND';
+        }
+        return 'NOT_FOUND';
+      }
     }
 
     if (!targetProjectId) return 'NOT_FOUND';
@@ -236,7 +256,7 @@ export async function authorizeAction(
       return 'NOT_FOUND';
     }
 
-    if (action === 'PROJECT_VIEW_HANDOVERS' || action === 'HANDOVER_VIEW') {
+    if (action === 'PROJECT_VIEW_HANDOVERS') {
       return 'ALLOWED';
     }
 

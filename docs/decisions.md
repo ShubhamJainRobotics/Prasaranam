@@ -200,6 +200,10 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: How should the production bundle scanner prevent secret leakage into web clients?
   - **Choice**: Implemented `scripts/scan-bundle.ts` to recursively scan all built JavaScript, CSS, and HTML assets in `apps/web/dist` for strings `SERVICE_ROLE` and `GEMINI_API_KEY`, failing with exit code 1 if detected.
   - **Reason**: Enforces Security Invariant 7 (service-role key and Gemini key never appear in `apps/web` or client storage).
+- **Date**: 2026-11-08
+  - **Question**: How should non-designated recipients within the same project be isolated from reading each other's handovers?
+  - **Choice**: In `apps/api/src/auth/authorisation.ts` (`HANDOVER_VIEW` and `HANDOVER_EXPORT`) and `apps/api/src/routes/handovers.ts` (`GET /handovers/:id`, `GET /handovers/:id/export`, and `GET /handovers/:id/reviews`), callers with the `recipient` role in the project must match the exact `recipient_id` on the handover (`h.recipient_id === user.id`). If they do not match, return HTTP 404 `NOT_FOUND` (preventing existence probing and metadata leakage per Section 11.2 & 18.1).
+  - **Reason**: Discovered during adversarial attack pass in Phase 9. While `GET /projects/:id/handovers` filtered by `can_read_handover` (returning 0 handovers to non-target recipients), direct lookups with `HANDOVER_VIEW` did not reject other recipients in the project when `!isRecipient && !isReviewer`. Hardening authorization and route handlers closes this gap completely.
 
 ## Spec issues
 
@@ -210,3 +214,4 @@ Results from preflight checks run on 2026-11-07:
 - **`ai_usage.purpose` Naming for Q&A**: SPEC Section 15.5 references Q&A generating an answer. The database schema in Section 10 defines `ai_usage_purpose_check` with `'answer'` rather than `'qa'`. Implemented with `'answer'` to maintain database schema integrity.
 - **Recipient Access to Approved vs Shared Handovers**: SPEC Section 2A.9 item 2 specifies that handovers are visible to recipients only when status is `shared`. When a handover is merely `approved` (and not yet shared), export and view attempts by recipients return HTTP 409 `REGENERATION_REQUIRED` / inaccessible until the reviewer explicitly shares it.
 - **Section 22.3 Negative Test Suite Limitation**: In accordance with Section 22.3, a finite automated negative test suite does not guarantee zero leakage in all hypothetical edge cases. Threat modeling, defense-in-depth isolation, and rigorous continuous monitoring are detailed in `docs/threat-model.md` and `docs/operations.md`.
+- **Recipient Isolation on Project Handover Detail**: SPEC Section 2A.4 and Section 2A.9 item 2 state that shared handovers are readable only by the named recipient, but did not explicitly specify the exact HTTP status code for a recipient attempting to view another recipient's draft or approved handover within the same project. To uphold Section 11.2 and Section 18.1 (preventing existence probing and resource enumeration), the API returns HTTP 404 `NOT_FOUND` with a standard empty error envelope, matching the response returned for completely nonexistent resources.
