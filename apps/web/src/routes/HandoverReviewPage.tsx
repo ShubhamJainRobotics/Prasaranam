@@ -509,10 +509,14 @@ export const HandoverReviewPage: React.FC = () => {
 
             <form onSubmit={handleSaveNewItem} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label
+                  htmlFor="add-item-kind"
+                  className="block text-xs font-semibold uppercase text-slate-500 mb-1"
+                >
                   Item Kind
                 </label>
                 <select
+                  id="add-item-kind"
                   value={addItemKind}
                   onChange={(e) => setAddItemKind(e.target.value as any)}
                   className="w-full text-sm rounded-lg border border-slate-300 p-2.5 bg-white"
@@ -524,10 +528,14 @@ export const HandoverReviewPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label
+                  htmlFor="add-item-statement"
+                  className="block text-xs font-semibold uppercase text-slate-500 mb-1"
+                >
                   Item Statement *
                 </label>
                 <textarea
+                  id="add-item-statement"
                   rows={3}
                   value={addItemText}
                   onChange={(e) => setAddItemText(e.target.value)}
@@ -648,10 +656,14 @@ export const HandoverReviewPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                  <label
+                    htmlFor="context-visibility"
+                    className="block text-xs font-semibold uppercase text-slate-500 mb-1"
+                  >
                     Visibility Policy
                   </label>
                   <select
+                    id="context-visibility"
                     value={contextVisibility}
                     onChange={(e) => setContextVisibility(e.target.value as any)}
                     className="w-full text-xs rounded-lg border border-slate-300 p-2 bg-white"
@@ -661,10 +673,14 @@ export const HandoverReviewPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                  <label
+                    htmlFor="context-format"
+                    className="block text-xs font-semibold uppercase text-slate-500 mb-1"
+                  >
                     Format
                   </label>
                   <select
+                    id="context-format"
                     value={contextFormat}
                     onChange={(e) => setContextFormat(e.target.value as any)}
                     className="w-full text-xs rounded-lg border border-slate-300 p-2 bg-white"

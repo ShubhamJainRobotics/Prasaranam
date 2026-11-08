@@ -4,10 +4,11 @@ import type { JobSummary } from '@relay/contracts';
 interface Props {
   jobs: JobSummary[];
   onRetry: (jobId: string) => void;
+  onCancel?: (jobId: string) => void;
   onRefresh: () => void;
 }
 
-export const JobProgressPanel: React.FC<Props> = ({ jobs, onRetry, onRefresh }) => {
+export const JobProgressPanel: React.FC<Props> = ({ jobs, onRetry, onCancel, onRefresh }) => {
   if (jobs.length === 0) return null;
 
   return (
@@ -64,7 +65,7 @@ export const JobProgressPanel: React.FC<Props> = ({ jobs, onRetry, onRefresh }) 
                     {job.status}
                   </span>
                 </div>
-                <div className="text-slate-400 text-[11px]">
+                <div className="text-slate-500 text-[11px]">
                   Started: {new Date(job.createdAt).toLocaleTimeString()}
                   {job.lastErrorCode && (
                     <span className="text-rose-600 font-mono ml-2">Error: {job.lastErrorCode}</span>
@@ -77,9 +78,19 @@ export const JobProgressPanel: React.FC<Props> = ({ jobs, onRetry, onRefresh }) 
                   <button
                     type="button"
                     onClick={() => onRetry(job.id)}
-                    className="px-2.5 py-1 text-xs font-medium text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded"
+                    className="px-2.5 py-1 text-xs font-medium text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded focus:outline-none focus:ring-2 focus:ring-teal-600"
                   >
                     Retry
+                  </button>
+                )}
+                {(isRunning || isQueued) && onCancel && (
+                  <button
+                    type="button"
+                    onClick={() => onCancel(job.id)}
+                    className="px-2 py-0.5 text-[11px] font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    aria-label={`Cancel ${job.kind.replace('_', ' ')} job`}
+                  >
+                    Cancel
                   </button>
                 )}
                 {(isRunning || isQueued) && (

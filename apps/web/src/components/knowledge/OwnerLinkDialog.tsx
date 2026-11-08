@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { ClaimDetail, ClaimSummary } from '@relay/contracts';
 import { apiFetch } from '../../lib/api.js';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ProjectMember {
   userId: string;
@@ -25,6 +26,9 @@ export const OwnerLinkDialog: React.FC<Props> = ({
   onClose,
   onSubmit,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [loadingMembers, setLoadingMembers] = useState(false);
@@ -69,10 +73,20 @@ export const OwnerLinkDialog: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="owner-dialog-title"
+    >
+      <div
+        ref={dialogRef}
+        className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-semibold text-slate-900">Link Claim Owner</h3>
+          <h3 id="owner-dialog-title" className="text-base font-semibold text-slate-900">
+            Link Claim Owner
+          </h3>
           <button
             type="button"
             onClick={onClose}
@@ -104,13 +118,17 @@ export const OwnerLinkDialog: React.FC<Props> = ({
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label
+              htmlFor="member-select"
+              className="block text-xs font-semibold text-slate-700 mb-1"
+            >
               Select Active Project Member
             </label>
             {loadingMembers ? (
               <div className="text-xs text-slate-500 py-2">Loading members...</div>
             ) : (
               <select
+                id="member-select"
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
                 className="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-1 focus:ring-teal-600 bg-white"

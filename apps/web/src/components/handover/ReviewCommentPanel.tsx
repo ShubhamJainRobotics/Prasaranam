@@ -46,7 +46,7 @@ export const ReviewCommentPanel: React.FC<Props> = ({ isOpen, onClose, reviews }
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {reviews.length === 0 ? (
-              <div className="text-center py-8 text-xs text-slate-400">
+              <div className="text-center py-8 text-xs text-slate-500">
                 No review events recorded yet.
               </div>
             ) : (
@@ -59,7 +59,7 @@ export const ReviewCommentPanel: React.FC<Props> = ({ isOpen, onClose, reviews }
                     <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">
                       {r.action.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-500">
                       {new Date(r.createdAt).toLocaleString()}
                     </span>
                   </div>

@@ -151,6 +151,7 @@ export const ProjectSourcesPage: React.FC = () => {
         <div className="flex-1 min-w-[200px]">
           <input
             type="text"
+            aria-label="Search sources"
             placeholder="Search sources by title or author..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -159,8 +160,15 @@ export const ProjectSourcesPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-[var(--color-text-muted)] font-medium">Format:</label>
+          <label
+            htmlFor="source-format-filter"
+            className="text-[var(--color-text-muted)] font-medium"
+          >
+            Format:
+          </label>
           <select
+            id="source-format-filter"
+            aria-label="Filter by format"
             value={filterKind}
             onChange={(e) => setFilterKind(e.target.value)}
             className="px-2 py-1.5 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] text-[var(--color-text)]"
@@ -175,8 +183,15 @@ export const ProjectSourcesPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-[var(--color-text-muted)] font-medium">Visibility:</label>
+          <label
+            htmlFor="source-visibility-filter"
+            className="text-[var(--color-text-muted)] font-medium"
+          >
+            Visibility:
+          </label>
           <select
+            id="source-visibility-filter"
+            aria-label="Filter by visibility"
             value={filterVisibility}
             onChange={(e) => setFilterVisibility(e.target.value)}
             className="px-2 py-1.5 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] text-[var(--color-text)]"

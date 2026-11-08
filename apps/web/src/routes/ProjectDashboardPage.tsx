@@ -4,6 +4,7 @@ import { apiFetch, RelayApiError } from '../lib/api.js';
 import { PageHeader } from '../components/ui/PageHeader.js';
 import { Breadcrumbs } from '../components/ui/Breadcrumbs.js';
 import { LoadingSkeleton } from '../components/ui/LoadingSkeleton.js';
+import { ProjectHealthSummary } from '../components/project/ProjectHealthSummary.js';
 import { NotFoundPage } from './NotFoundPage.js';
 
 interface DashboardResponse {
@@ -105,6 +106,15 @@ export const ProjectDashboardPage: React.FC = () => {
           Access Epoch: {project.accessEpoch}
         </span>
       </div>
+
+      <ProjectHealthSummary
+        memberCount={memberCount}
+        sourceCount={counts.sources}
+        claimCount={counts.claims}
+        questionCount={counts.questions}
+        handoverCount={counts.handovers}
+        accessEpoch={project.accessEpoch}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-xs">

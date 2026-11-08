@@ -117,7 +117,12 @@ export const SourceViewer: React.FC<SourceViewerProps> = ({ source, selectedChun
           </span>
         </div>
 
-        <div className="p-4 max-h-[700px] overflow-y-auto">
+        <div
+          className="p-4 max-h-[700px] overflow-y-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Canonical Content"
+        >
           <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-[var(--color-text)] select-text">
             {renderedContent}
           </pre>

@@ -122,7 +122,7 @@ export const HandoverSection: React.FC<Props> = ({
       {isExpanded && (
         <div className="space-y-3 mt-3">
           {items.length === 0 ? (
-            <div className="text-center py-6 text-xs text-slate-400 bg-white border border-dashed border-slate-200 rounded-xl">
+            <div className="text-center py-6 text-xs text-slate-500 bg-white border border-dashed border-slate-200 rounded-xl">
               No items in this section.
             </div>
           ) : (

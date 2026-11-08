@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { ClarificationQuestionSummary } from '@relay/contracts';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Props {
   question: ClarificationQuestionSummary | null;
@@ -18,6 +19,9 @@ export const ClarificationAnswerDialog: React.FC<Props> = ({
   onClose,
   onSubmit,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [answer, setAnswer] = useState('');
   const [visibility, setVisibility] = useState<'project' | 'restricted'>('restricted');
   const [submitting, setSubmitting] = useState(false);
@@ -48,6 +52,7 @@ export const ClarificationAnswerDialog: React.FC<Props> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
       <div
+        ref={dialogRef}
         role="dialog"
         aria-labelledby="answer-dialog-title"
         aria-modal="true"

@@ -1,0 +1,1210 @@
+openapi: 3.1.0
+info:
+  title: Relay API
+  version: 0.1.0
+  description: >
+    Production REST API for Relay: an evidence-grounded, permission-aware
+    knowledge-handover application with AI assistance and cryptographic verification.
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+  - url: https://api.relay.local
+    description: Production environment
+
+paths:
+  /health/live:
+    get:
+      summary: Liveness probe
+      description: Returns 200 if server process is running.
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  uptime:
+                    type: number
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      description: Returns 200 if database connection pool is healthy.
+      security: []
+      responses:
+        '200':
+          description: Service is ready
+        '503':
+          description: Database unhealthy
+
+  /api/v1/me:
+    get:
+      summary: Get current authenticated user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile and organisation memberships
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    patch:
+      summary: Update current user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/organisations:
+    get:
+      summary: List organisations caller belongs to
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of organisations
+    post:
+      summary: Create new organisation
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Organisation created
+
+  /api/v1/organisations/{id}/members:
+    get:
+      summary: List organisation members
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Members list
+    post:
+      summary: Add or invite member to organisation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [owner, admin, member]
+      responses:
+        '200':
+          description: Generic invitation status response (enumeration-resistant)
+
+  /api/v1/organisations/{id}/members/{userId}:
+    patch:
+      summary: Update organisation member role or status
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [owner, admin, member]
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Member updated
+
+  /api/v1/organisations/{id}/projects:
+    get:
+      summary: List projects in organisation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of projects
+    post:
+      summary: Create project in organisation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, domain, timezone]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                domain:
+                  type: string
+                timezone:
+                  type: string
+      responses:
+        '201':
+          description: Project created
+
+  /api/v1/projects/{id}:
+    get:
+      summary: Get project details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project details
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      summary: Update project settings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                timezone:
+                  type: string
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Project updated
+
+  /api/v1/projects/{id}/dashboard:
+    get:
+      summary: Get project dashboard metrics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dashboard metrics and accessible item counts
+
+  /api/v1/projects/{id}/members:
+    get:
+      summary: List project members
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Member list
+    post:
+      summary: Add member to project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, role]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                role:
+                  type: string
+                  enum: [owner, reviewer, contributor, recipient]
+      responses:
+        '201':
+          description: Member added
+
+  /api/v1/projects/{id}/members/{userId}:
+    patch:
+      summary: Update project member role
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [owner, reviewer, contributor, recipient]
+      responses:
+        '200':
+          description: Role updated
+
+  /api/v1/projects/{id}/jobs:
+    get:
+      summary: List asynchronous background jobs for project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of jobs
+
+  /api/v1/jobs/{id}:
+    get:
+      summary: Get background job status
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status and progress
+
+  /api/v1/jobs/{id}/retry:
+    post:
+      summary: Retry a failed background job
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job re-enqueued
+        '409':
+          description: Cannot retry running or succeeded job
+
+  /api/v1/jobs/{id}/cancel:
+    post:
+      summary: Cancel a queued or running job
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job cancelled
+
+  /api/v1/projects/{id}/sources:
+    get:
+      summary: List readable sources for project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sources list
+
+  /api/v1/projects/{id}/sources/import:
+    post:
+      summary: Import source via multipart upload or text paste
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, kind, content, visibility]
+              properties:
+                title:
+                  type: string
+                kind:
+                  type: string
+                  enum: [text, markdown, messages, issues, reviewer_context]
+                content:
+                  type: string
+                visibility:
+                  type: string
+                  enum: [project, restricted]
+                grantUserIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                visibility:
+                  type: string
+                  enum: [project, restricted]
+      responses:
+        '201':
+          description: Source imported and chunked
+
+  /api/v1/sources/{id}:
+    get:
+      summary: Get source details and canonical content
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source details
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/sources/{id}/chunks:
+    get:
+      summary: List chunks of a source
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of chunks with offsets
+
+  /api/v1/sources/{id}/access:
+    patch:
+      summary: Update source visibility and user grants
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [visibility, grantUserIds]
+              properties:
+                visibility:
+                  type: string
+                  enum: [project, restricted]
+                grantUserIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: Source access updated and epoch incremented
+
+  /api/v1/sources/{id}/archive:
+    post:
+      summary: Archive (soft delete) a source
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Source archived and epoch incremented
+
+  /api/v1/projects/{id}/extractions:
+    post:
+      summary: Trigger knowledge extraction job for unextracted sources
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Extraction job enqueued
+
+  /api/v1/projects/{id}/claims:
+    get:
+      summary: List knowledge claims for project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of claims with evidence
+
+  /api/v1/claims/{id}:
+    get:
+      summary: Get knowledge claim details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Claim details
+
+  /api/v1/claims/{id}/flags:
+    post:
+      summary: Flag a claim for confirmation or dispute
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Claim flagged
+
+  /api/v1/claims/{id}/owner:
+    patch:
+      summary: Link or reassign owner label to a project member
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type:
+                    - string
+                    - 'null'
+                  format: uuid
+      responses:
+        '200':
+          description: Owner linked
+
+  /api/v1/claims/{id}/review:
+    patch:
+      summary: Review a claim (approve or reject)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reviewState]
+              properties:
+                reviewState:
+                  type: string
+                  enum: [pending, approved, rejected]
+      responses:
+        '200':
+          description: Review state updated
+
+  /api/v1/projects/{id}/questions:
+    get:
+      summary: List clarification questions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of questions
+
+  /api/v1/projects/{id}/questions/generate:
+    post:
+      summary: Generate clarification questions via AI
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '202':
+          description: Generation job enqueued
+
+  /api/v1/questions/{id}/answer:
+    post:
+      summary: Answer clarification question with context
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer:
+                  type: string
+                visibility:
+                  type: string
+                  enum: [project, restricted]
+      responses:
+        '200':
+          description: Answer recorded and context ingested
+
+  /api/v1/questions/{id}/dismiss:
+    post:
+      summary: Dismiss a clarification question
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Question dismissed
+
+  /api/v1/projects/{id}/handovers:
+    get:
+      summary: List handovers for project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of handovers
+    post:
+      summary: Generate handover draft via AI
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                [
+                  title,
+                  recipientId,
+                  includedSections,
+                  detailLevel,
+                  includeCompletedWork,
+                  includeProposedNextActions,
+                  tone,
+                ]
+              properties:
+                title:
+                  type: string
+                recipientId:
+                  type: string
+                  format: uuid
+                departingUserId:
+                  type:
+                    - string
+                    - 'null'
+                  format: uuid
+                includedSections:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      [
+                        snapshot,
+                        decisions,
+                        work_in_progress,
+                        owners_contacts,
+                        risks_dependencies,
+                        open_questions,
+                        next_actions,
+                      ]
+                detailLevel:
+                  type: string
+                  enum: [concise, standard, detailed]
+                includeCompletedWork:
+                  type: boolean
+                includeProposedNextActions:
+                  type: boolean
+                tone:
+                  type: string
+                  enum: [professional, plain_language]
+      responses:
+        '202':
+          description: Generation job enqueued
+
+  /api/v1/handovers/{id}:
+    get:
+      summary: Get handover details and verified items
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Handover details
+
+  /api/v1/handovers/{id}/items:
+    post:
+      summary: Add custom item from claims to draft handover
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [section, kind, text, claimIds]
+              properties:
+                section:
+                  type: string
+                kind:
+                  type: string
+                  enum: [fact, suggestion, unknown]
+                text:
+                  type: string
+                claimIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: Item added
+
+  /api/v1/handovers/{id}/items/{itemId}:
+    patch:
+      summary: Update, edit, or review handover item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rowVersion]
+              properties:
+                rowVersion:
+                  type: integer
+                reviewState:
+                  type: string
+                  enum: [pending, approved, rejected]
+                text:
+                  type: string
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Item updated
+
+  /api/v1/handovers/{id}/context:
+    post:
+      summary: Add reviewer context to draft handover
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, content]
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Reviewer context added
+
+  /api/v1/handovers/{id}/versions:
+    post:
+      summary: Create new draft revision of an approved or shared handover
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: New draft revision created
+
+  /api/v1/handovers/{id}/approve:
+    post:
+      summary: Approve handover draft with reviewer attestation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmReviewedForRecipient]
+              properties:
+                confirmReviewedForRecipient:
+                  type: boolean
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Handover approved
+
+  /api/v1/handovers/{id}/share:
+    post:
+      summary: Share approved handover with recipient
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Handover shared
+
+  /api/v1/handovers/{id}/reviews:
+    get:
+      summary: Get audit review history for handover
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Review history records
+
+  /api/v1/handovers/{id}/export:
+    get:
+      summary: Export shared handover as Markdown or PDF
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [md, pdf]
+      responses:
+        '200':
+          description: Export document stream
+        '409':
+          description: Cannot export unapproved or stale handover
+
+  /api/v1/projects/{id}/conversations:
+    get:
+      summary: List user conversations in project
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Conversations list
+    post:
+      summary: Create new Q&A conversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Conversation created
+
+  /api/v1/conversations/{id}/messages:
+    get:
+      summary: List messages in conversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Messages list
+    post:
+      summary: Ask question in conversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question:
+                  type: string
+      responses:
+        '200':
+          description: Grounded answer statement with server-resolved citations
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Authentication failed or token expired
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFoundError:
+      description: Entity not found or caller lacks permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error, requestId]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+        requestId:
+          type: string

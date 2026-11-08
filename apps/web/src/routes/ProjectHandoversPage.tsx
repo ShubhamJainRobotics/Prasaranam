@@ -192,7 +192,7 @@ export const ProjectHandoversPage: React.FC = () => {
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">ID: {h.id.slice(0, 8)}...</span>
+                  <span className="text-[11px] text-slate-500">ID: {h.id.slice(0, 8)}...</span>
                   <Link
                     to={targetUrl}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-900 group"

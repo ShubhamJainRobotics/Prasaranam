@@ -88,7 +88,7 @@ export const ClaimCard: React.FC<Props> = ({ claim, onClick, onViewEvidence }) =
             ) : claim.ownerLabel ? (
               <span className="text-slate-600">{claim.ownerLabel} (unlinked)</span>
             ) : (
-              <span className="italic text-slate-400">Unassigned</span>
+              <span className="italic text-slate-500">Unassigned</span>
             )}
           </span>
         </div>
@@ -97,7 +97,7 @@ export const ClaimCard: React.FC<Props> = ({ claim, onClick, onViewEvidence }) =
           {claim.observedAt ? (
             <span>Observed: {new Date(claim.observedAt).toLocaleDateString()}</span>
           ) : (
-            <span className="italic text-slate-400">Undated</span>
+            <span className="italic text-slate-500">Undated</span>
           )}
         </div>
       </div>

@@ -94,7 +94,7 @@ test.describe('Source Ingestion & Evidence Viewer E2E', () => {
     ).toBeVisible();
 
     // 7. Click Chunk to highlight
-    const chunkCard = page.getByRole('button', { name: 'Chunk 0' });
+    const chunkCard = page.getByRole('button', { name: /Chunk #?0/ });
     await expect(chunkCard).toBeVisible();
     await chunkCard.click();
 

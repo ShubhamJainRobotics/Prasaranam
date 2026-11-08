@@ -181,8 +181,11 @@ export const HandoverConfigurationForm: React.FC<Props> = ({
       {/* Detail Level & Tone */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-1">Detail Level</label>
+          <label htmlFor="detailLevel" className="block text-sm font-semibold text-slate-900 mb-1">
+            Detail Level
+          </label>
           <select
+            id="detailLevel"
             {...register('detailLevel')}
             className="w-full text-sm rounded-lg border border-slate-300 p-2.5 bg-white focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
             disabled={loading}
@@ -194,8 +197,11 @@ export const HandoverConfigurationForm: React.FC<Props> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-1">Tone</label>
+          <label htmlFor="tone" className="block text-sm font-semibold text-slate-900 mb-1">
+            Tone
+          </label>
           <select
+            id="tone"
             {...register('tone')}
             className="w-full text-sm rounded-lg border border-slate-300 p-2.5 bg-white focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
             disabled={loading}

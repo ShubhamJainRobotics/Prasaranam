@@ -18,7 +18,7 @@ export const EvidenceCitation: React.FC<Props> = ({ evidence, onClick }) => {
         <span className="font-semibold text-slate-700 truncate" title={evidence.sourceTitle}>
           {evidence.sourceTitle}
         </span>
-        <span className="font-mono text-[10px] text-slate-400">
+        <span className="font-mono text-[10px] text-slate-500">
           [{evidence.quoteStart}, {evidence.quoteEnd})
         </span>
       </div>

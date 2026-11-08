@@ -52,7 +52,7 @@ export const HandoverReviewToolbar: React.FC<Props> = ({
               >
                 {reviewedItems} / {totalItems}
               </span>
-              <span className="text-xs text-slate-400">items reviewed</span>
+              <span className="text-xs text-slate-500">items reviewed</span>
             </div>
           </div>
         )}

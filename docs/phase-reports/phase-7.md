@@ -62,7 +62,7 @@
 ## 4. Decisions and Spec Issues Recorded
 
 - **Bundled Unicode Fonts for PDF**: Bundled Google Noto Sans (`NotoSans-Regular.ttf`, `NotoSans-Bold.ttf`) with Open Font License (`OFL.txt`) inside `apps/api/assets/fonts/` for PDFKit export to avoid host system font dependencies.
-- **FTS Query Construction**: Question keywords are tokenized, joined with ` | ` (OR) in `to_tsquery('english', ...)`, and ranked with `ts_rank` over accessible claims, balancing conversational matching with zero-match short-circuiting.
+- **FTS Query Construction**: Question keywords are tokenized, joined with `|` (OR) in `to_tsquery('english', ...)`, and ranked with `ts_rank` over accessible claims, balancing conversational matching with zero-match short-circuiting.
 - **`ai_usage.purpose` Constraint**: Aligned with database check constraint `ai_usage_purpose_check` using `purpose: 'answer'` and `outcome: 'ok'`.
 - **`callMutation` Pool vs Client**: Differentiated `pg.Pool` from `pg.PoolClient` so nested transaction operations do not call `.connect()` on active clients.
 - **Hostile Payload Defanging**: HTML tags defanged and markdown links stripped of scheme in Markdown and PDF export render pipelines.

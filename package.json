@@ -27,12 +27,16 @@
     "demo:seed": "tsx scripts/seed-demo.ts",
     "schemas:generate": "tsx scripts/generate-json-schemas.ts",
     "bootstrap:local": "tsx scripts/bootstrap-local.ts",
-    "verify:env": "tsx scripts/verify-environment.ts"
+    "verify:env": "tsx scripts/verify-environment.ts",
+    "scan:bundle": "tsx scripts/scan-bundle.ts",
+    "openapi:lint": "redocly lint --config .redocly.yaml docs/openapi.yaml"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.21.0",
     "@google/genai": "^3.0.0",
     "@playwright/test": "^1.50.1",
+    "@redocly/cli": "^2.76.0",
     "@types/node": "^22.13.9",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",

@@ -48,7 +48,6 @@ export const ChunkHighlighter: React.FC<ChunkHighlighterProps> = ({
               }`}
               role="button"
               tabIndex={0}
-              aria-label={`Chunk ${chunk.ordinal}`}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();

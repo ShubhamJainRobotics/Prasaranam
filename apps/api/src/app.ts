@@ -37,8 +37,34 @@ export function createApp(options: AppOptions): Express {
   // 2. Structured logging with redaction
   app.use(createLoggingMiddleware(env));
 
-  // 3. Security headers via Helmet
-  app.use(helmet());
+  // 3. Security headers via Helmet with strict CSP
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          baseUri: ["'self'"],
+          fontSrc: ["'self'", 'https:', 'data:'],
+          formAction: ["'self'"],
+          frameAncestors: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          objectSrc: ["'none'"],
+          scriptSrc: ["'self'"],
+          scriptSrcAttr: ["'none'"],
+          styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+          upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
+        },
+      },
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-origin' },
+      referrerPolicy: { policy: 'no-referrer' },
+      strictTransportSecurity: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    })
+  );
 
   // 4. CORS with explicit allowlist
   app.use(

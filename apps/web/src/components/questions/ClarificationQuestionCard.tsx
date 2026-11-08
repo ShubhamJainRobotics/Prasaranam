@@ -40,7 +40,7 @@ export const ClarificationQuestionCard: React.FC<Props> = ({ question, onAnswer,
           </span>
         </div>
 
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-500">
           Created for:{' '}
           <span className="font-medium text-slate-600">
             {question.createdForDisplayName || 'Team Member'}

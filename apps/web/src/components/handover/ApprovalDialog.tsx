@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ReviewerAttestation } from './ReviewerAttestation.js';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Props {
   isOpen: boolean;
@@ -16,6 +17,9 @@ export const ApprovalDialog: React.FC<Props> = ({
   recipientName,
   itemCount,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [attestationChecked, setAttestationChecked] = useState(false);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,7 +46,10 @@ export const ApprovalDialog: React.FC<Props> = ({
       aria-modal="true"
       aria-labelledby="approval-dialog-title"
     >
-      <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 overflow-hidden">
+      <div
+        ref={dialogRef}
+        className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 overflow-hidden"
+      >
         <h2 id="approval-dialog-title" className="text-lg font-semibold text-slate-900 mb-2">
           Approve Handover Draft
         </h2>

@@ -1,0 +1,11 @@
+node_modules
+.git
+.github
+.env*
+dist
+build
+coverage
+test-results
+playwright-report
+*.log
+.DS_Store

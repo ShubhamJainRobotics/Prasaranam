@@ -55,22 +55,35 @@ Every `SECURITY DEFINER` function runs with the privileges of its owner (`postgr
 
 ### Mutation Functions (Revoked from `public`, `anon`, `authenticated`; executable by `service_role` only)
 
-| Function                             | Trust Boundary & Rationale                                                                                  |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `app_private.write_audit_event`      | Internal audit logger. Emits an immutable audit record in the same transaction as state changes.            |
-| `app_private.bootstrap_organisation` | Creates organisation and sets actor as owner. Only callable by verified backend service.                    |
-| `app_private.create_project`         | Verifies actor is an active org owner or admin before creating a project. Resets initial access epoch to 1. |
-| `app_private.add_org_member`         | Verifies actor is an active org owner/admin before adding verified users.                                   |
-| `app_private.update_org_member`      | Re-checks org admin role, validates input role, enforces last-owner protection.                             |
-| `app_private.add_project_member`     | Verifies actor is project owner and target is an active org member. Triggers epoch invalidation.            |
-| `app_private.update_project_member`  | Verifies project owner role, enforces last-owner protection, triggers epoch invalidation.                   |
-| `app_private.enqueue_job`            | Verifies project membership, computes SHA-256 payload hash via `extensions.digest`, enforces idempotency.   |
-| `app_private.lease_job`              | Atomic leasing using `FOR UPDATE SKIP LOCKED`. Issues a unique `lock_token` UUID to the winning worker.     |
-| `app_private.heartbeat_job`          | Verifies matching `lock_token` and `running` status before extending lease.                                 |
-| `app_private.complete_job`           | Verifies matching `lock_token` before persisting final results and marking succeeded.                       |
-| `app_private.fail_job`               | Verifies matching `lock_token`. Enforces terminal failure vs exponential backoff retry.                     |
-| `app_private.requeue_expired_jobs`   | Reaper process. Requeues abandoned jobs or marks terminal failure after max attempts.                       |
-| `app_private.request_cancel_job`     | Verifies actor is job requester or project owner before marking cancel requested.                           |
+| Function                                            | Trust Boundary & Rationale                                                                                  |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `app_private.write_audit_event`                     | Internal audit logger. Emits an immutable audit record in the same transaction as state changes.            |
+| `app_private.bootstrap_organisation`                | Creates organisation and sets actor as owner. Only callable by verified backend service.                    |
+| `app_private.create_project`                        | Verifies actor is an active org owner or admin before creating a project. Resets initial access epoch to 1. |
+| `app_private.add_org_member`                        | Verifies actor is an active org owner/admin before adding verified users.                                   |
+| `app_private.update_org_member`                     | Re-checks org admin role, validates input role, enforces last-owner protection.                             |
+| `app_private.add_project_member`                    | Verifies actor is project owner and target is an active org member. Triggers epoch invalidation.            |
+| `app_private.update_project_member`                 | Verifies project owner role, enforces last-owner protection, triggers epoch invalidation.                   |
+| `app_private.enqueue_job`                           | Verifies project membership, computes SHA-256 payload hash via `extensions.digest`, enforces idempotency.   |
+| `app_private.lease_job`                             | Atomic leasing using `FOR UPDATE SKIP LOCKED`. Issues a unique `lock_token` UUID to the winning worker.     |
+| `app_private.heartbeat_job`                         | Verifies matching `lock_token` and `running` status before extending lease.                                 |
+| `app_private.complete_job`                          | Verifies matching `lock_token` before persisting final results and marking succeeded.                       |
+| `app_private.fail_job`                              | Verifies matching `lock_token`. Enforces terminal failure vs exponential backoff retry.                     |
+| `app_private.requeue_expired_jobs`                  | Reaper process. Requeues abandoned jobs or marks terminal failure after max attempts.                       |
+| `app_private.request_cancel_job`                    | Verifies actor is job requester or project owner before marking cancel requested.                           |
+| `app_private.import_source`                         | Inserts source, canonical chunks, grants, and bumps project epoch atomically. Locked project row.           |
+| `app_private.set_source_access`                     | Updates visibility and granted users; increments project access epoch.                                      |
+| `app_private.archive_source`                        | Soft deletes source, revokes effective readability, increments project access epoch, writes audit event.    |
+| `app_private.persist_claims`                        | Validates caller epoch against current project epoch; persists claims and evidence or STALE_CONTEXT.        |
+| `app_private.create_handover_draft_from_generation` | Revalidates every cited claim for reviewer and recipient; asserts current epoch; persists items.            |
+| `app_private.update_item`                           | Optimistic concurrency via row_version; prevents kind mutation or evidence elevation; logs review history.  |
+| `app_private.add_item_from_claims`                  | Re-checks reviewer and recipient claim readability before attaching new item to draft handover.             |
+| `app_private.attach_claims`                         | Validates mutual claim readability before linking additional claims to existing draft item.                 |
+| `app_private.flag_item`                             | Downgrades evidence state only (corroborated -> supported -> needs_confirmation -> conflicting).            |
+| `app_private.create_revision`                       | Copies items from approved/shared version into new draft under identical root_id with next version number.  |
+| `app_private.approve_handover`                      | Checks: draft status, zero pending items, >=1 approved, mutual claim access, epoch match, attestation flag. |
+| `app_private.share_handover`                        | Precondition: status approved; locks row, marks older versions superseded, writes audit event.              |
+| `app_private.record_message`                        | Verifies conversation ownership, stores user/assistant messages with current access epoch.                  |
 
 ---
 

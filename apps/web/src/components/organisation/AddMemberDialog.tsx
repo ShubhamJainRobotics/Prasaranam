@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addOrgMemberSchema, type AddOrgMemberInput } from '@relay/contracts';
 import { apiFetch } from '../../lib/api.js';
 import { useToast } from '../../context/ToastContext.js';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export interface AddOrgMemberDialogProps {
   orgId: string;
@@ -18,6 +19,9 @@ export const AddOrgMemberDialog: React.FC<AddOrgMemberDialogProps> = ({
   onClose,
   onMemberAdded,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const { addToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -68,7 +72,10 @@ export const AddOrgMemberDialog: React.FC<AddOrgMemberDialogProps> = ({
       aria-modal="true"
       aria-labelledby="add-org-member-title"
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--color-surface)] p-6 shadow-xl border border-[var(--color-border)]">
+      <div
+        ref={dialogRef}
+        className="w-full max-w-md rounded-lg bg-[var(--color-surface)] p-6 shadow-xl border border-[var(--color-border)]"
+      >
         <h2 id="add-org-member-title" className="text-lg font-semibold text-[var(--color-text)]">
           Add Organisation Member
         </h2>

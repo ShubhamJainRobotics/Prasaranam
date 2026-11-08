@@ -249,25 +249,25 @@ export const HandoverDetailPage: React.FC = () => {
         {/* Handover Summary Banner */}
         <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div>
-            <div className="text-slate-400 font-medium">Recipient</div>
+            <div className="text-slate-500 font-medium">Recipient</div>
             <div className="font-semibold text-slate-700 mt-0.5">
               {handover.recipientName || 'Incoming Team'}
             </div>
           </div>
           <div>
-            <div className="text-slate-400 font-medium">Created By</div>
+            <div className="text-slate-500 font-medium">Created By</div>
             <div className="font-semibold text-slate-700 mt-0.5">
               {handover.departingUserName || handover.createdBy}
             </div>
           </div>
           <div>
-            <div className="text-slate-400 font-medium">Total Items</div>
+            <div className="text-slate-500 font-medium">Total Items</div>
             <div className="font-semibold text-slate-700 mt-0.5">
               {handover.items.length} verified
             </div>
           </div>
           <div>
-            <div className="text-slate-400 font-medium">Access Epoch</div>
+            <div className="text-slate-500 font-medium">Access Epoch</div>
             <div className="font-semibold text-slate-700 mt-0.5">
               Epoch {String(handover.approvedAccessEpoch ?? handover.generatedAccessEpoch)}
             </div>

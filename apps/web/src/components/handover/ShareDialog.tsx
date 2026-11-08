@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Props {
   isOpen: boolean;
@@ -15,6 +16,9 @@ export const ShareDialog: React.FC<Props> = ({
   recipientName,
   version,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -36,7 +40,10 @@ export const ShareDialog: React.FC<Props> = ({
       aria-modal="true"
       aria-labelledby="share-dialog-title"
     >
-      <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6">
+      <div
+        ref={dialogRef}
+        className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6"
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-700">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

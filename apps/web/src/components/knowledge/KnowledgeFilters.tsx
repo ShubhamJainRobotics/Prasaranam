@@ -35,8 +35,14 @@ export const KnowledgeFilters: React.FC<Props> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {/* Search */}
         <div className="lg:col-span-1">
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Search</label>
+          <label
+            htmlFor="filter-search-claims"
+            className="block text-xs font-semibold text-slate-700 mb-1"
+          >
+            Search
+          </label>
           <input
+            id="filter-search-claims"
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -47,8 +53,14 @@ export const KnowledgeFilters: React.FC<Props> = ({
 
         {/* Kind */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+          <label
+            htmlFor="filter-category"
+            className="block text-xs font-semibold text-slate-700 mb-1"
+          >
+            Category
+          </label>
           <select
+            id="filter-category"
             value={kind || ''}
             onChange={(e) =>
               onKindChange(e.target.value ? (e.target.value as ClaimCategory) : undefined)
@@ -70,8 +82,14 @@ export const KnowledgeFilters: React.FC<Props> = ({
 
         {/* Work State */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Work State</label>
+          <label
+            htmlFor="filter-work-state"
+            className="block text-xs font-semibold text-slate-700 mb-1"
+          >
+            Work State
+          </label>
           <select
+            id="filter-work-state"
             value={workState || ''}
             onChange={(e) =>
               onWorkStateChange(e.target.value ? (e.target.value as WorkState) : undefined)
@@ -91,8 +109,14 @@ export const KnowledgeFilters: React.FC<Props> = ({
 
         {/* Evidence State */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Evidence State</label>
+          <label
+            htmlFor="filter-evidence-state"
+            className="block text-xs font-semibold text-slate-700 mb-1"
+          >
+            Evidence State
+          </label>
           <select
+            id="filter-evidence-state"
             value={evidenceState || ''}
             onChange={(e) =>
               onEvidenceStateChange(e.target.value ? (e.target.value as EvidenceState) : undefined)
@@ -109,8 +133,14 @@ export const KnowledgeFilters: React.FC<Props> = ({
 
         {/* Review State */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Review Status</label>
+          <label
+            htmlFor="filter-review-status"
+            className="block text-xs font-semibold text-slate-700 mb-1"
+          >
+            Review Status
+          </label>
           <select
+            id="filter-review-status"
             value={reviewState || ''}
             onChange={(e) =>
               onReviewStateChange(e.target.value ? (e.target.value as ReviewState) : undefined)

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { ClaimDetail, ClaimSummary } from '@relay/contracts';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Props {
   claim: ClaimDetail | ClaimSummary | null;
@@ -13,6 +14,9 @@ interface Props {
 }
 
 export const ClaimFlagDialog: React.FC<Props> = ({ claim, isOpen, onClose, onSubmit }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [reason, setReason] = useState('');
   const [newState, setNewState] = useState<'needs_confirmation' | 'conflicting'>(
     'needs_confirmation'
@@ -42,10 +46,20 @@ export const ClaimFlagDialog: React.FC<Props> = ({ claim, isOpen, onClose, onSub
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="flag-dialog-title"
+    >
+      <div
+        ref={dialogRef}
+        className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-semibold text-slate-900">Flag Claim</h3>
+          <h3 id="flag-dialog-title" className="text-base font-semibold text-slate-900">
+            Flag Claim
+          </h3>
           <button
             type="button"
             onClick={onClose}

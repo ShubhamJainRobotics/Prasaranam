@@ -179,6 +179,7 @@ export const OrganisationMembersPage: React.FC = () => {
                   <td className="whitespace-nowrap px-6 py-4 text-[var(--color-text-muted)]">
                     {canManage ? (
                       <select
+                        aria-label={`Role for ${member.displayName || 'member'}`}
                         value={member.role}
                         onChange={(e) => handleRoleChange(member.userId, e.target.value)}
                         className="rounded border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-2 py-1 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"

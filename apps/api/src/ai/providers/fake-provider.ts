@@ -153,7 +153,8 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
           lower.includes('decided') ||
           lower.includes('approved') ||
           lower.includes('chosen') ||
-          lower.includes('agreed')
+          lower.includes('agreed') ||
+          lower.includes('adopt')
         ) {
           claims.push({
             localId: `claim-${claimIndex++}`,
@@ -211,7 +212,9 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
           lower.includes('need to') ||
           lower.includes('scheduled') ||
           lower.includes('plan to') ||
-          lower.includes('will')
+          lower.includes('will') ||
+          lower.includes('launch') ||
+          lower.includes('pushing')
         ) {
           claims.push({
             localId: `claim-${claimIndex++}`,

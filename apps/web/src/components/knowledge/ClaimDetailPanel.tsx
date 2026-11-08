@@ -54,7 +54,7 @@ export const ClaimDetailPanel: React.FC<Props> = ({
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded">
                   {claim.kind.replace('_', ' ')}
                 </span>
-                <span className="text-xs text-slate-400 font-mono">{claim.id.slice(0, 8)}</span>
+                <span className="text-xs text-slate-500 font-mono">{claim.id.slice(0, 8)}</span>
               </div>
               <h2 id="claim-detail-title" className="text-base font-semibold text-slate-900 mt-1">
                 Claim Overview
@@ -129,16 +129,16 @@ export const ClaimDetailPanel: React.FC<Props> = ({
                 {claim.ownerDisplayName ? (
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-slate-800">{claim.ownerDisplayName}</span>
-                    <span className="text-xs text-slate-400 font-mono">(verified member)</span>
+                    <span className="text-xs text-slate-500 font-mono">(verified member)</span>
                   </div>
                 ) : claim.ownerLabel ? (
                   <div className="text-slate-700">
                     <span>Extracted label: </span>
                     <span className="font-semibold">{claim.ownerLabel}</span>
-                    <span className="text-xs text-slate-400 ml-1">(unlinked to user)</span>
+                    <span className="text-xs text-slate-500 ml-1">(unlinked to user)</span>
                   </div>
                 ) : (
-                  <span className="text-slate-400 italic">No owner assigned in evidence</span>
+                  <span className="text-slate-500 italic">No owner assigned in evidence</span>
                 )}
               </div>
             </div>
@@ -182,7 +182,7 @@ export const ClaimDetailPanel: React.FC<Props> = ({
             </div>
 
             {/* Metadata */}
-            <div className="space-y-1 text-xs text-slate-400 border-t border-slate-100 pt-3 font-mono">
+            <div className="space-y-1 text-xs text-slate-500 border-t border-slate-100 pt-3 font-mono">
               <div>Prompt version: {claim.promptVersion}</div>
               <div>Model: {claim.modelName || 'n/a'}</div>
               <div>Created: {new Date(claim.createdAt).toLocaleString()}</div>

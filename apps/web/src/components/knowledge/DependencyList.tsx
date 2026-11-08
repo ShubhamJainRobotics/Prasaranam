@@ -55,7 +55,7 @@ export const DependencyList: React.FC<Props> = ({ claims, onSelectClaim }) => {
                   <EvidenceStateBadge state={claim.evidenceState} />
                 </div>
                 {claim.observedAt && (
-                  <span className="text-slate-400 font-mono text-[11px]">
+                  <span className="text-slate-500 font-mono text-[11px]">
                     {new Date(claim.observedAt).toLocaleDateString()}
                   </span>
                 )}

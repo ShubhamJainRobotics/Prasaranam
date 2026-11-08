@@ -5,10 +5,19 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      run_real_gemini_smoke:
+        description: 'Run opt-in real Gemini provider smoke test'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   validate:
+    name: Validation & Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,10 +43,68 @@ jobs:
       - name: Run unit tests
         run: npm run test
 
-      - name: Verify JSON schema generation
+      - name: Verify JSON schema generation (zero drift)
         run: |
           npm run schemas:generate
           git diff --exit-code packages/contracts/schemas
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase stack
+        run: npx supabase start
+
+      - name: Run database migrations and bootstrap check
+        run: |
+          npm run test:integration
+
+      - name: Run security test suite (Section 22.3 Negative Matrix)
+        run: npm run test:security
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E & Accessibility Test Suite
+        run: npm run test:e2e
+        env:
+          NODE_ENV: test
+          AI_PROVIDER: fake
+
       - name: Build packages and applications
         run: npm run build
+
+      - name: Run production web bundle security scanner
+        run: npm run scan:bundle
+
+      - name: Lint OpenAPI 3.1 specification
+        run: npm run openapi:lint
+
+      - name: Stop Supabase stack
+        if: always()
+        run: npx supabase stop
+
+  real-gemini-smoke:
+    name: Real Gemini Smoke Test (Opt-in)
+    if: github.event.inputs.run_real_gemini_smoke == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Gemini live smoke test
+        run: npm run test:integration -- -t "Gemini Live Provider Smoke"
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AI_PROVIDER: gemini

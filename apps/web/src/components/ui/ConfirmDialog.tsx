@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export const ConfirmDialog: React.FC<{
   isOpen: boolean;
@@ -20,16 +21,7 @@ export const ConfirmDialog: React.FC<{
   onCancel,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onCancel();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onCancel]);
+  useFocusTrap(dialogRef, { isOpen, onClose: onCancel });
 
   if (!isOpen) return null;
 

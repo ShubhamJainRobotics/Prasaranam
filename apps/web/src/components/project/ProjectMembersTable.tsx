@@ -125,6 +125,7 @@ export const ProjectMembersTable: React.FC<ProjectMembersTableProps> = ({
                 <td className="whitespace-nowrap px-6 py-4 text-[var(--color-text-muted)]">
                   {canManage ? (
                     <select
+                      aria-label={`Role for ${member.displayName || 'member'}`}
                       value={member.role}
                       disabled={updatingUserId === targetId}
                       onChange={(e) => handleRoleChange(targetId, e.target.value)}

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { ClaimDetail, ClaimSummary } from '@relay/contracts';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Props {
   claim: ClaimDetail | ClaimSummary | null;
@@ -8,14 +9,8 @@ interface Props {
 }
 
 export const EvidenceDrawer: React.FC<Props> = ({ claim, isOpen, onClose }) => {
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(drawerRef, { isOpen, onClose });
 
   if (!isOpen || !claim) return null;
 
@@ -34,8 +29,12 @@ export const EvidenceDrawer: React.FC<Props> = ({ claim, isOpen, onClose }) => {
         onClick={onClose}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-xl flex flex-col border-l border-slate-200">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+        <div
+          ref={drawerRef}
+          className="w-screen max-w-full sm:max-w-md bg-white shadow-xl flex flex-col border-l border-slate-200 focus:outline-none"
+          tabIndex={-1}
+        >
           {/* Header */}
           <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
@@ -50,7 +49,7 @@ export const EvidenceDrawer: React.FC<Props> = ({ claim, isOpen, onClose }) => {
               type="button"
               aria-label="Close evidence drawer"
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200"
+              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -105,7 +104,7 @@ export const EvidenceDrawer: React.FC<Props> = ({ claim, isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-100"
+              className="px-4 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-600"
             >
               Close
             </button>

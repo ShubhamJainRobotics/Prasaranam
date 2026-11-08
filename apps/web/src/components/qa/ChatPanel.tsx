@@ -235,11 +235,11 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
                 >
                   <div className="flex items-center justify-between">
                     <span className="truncate font-semibold">💬 Q&A Session</span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-500">
                       {c.messageCount ? `${c.messageCount} msgs` : 'Empty'}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400">{formattedDate}</span>
+                  <span className="text-[10px] text-slate-500">{formattedDate}</span>
                 </button>
               );
             })
@@ -301,7 +301,12 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
         )}
 
         {/* Messages Scroll Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div
+          className="flex-1 overflow-y-auto p-4 space-y-4"
+          tabIndex={0}
+          role="region"
+          aria-label="Conversation messages"
+        >
           {loadingMessages ? (
             <div className="space-y-4 p-4">
               <LoadingSkeleton lines={4} />
@@ -323,7 +328,7 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
                   data-testid={`chat-message-${msg.id}`}
                   className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
                 >
-                  <div className="flex items-center space-x-1.5 mb-1 text-[11px] text-slate-400">
+                  <div className="flex items-center space-x-1.5 mb-1 text-[11px] text-slate-500">
                     <span className="font-medium text-slate-600">
                       {isUser ? 'You' : 'Relay Knowledge Assistant'}
                     </span>
@@ -362,7 +367,7 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
           {/* Assistant Typing / Thinking Skeleton */}
           {isAsking && (
             <div className="flex flex-col items-start space-y-1">
-              <div className="text-[11px] text-slate-400 font-medium">
+              <div className="text-[11px] text-slate-500 font-medium">
                 Relay Knowledge Assistant
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-xl rounded-tl-none p-4 max-w-xl w-full">
@@ -399,7 +404,7 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
               {isAsking ? 'Thinking...' : 'Ask'}
             </button>
           </form>
-          <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-500">
             <span>Only citations from sources you are authorised to read will be retrieved.</span>
             <span>History refreshes automatically on access changes.</span>
           </div>

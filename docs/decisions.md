@@ -180,6 +180,27 @@ Results from preflight checks run on 2026-11-07:
   - **Choice**: In Markdown exports, defang HTML (`<` -> `&lt;`, `>` -> `&gt;`) and disable links by stripping scheme (`http://`, `javascript:`, etc.) from brackets. In PDF exports, sanitize all user text to strip control characters and render strictly as plain text blocks via PDFKit text flows with explicit font metrics.
   - **Reason**: SPEC Section 2A.14 items 1 and 2 require Markdown to defang HTML/scripts and disallow live links from imported content, and PDF to sanitize hostile payloads without script or link execution.
 
+- **Date**: 2026-11-08
+  - **Question**: How should WCAG 2.5.3 (Label in Name) be satisfied for chunk buttons in `ChunkHighlighter.tsx`?
+  - **Choice**: Removed overriding `aria-label="Chunk ${index}"` when visible button text is `Chunk #${index}`.
+  - **Reason**: Axe flags `label-content-name-mismatch` when an overriding accessible name does not contain the visible text string. Allowing the visible text node to compute the accessible name naturally satisfies WCAG 2.5.3.
+- **Date**: 2026-11-08
+  - **Question**: How should scrollable container regions be made accessible to keyboard users (WCAG 2.1.1)?
+  - **Choice**: Added `tabIndex={0}`, `role="region"`, and explicit `aria-label` to scrollable containers with `overflow-y-auto` in `SourceViewer.tsx` and `ChatPanel.tsx`.
+  - **Reason**: Keyboard users (and screen reader navigators) cannot scroll regions that do not receive keyboard focus. Adding focusable region semantics resolves WCAG 2.1.1.
+- **Date**: 2026-11-08
+  - **Question**: Which color tokens guarantee WCAG 2.1 AA 4.5:1 contrast against light slate backgrounds?
+  - **Choice**: Standardized secondary and meta text on `text-slate-500` (#64748b, ~4.6:1 contrast) instead of `text-slate-400` (#94a3b8, ~2.63:1 contrast).
+  - **Reason**: WCAG 2.1 AA mandates a minimum contrast ratio of 4.5:1 for normal text against its background.
+- **Date**: 2026-11-08
+  - **Question**: How should nullable schema properties be represented in OpenAPI 3.1?
+  - **Choice**: Used OpenAPI 3.1 / JSON Schema 2020-12 multi-type array syntax (`type: [string, "null"]` or `type: [object, "null"]`) instead of OpenAPI 3.0 `nullable: true`.
+  - **Reason**: Redocly CLI validates against OpenAPI 3.1 where `nullable: true` is deprecated and generates validation errors.
+- **Date**: 2026-11-08
+  - **Question**: How should the production bundle scanner prevent secret leakage into web clients?
+  - **Choice**: Implemented `scripts/scan-bundle.ts` to recursively scan all built JavaScript, CSS, and HTML assets in `apps/web/dist` for strings `SERVICE_ROLE` and `GEMINI_API_KEY`, failing with exit code 1 if detected.
+  - **Reason**: Enforces Security Invariant 7 (service-role key and Gemini key never appear in `apps/web` or client storage).
+
 ## Spec issues
 
 - **Section 2A.2 line 79 vs Replace-by-Revision**: The specification notes that contributors can import sources, but also states that replace-by-revision archives the prior source version. Since archiving sources requires the `owner` role, replace-by-revision was restricted to project owners to prevent privilege escalation (archiving sources without owner permission).
@@ -188,3 +209,4 @@ Results from preflight checks run on 2026-11-07:
 - **Audit Action for Handover Approval**: `public.reviews` column uses `review_action` enum type (`approve_version`, `approve_claim`, `reject_claim`, etc.). Handover approvals insert `approve_version` into `public.reviews` and `handover.approve` into `public.audit_events`, ensuring both granular review logs and compliance audit trails.
 - **`ai_usage.purpose` Naming for Q&A**: SPEC Section 15.5 references Q&A generating an answer. The database schema in Section 10 defines `ai_usage_purpose_check` with `'answer'` rather than `'qa'`. Implemented with `'answer'` to maintain database schema integrity.
 - **Recipient Access to Approved vs Shared Handovers**: SPEC Section 2A.9 item 2 specifies that handovers are visible to recipients only when status is `shared`. When a handover is merely `approved` (and not yet shared), export and view attempts by recipients return HTTP 409 `REGENERATION_REQUIRED` / inaccessible until the reviewer explicitly shares it.
+- **Section 22.3 Negative Test Suite Limitation**: In accordance with Section 22.3, a finite automated negative test suite does not guarantee zero leakage in all hypothetical edge cases. Threat modeling, defense-in-depth isolation, and rigorous continuous monitoring are detailed in `docs/threat-model.md` and `docs/operations.md`.

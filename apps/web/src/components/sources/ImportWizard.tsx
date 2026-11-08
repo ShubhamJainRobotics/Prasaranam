@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { apiFetch } from '../../lib/api.js';
 import { FileDropzone } from './FileDropzone.js';
 import { ImportFormatHelp } from './ImportFormatHelp.js';
 import type { ProjectMemberOption } from './SourceAccessEditor.js';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export interface ImportWizardProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   projectMembers,
   onImportCompleted,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, { isOpen, onClose });
+
   const [activeTab, setActiveTab] = useState<'upload' | 'paste'>('upload');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -120,7 +124,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
         aria-modal="true"
         aria-labelledby="import-wizard-title"
       >
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+        <div
+          ref={dialogRef}
+          className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        >
           <div className="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2

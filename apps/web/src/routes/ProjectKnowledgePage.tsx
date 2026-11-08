@@ -234,6 +234,16 @@ export const ProjectKnowledgePage: React.FC = () => {
     }
   };
 
+  const handleCancelJob = async (jobId: string) => {
+    try {
+      await apiFetch(`/jobs/${jobId}/cancel`, { method: 'POST' });
+      showToast('Job cancellation requested', 'success');
+      fetchJobs();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to cancel job', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -289,7 +299,12 @@ export const ProjectKnowledgePage: React.FC = () => {
       />
 
       {/* Active Jobs Progress Panel */}
-      <JobProgressPanel jobs={jobs} onRetry={handleRetryJob} onRefresh={fetchJobs} />
+      <JobProgressPanel
+        jobs={jobs}
+        onRetry={handleRetryJob}
+        onCancel={handleCancelJob}
+        onRefresh={fetchJobs}
+      />
 
       {/* Conflicts Banner Panel */}
       <ConflictPanel
