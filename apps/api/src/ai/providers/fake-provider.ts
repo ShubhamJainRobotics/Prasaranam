@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { pino } from 'pino';
 import type { StructuredAiProvider, StructuredAiResult, AiTokenUsage } from '../types.js';
 import type {
@@ -12,6 +13,8 @@ import type {
   HandoverOutput,
   HandoverOutputItem,
   HandoverOutputSection,
+  AnswerInput,
+  AnswerOutput,
 } from '@relay/contracts';
 
 const logger = pino({ name: 'fake-deterministic-provider' });
@@ -24,6 +27,7 @@ export type FakeAdversarialMode =
   | 'injected_instruction'
   | 'superseded_work_state'
   | 'fabricated_claim_id'
+  | 'unsupplied_claim'
   | 'fact_without_claim'
   | 'suggestion_without_claim'
   | 'unrequested_section'
@@ -86,6 +90,14 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
     ) {
       // Handover Generation Task
       resultValue = this.generateHandover(payload as HandoverInput);
+    } else if (
+      payload &&
+      typeof payload === 'object' &&
+      'question' in payload &&
+      'claims' in payload
+    ) {
+      // Q&A Task
+      resultValue = this.generateAnswer(payload as AnswerInput);
     } else if (payload && typeof payload === 'object' && 'claims' in payload) {
       // Relationship Analysis Task
       resultValue = this.analyzeRelationships(payload as RelationshipInput);
@@ -582,6 +594,91 @@ export class FakeDeterministicProvider implements StructuredAiProvider {
     return {
       title: config.title,
       sections,
+    };
+  }
+
+  private generateAnswer(input: AnswerInput): AnswerOutput {
+    if (currentAdversarialMode === 'fabricated_claim_id') {
+      return {
+        status: 'answered',
+        statements: [
+          {
+            text: 'Fabricated answer statement citing nonexistent claim.',
+            claimIds: [crypto.randomUUID()],
+          },
+        ],
+        limitations: ['Adversarial fabricated claim ID test.'],
+        suggestedClarification: null,
+      };
+    }
+
+    if (currentAdversarialMode === 'unsupplied_claim') {
+      return {
+        status: 'answered',
+        statements: [
+          {
+            text: 'Answer citing an unsupplied claim ID.',
+            claimIds: ['00000000-0000-0000-0000-000000000099'],
+          },
+        ],
+        limitations: ['Adversarial unsupplied claim test.'],
+        suggestedClarification: null,
+      };
+    }
+
+    if (!input.claims || input.claims.length === 0) {
+      return {
+        status: 'insufficient_evidence',
+        statements: [],
+        limitations: ['No relevant project evidence was found to answer this question.'],
+        suggestedClarification: null,
+      };
+    }
+
+    // Match keywords from question against candidate claims
+    const qLower = input.question.toLowerCase();
+    const keywords = qLower
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length > 2);
+
+    let matching = input.claims.filter((c) => {
+      const stmtLower = c.statement.toLowerCase();
+      return keywords.some((kw) => stmtLower.includes(kw));
+    });
+
+    if (matching.length === 0 && input.claims.length <= 3) {
+      matching = input.claims;
+    }
+
+    if (matching.length === 0) {
+      return {
+        status: 'insufficient_evidence',
+        statements: [],
+        limitations: ['No matching project evidence found for the supplied question.'],
+        suggestedClarification: null,
+      };
+    }
+
+    // Check for conflicting evidence
+    const hasConflict = matching.some((c) => c.evidenceState === 'conflicting');
+    const status = hasConflict ? 'conflicting_evidence' : 'answered';
+
+    // Build statements up to 12
+    const statements = matching.slice(0, 12).map((c) => ({
+      text: c.statement,
+      claimIds: [c.claimId],
+    }));
+
+    return {
+      status,
+      statements,
+      limitations: [
+        hasConflict
+          ? 'Notice: Discovered conflicting evidence in accessible project claims.'
+          : `Grounded in ${matching.length} accessible project claim(s).`,
+      ],
+      suggestedClarification: null,
     };
   }
 }

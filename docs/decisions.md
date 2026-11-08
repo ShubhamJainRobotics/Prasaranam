@@ -159,6 +159,26 @@ Results from preflight checks run on 2026-11-07:
   - **Question**: What happens to previous shared versions when a new revision of a handover is shared?
   - **Choice**: In `app_private.share_handover`, all previous versions sharing the same `root_id` with status `shared` are atomically updated to `superseded` and an audit event is logged.
   - **Reason**: SPEC Section 2A.4 item 7 specifies that sharing supersedes older shared versions of the same root, and recipients can only access the active shared version.
+- **Date**: 2026-11-07
+  - **Question**: How to bundle Unicode fonts for PDF export without relying on system-installed font files?
+  - **Choice**: Bundled Google Noto Sans (`NotoSans-Regular.ttf`, `NotoSans-Bold.ttf`) with its Open Font License (`OFL.txt`) inside `apps/api/assets/fonts/`, registered with PDFKit via `doc.registerFont(...)`.
+  - **Reason**: SPEC Section 2A.14 item 2 and Section 22.3 require reliable Unicode rendering across all environments without external runtime font dependencies.
+- **Date**: 2026-11-07
+  - **Question**: How should full-text search (FTS) queries over accessible claims be structured to balance natural phrase matching with the zero-match short-circuit rule?
+  - **Choice**: Tokenize and clean question keywords, join non-stopword tokens with `|` (OR) in `to_tsquery('english', ...)`, rank results using `ts_rank(...)`, and cap at 40 claims. Questions with zero matching keywords return 0 claims, triggering the short-circuit `insufficient_evidence` response without making any AI provider call.
+  - **Reason**: SPEC Section 2A.9 item 5 mandates searching accessible claims and short-circuiting to `insufficient_evidence` when no matching evidence is found. Plain `plainto_tsquery` (AND disjunction) is too brittle for conversational natural language questions where not all words occur in a single claim.
+- **Date**: 2026-11-07
+  - **Question**: How should `ai_usage` record Q&A model executions within database constraints?
+  - **Choice**: Use `purpose: 'answer'` and `outcome: 'ok'` (or `'provider_error'`, `'timeout'`, `'validation_failed'`).
+  - **Reason**: The database check constraint `ai_usage_purpose_check` on `public.ai_usage` strictly permits `('extract', 'analyze_relationships', 'generate_questions', 'generate_handover', 'answer', 'schema_repair')`. Using `'answer'` satisfies this constraint.
+- **Date**: 2026-11-07
+  - **Question**: How should client connection pooling be handled in `callMutation` for transaction clients?
+  - **Choice**: Updated `callMutation` in `@relay/database` to distinguish `pg.Pool` from `pg.PoolClient` using `poolOrClient instanceof pg.Pool || (typeof poolOrClient.connect === 'function' && typeof poolOrClient.release !== 'function')`, executing queries directly on the provided client when inside an existing transaction rather than calling `.connect()`.
+  - **Reason**: `pg.PoolClient` inherits from `pg.Client` which has a `.connect()` method; calling `.connect()` on an already-connected client raises `"Client has already been connected"`.
+- **Date**: 2026-11-07
+  - **Question**: How are hostile inputs (HTML tags, script tags, dangerous markdown links) defanged in exports?
+  - **Choice**: In Markdown exports, defang HTML (`<` -> `&lt;`, `>` -> `&gt;`) and disable links by stripping scheme (`http://`, `javascript:`, etc.) from brackets. In PDF exports, sanitize all user text to strip control characters and render strictly as plain text blocks via PDFKit text flows with explicit font metrics.
+  - **Reason**: SPEC Section 2A.14 items 1 and 2 require Markdown to defang HTML/scripts and disallow live links from imported content, and PDF to sanitize hostile payloads without script or link execution.
 
 ## Spec issues
 
@@ -166,3 +186,5 @@ Results from preflight checks run on 2026-11-07:
 - **Leased Job Return Columns**: SPEC Section 2A.11 mentions `lease_job` returns job fields for execution. Because `public.ai_usage` requires `user_id` to log AI token consumption and latency per Section 10, `requested_by` was explicitly returned from `app_private.lease_job` to satisfy the database foreign key invariant without additional queries.
 - **Handover Approval Precondition and Attestation Mapping**: SPEC Section 2A.4 item 7 requires `confirmReviewedForRecipient = true` and 0 pending items. In `app_private.approve_handover`, pending items raise `PRECONDITION_FAILED` (HTTP 409), whereas missing reviewer attestation confirmation raises `VALIDATION_ERROR` (HTTP 422), providing clear and distinct status signals to the UI.
 - **Audit Action for Handover Approval**: `public.reviews` column uses `review_action` enum type (`approve_version`, `approve_claim`, `reject_claim`, etc.). Handover approvals insert `approve_version` into `public.reviews` and `handover.approve` into `public.audit_events`, ensuring both granular review logs and compliance audit trails.
+- **`ai_usage.purpose` Naming for Q&A**: SPEC Section 15.5 references Q&A generating an answer. The database schema in Section 10 defines `ai_usage_purpose_check` with `'answer'` rather than `'qa'`. Implemented with `'answer'` to maintain database schema integrity.
+- **Recipient Access to Approved vs Shared Handovers**: SPEC Section 2A.9 item 2 specifies that handovers are visible to recipients only when status is `shared`. When a handover is merely `approved` (and not yet shared), export and view attempts by recipients return HTTP 409 `REGENERATION_REQUIRED` / inaccessible until the reviewer explicitly shares it.

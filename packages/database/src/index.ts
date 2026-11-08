@@ -73,7 +73,11 @@ export async function callMutation<T = unknown>(
   const placeholders = args.map((_, i) => `$${i + 1}`).join(', ');
   const sql = `SELECT app_private.${fnName}(${placeholders}) as result;`;
 
-  if ('connect' in poolOrClient && typeof poolOrClient.connect === 'function') {
+  if (
+    poolOrClient instanceof pg.Pool ||
+    (typeof (poolOrClient as any).connect === 'function' &&
+      typeof (poolOrClient as any).release !== 'function')
+  ) {
     return withTransaction(poolOrClient as pg.Pool, async (client) => {
       const res = await client.query(sql, args);
       return res.rows[0]?.result as T;
@@ -724,4 +728,47 @@ export async function shareHandover(
     'share_handover',
     [actorId, handoverId]
   );
+}
+
+// ─── Phase 7: Q&A and Conversation Mutations ─────────────────────────────────
+
+export interface CreateConversationResult {
+  id: string;
+  projectId: string;
+  userId: string;
+  createdAt: string;
+}
+
+export async function createConversation(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  projectId: string
+): Promise<CreateConversationResult> {
+  return callMutation<CreateConversationResult>(db, 'create_conversation', [actorId, projectId]);
+}
+
+export interface RecordMessageResult {
+  messageId: string;
+  conversationId: string;
+  projectId: string;
+  role: string;
+  accessEpoch: number | string;
+  createdAt: string;
+}
+
+export async function recordMessage(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  conversationId: string,
+  role: 'user' | 'assistant',
+  body: unknown,
+  accessEpoch: number | string | bigint
+): Promise<RecordMessageResult> {
+  return callMutation<RecordMessageResult>(db, 'record_message', [
+    actorId,
+    conversationId,
+    role,
+    JSON.stringify(body),
+    accessEpoch.toString(),
+  ]);
 }

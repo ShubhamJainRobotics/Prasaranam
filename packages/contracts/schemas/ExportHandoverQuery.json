@@ -1,0 +1,22 @@
+{
+  "$ref": "#/definitions/ExportHandoverQuery",
+  "definitions": {
+    "ExportHandoverQuery": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "md",
+            "pdf"
+          ]
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

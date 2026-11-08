@@ -3,12 +3,14 @@ import type {
   RelationshipInput,
   ClarificationInput,
   HandoverInput,
+  AnswerInput,
 } from '@relay/contracts';
 
 export const PROMPT_VERSION_EXTRACTION = 'extraction-v1';
 export const PROMPT_VERSION_RELATIONSHIP = 'relationship-v1';
 export const PROMPT_VERSION_CLARIFICATION = 'clarification-v1';
 export const PROMPT_VERSION_HANDOVER = 'handover-v1';
+export const PROMPT_VERSION_QA = 'qa-v1';
 
 export const SYSTEM_INSTRUCTION = `You are Relay, an evidence-grounded project knowledge handover assistant.
 
@@ -92,4 +94,16 @@ Do not flatten conflicts into a single certain conclusion.`;
 
 export function buildHandoverPrompt(input: HandoverInput): string {
   return `${HANDOVER_TASK_INSTRUCTION}\n\n${JSON.stringify(input, null, 2)}`;
+}
+
+export const QA_TASK_INSTRUCTION = `Answer the user's question using only the supplied authorised context.
+Return atomic statements with supporting claim IDs.
+If evidence is insufficient, return insufficient_evidence.
+If supplied sources conflict, preserve the conflict.
+Do not use conversation history as factual evidence unless its underlying
+sources have been revalidated for the current user and access epoch.
+Do not disclose hidden source existence.`;
+
+export function buildAnswerPrompt(input: AnswerInput): string {
+  return `${QA_TASK_INSTRUCTION}\n\n${JSON.stringify(input, null, 2)}`;
 }

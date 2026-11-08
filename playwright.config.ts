@@ -23,6 +23,10 @@ export default defineConfig({
       url: 'http://localhost:4000/health/live',
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
+      env: {
+        NODE_ENV: 'test',
+        AI_PROVIDER: 'fake',
+      },
     },
     {
       command: 'npm run --workspace=@relay/web dev -- --port 5173 --host 0.0.0.0',

@@ -8,6 +8,8 @@ import type {
   HandoverOutput,
   HandoverConfiguration,
   HandoverSectionKey,
+  AnswerOutput,
+  ClaimInput,
 } from '@relay/contracts';
 
 export interface ValidatedEvidenceEntry {
@@ -428,6 +430,83 @@ export function validateHandoverOutput(
     valid,
     title: output.title.trim() || config.title,
     items: validItems,
+    errors,
+  };
+}
+
+// ─── Section 15.5 Q&A Answer Semantic Validation ────────────────────────────
+
+export interface SemanticAnswerValidationResult {
+  valid: boolean;
+  status: 'answered' | 'insufficient_evidence' | 'conflicting_evidence';
+  statements: Array<{ text: string; claimIds: string[] }>;
+  limitations: string[];
+  suggestedClarification: string | null;
+  errors: string[];
+}
+
+export function validateAnswerOutput(
+  output: AnswerOutput,
+  candidateClaims: ClaimInput[]
+): SemanticAnswerValidationResult {
+  const errors: string[] = [];
+  const candidateClaimsMap = new Map<string, ClaimInput>(
+    candidateClaims.map((c) => [c.claimId, c])
+  );
+
+  // 1. Statement ceiling (max 12 per Section 15.5)
+  if (output.statements.length > 12) {
+    errors.push(`Answer exceeds maximum statement ceiling of 12 (got ${output.statements.length})`);
+  }
+
+  // 2. Validate statements and cited claim IDs
+  const validStatements: Array<{ text: string; claimIds: string[] }> = [];
+  for (const stmt of output.statements) {
+    const text = stmt.text.trim();
+    if (!text) continue;
+
+    const validClaimIds: string[] = [];
+    for (const cid of stmt.claimIds) {
+      if (!candidateClaimsMap.has(cid)) {
+        errors.push(`Statement cites unsupplied claim ID: ${cid}`);
+        continue;
+      }
+      validClaimIds.push(cid);
+    }
+
+    // Every factual statement needs at least one accessible claim ID unless status is insufficient_evidence
+    if (output.status !== 'insufficient_evidence' && validClaimIds.length === 0) {
+      errors.push(`Statement missing valid claim citations: "${text}"`);
+      continue;
+    }
+
+    validStatements.push({
+      text,
+      claimIds: validClaimIds,
+    });
+  }
+
+  // 3. Limitations checks: ensure no leakage of restricted/hidden content words
+  const validLimitations: string[] = [];
+  for (const lim of output.limitations) {
+    const trimmed = lim.trim();
+    if (!trimmed) continue;
+    const lower = trimmed.toLowerCase();
+    if (lower.includes('restricted source') || lower.includes('confidential note')) {
+      errors.push(`Limitation reveals hidden source existence: "${trimmed}"`);
+      continue;
+    }
+    validLimitations.push(trimmed);
+  }
+
+  const valid = errors.length === 0;
+
+  return {
+    valid,
+    status: output.status,
+    statements: validStatements,
+    limitations: validLimitations,
+    suggestedClarification: output.suggestedClarification?.trim() || null,
     errors,
   };
 }

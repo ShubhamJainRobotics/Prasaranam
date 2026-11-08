@@ -24,6 +24,7 @@ import { SourceDetailPage } from './routes/SourceDetailPage.js';
 import { ProjectKnowledgePage } from './routes/ProjectKnowledgePage.js';
 import { ProjectQuestionsPage } from './routes/ProjectQuestionsPage.js';
 import { ProjectHandoversPage } from './routes/ProjectHandoversPage.js';
+import { ProjectAskPage } from './routes/ProjectAskPage.js';
 import { NewHandoverPage } from './routes/NewHandoverPage.js';
 import { HandoverReviewPage } from './routes/HandoverReviewPage.js';
 import { HandoverDetailPage } from './routes/HandoverDetailPage.js';
@@ -82,6 +83,7 @@ export const App: React.FC = () => {
                 <Route path="projects/:projectId/questions" element={<ProjectQuestionsPage />} />
                 <Route path="projects/:projectId/handovers" element={<ProjectHandoversPage />} />
                 <Route path="projects/:projectId/handovers/new" element={<NewHandoverPage />} />
+                <Route path="projects/:projectId/ask" element={<ProjectAskPage />} />
                 <Route path="handovers/:handoverId/review" element={<HandoverReviewPage />} />
                 <Route path="handovers/:handoverId" element={<HandoverDetailPage />} />
                 <Route path="projects/:projectId/members" element={<ProjectMembersPage />} />

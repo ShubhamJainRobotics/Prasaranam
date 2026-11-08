@@ -6,6 +6,7 @@ import { ErrorState } from '../components/ui/ErrorState.js';
 import { HandoverVersionSelector } from '../components/handover/HandoverVersionSelector.js';
 import { HandoverSection } from '../components/handover/HandoverSection.js';
 import { StaleHandoverNotice } from '../components/handover/StaleHandoverNotice.js';
+import { ExportMenu } from '../components/handover/ExportMenu.js';
 import { EvidenceDrawer } from '../components/knowledge/EvidenceDrawer.js';
 import { api } from '../lib/api.js';
 import type {
@@ -221,6 +222,13 @@ export const HandoverDetailPage: React.FC = () => {
                 onSelect={(id) => navigate(`/app/handovers/${id}`)}
               />
             )}
+            <ExportMenu
+              handoverId={handover.id}
+              title={handover.title || handover.configuration.title}
+              version={handover.version}
+              status={handover.status}
+              isStale={handover.isStale}
+            />
             <Link
               to={`/app/handovers/${handover.id}/review`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition-colors"

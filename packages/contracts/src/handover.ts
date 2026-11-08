@@ -215,3 +215,10 @@ export const HandoverInputSchema = z.object({
   ),
 });
 export type HandoverInput = z.infer<typeof HandoverInputSchema>;
+
+// ─── Export Query Schema ─────────────────────────────────────────────────────
+
+export const ExportHandoverQuerySchema = z.object({
+  format: z.enum(['md', 'pdf']),
+});
+export type ExportHandoverQuery = z.infer<typeof ExportHandoverQuerySchema>;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { DbPool } from '@relay/database';
-import type { ServerEnvironment } from '@relay/contracts';
+import type { ServerEnvironment, HandoverDetail } from '@relay/contracts';
 import { requireAction } from '../auth/authorisation.js';
 import {
   CreateHandoverInputSchema,
@@ -9,6 +9,7 @@ import {
   AddReviewerContextSchema,
   ApproveHandoverSchema,
   PaginationQuerySchema,
+  ExportHandoverQuerySchema,
 } from '@relay/contracts';
 import {
   enqueueJob,
@@ -20,6 +21,7 @@ import {
   shareHandover,
 } from '@relay/database';
 import { decodeCursor, encodeCursor } from '../lib/pagination.js';
+import { renderHandoverMarkdown, renderHandoverPdf, type ExportMetadata } from '../export/index.js';
 
 export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Router {
   const router = Router();
@@ -909,6 +911,263 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
           data: revRes.rows,
           requestId: req.id,
         });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // ─── GET /handovers/:id/export ─────────────────────────────────────────────
+  router.get(
+    '/handovers/:id/export',
+    requireAction(pool, 'HANDOVER_EXPORT', (req) => ({ handoverId: req.params.id })),
+    async (req, res, next) => {
+      try {
+        const handoverId = req.params.id as string;
+        const userId = req.user!.id;
+
+        const parseQuery = ExportHandoverQuerySchema.safeParse(req.query);
+        if (!parseQuery.success) {
+          res.status(400).json({
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'Invalid export query parameters. Supported formats: md, pdf.',
+              details: parseQuery.error.errors,
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        const { format } = parseQuery.data;
+
+        // Fetch handover with project info & epoch
+        const hRes = await pool.query(
+          `SELECT
+             h.*,
+             pr.display_name as "recipientName",
+             pdep.display_name as "departingUserName",
+             p.access_epoch as "currentProjectEpoch",
+             p.organisation_id as "organisationId"
+           FROM public.handovers h
+           JOIN public.projects p ON p.id = h.project_id
+           LEFT JOIN public.profiles pr ON pr.id = h.recipient_id
+           LEFT JOIN public.profiles pdep ON pdep.id = h.departing_user_id
+           WHERE h.id = $1`,
+          [handoverId]
+        );
+
+        if (hRes.rows.length === 0) {
+          res.status(404).json({
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Resource not found.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        const h = hRes.rows[0];
+
+        // Validity Check 1: Handover status must be 'approved' or 'shared' (SPEC Section 2A.9 item 2)
+        if (h.status !== 'approved' && h.status !== 'shared') {
+          res.status(409).json({
+            error: {
+              code: 'REGENERATION_REQUIRED',
+              message: 'Only approved or shared handovers can be exported.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        // Validity Check 2: Access epochs must match current project access epoch
+        const currentEpoch = BigInt(h.currentProjectEpoch);
+        const genEpoch = BigInt(h.generated_access_epoch);
+        const appEpoch = h.approved_access_epoch ? BigInt(h.approved_access_epoch) : null;
+
+        if (genEpoch !== currentEpoch || (h.approved_access_epoch && appEpoch !== currentEpoch)) {
+          res.status(409).json({
+            error: {
+              code: 'REGENERATION_REQUIRED',
+              message:
+                'The requested handover is stale due to an access policy change and must be regenerated.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        // Validity Check 3: Check active project ownership and recipient membership
+        const memberCheck = await pool.query(
+          `SELECT
+             (SELECT count(*) FROM public.project_members WHERE project_id = $1 AND role = 'owner' AND active = true) as owner_count,
+             (SELECT count(*) FROM public.project_members WHERE project_id = $1 AND user_id = $2 AND active = true) as recip_count`,
+          [h.project_id, h.recipient_id]
+        );
+        if (
+          parseInt(memberCheck.rows[0].owner_count, 10) < 1 ||
+          parseInt(memberCheck.rows[0].recip_count, 10) < 1
+        ) {
+          res.status(409).json({
+            error: {
+              code: 'REGENERATION_REQUIRED',
+              message:
+                'Handover is invalid because project ownership or recipient membership is missing.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        // Validity Check 4: Caller must be able to read all cited claims in non-rejected items
+        const claimCheck = await pool.query(
+          `SELECT 1
+           FROM public.handover_items hi
+           JOIN public.handover_item_claims hic ON hic.item_id = hi.id
+           WHERE hi.handover_id = $1
+             AND hi.review_state <> 'rejected'
+             AND not app_private.can_read_claim(hic.claim_id, $2) = true
+           LIMIT 1`,
+          [handoverId, userId]
+        );
+
+        if (claimCheck.rows.length > 0) {
+          res.status(409).json({
+            error: {
+              code: 'REGENERATION_REQUIRED',
+              message: 'The requested handover cites evidence that is no longer accessible to you.',
+              details: [],
+            },
+            requestId: req.id,
+          });
+          return;
+        }
+
+        // Fetch accessible items with citations
+        const itemsRes = await pool.query(
+          `SELECT
+             hi.id,
+             hi.handover_id as "handoverId",
+             hi.project_id as "projectId",
+             hi.section,
+             hi.ordinal,
+             hi.text,
+             hi.item_kind as "itemKind",
+             hi.evidence_state as "evidenceState",
+             hi.review_state as "reviewState",
+             hi.original_text as "originalText",
+             hi.edited_by as "editedBy",
+             hi.edited_at as "editedAt",
+             hi.row_version as "rowVersion",
+             coalesce(
+               array_agg(hic.claim_id) filter (where hic.claim_id is not null),
+               '{}'
+             ) as "claimIds",
+             coalesce(
+               json_agg(
+                 json_build_object(
+                   'claimId', c.id,
+                   'statement', c.statement,
+                   'evidenceState', c.evidence_state,
+                   'quote', ce.quote,
+                   'sourceTitle', s.title,
+                   'chunkId', ce.chunk_id,
+                   'quoteStart', ce.quote_start,
+                   'quoteEnd', ce.quote_end
+                 )
+               ) filter (where c.id is not null),
+               '[]'
+             ) as citations
+           FROM public.handover_items hi
+           LEFT JOIN public.handover_item_claims hic ON hic.item_id = hi.id
+           LEFT JOIN public.claims c ON c.id = hic.claim_id AND app_private.can_read_claim(c.id, $2) = true
+           LEFT JOIN public.claim_evidence ce ON ce.claim_id = c.id
+           LEFT JOIN public.source_chunks sc ON sc.id = ce.chunk_id
+           LEFT JOIN public.sources s ON s.id = sc.source_id AND app_private.can_read_source(s.id, $2) = true
+           WHERE hi.handover_id = $1
+           GROUP BY hi.id
+           ORDER BY hi.section, hi.ordinal ASC`,
+          [handoverId, userId]
+        );
+
+        const handoverDetail: HandoverDetail = {
+          id: h.id,
+          projectId: h.project_id,
+          rootId: h.root_id,
+          version: h.version,
+          title: h.title,
+          recipientId: h.recipient_id,
+          recipientName: h.recipientName,
+          departingUserId: h.departing_user_id,
+          departingUserName: h.departingUserName,
+          createdBy: h.created_by,
+          status: h.status,
+          generatedAccessEpoch: String(h.generated_access_epoch),
+          approvedAccessEpoch: h.approved_access_epoch ? String(h.approved_access_epoch) : null,
+          approvedBy: h.approved_by,
+          approvedAt: h.approved_at,
+          sharedAt: h.shared_at,
+          sharedBy: h.shared_by,
+          rowVersion: h.row_version,
+          createdAt: h.created_at,
+          updatedAt: h.updated_at,
+          configuration: h.configuration,
+          items: itemsRes.rows,
+          isStale: false,
+        };
+
+        const exportMetadata: ExportMetadata = {
+          exportedAt: new Date().toISOString(),
+        };
+
+        // Write audit event (identifiers only, per SPEC 2A.14)
+        await pool.query(
+          `INSERT INTO public.audit_events (organisation_id, project_id, actor_id, action, entity_type, entity_id, metadata)
+           VALUES ($1, $2, $3, 'handover.export', 'handover', $4, $5)`,
+          [
+            h.organisationId,
+            h.project_id,
+            userId,
+            h.id,
+            JSON.stringify({
+              handoverId: h.id,
+              rootId: h.root_id,
+              version: h.version,
+              format,
+              recipientId: h.recipient_id,
+            }),
+          ]
+        );
+
+        // Build safe filename: relay-handover-${slug}-v${version}.${format}
+        const titleStr = h.title || h.configuration?.title || 'handover';
+        const slug =
+          titleStr
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
+            .slice(0, 50) || 'handover';
+        const filename = `relay-handover-${slug}-v${h.version}.${format}`;
+
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+        if (format === 'md') {
+          const markdownContent = renderHandoverMarkdown(handoverDetail, exportMetadata);
+          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+          res.send(markdownContent);
+        } else {
+          const pdfBuffer = await renderHandoverPdf(handoverDetail, exportMetadata);
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Length', pdfBuffer.length);
+          res.send(pdfBuffer);
+        }
       } catch (err) {
         next(err);
       }

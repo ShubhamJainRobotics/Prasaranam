@@ -83,6 +83,12 @@ const targetSchemas: Record<string, any> = {
   ReviewRecord: contracts.ReviewRecordSchema,
   HandoverInput: contracts.HandoverInputSchema,
   HandoverOutput: contracts.HandoverOutputSchema,
+  AnswerInput: contracts.AnswerInputSchema,
+  AnswerOutput: contracts.AnswerOutputSchema,
+  ConversationSummary: contracts.ConversationSummarySchema,
+  PostMessageInput: contracts.PostMessageInputSchema,
+  ConversationMessage: contracts.ConversationMessageSchema,
+  ExportHandoverQuery: contracts.ExportHandoverQuerySchema,
 };
 
 for (const [name, schema] of Object.entries(targetSchemas)) {

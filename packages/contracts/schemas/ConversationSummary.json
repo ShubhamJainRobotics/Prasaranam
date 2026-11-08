@@ -1,0 +1,41 @@
+{
+  "$ref": "#/definitions/ConversationSummary",
+  "definitions": {
+    "ConversationSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "projectId": {
+          "$ref": "#/definitions/ConversationSummary/properties/id"
+        },
+        "userId": {
+          "$ref": "#/definitions/ConversationSummary/properties/id"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "messageCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastMessageAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "userId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

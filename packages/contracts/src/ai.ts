@@ -302,3 +302,78 @@ export const AiUsageSummarySchema = z.object({
   createdAt: z.string(),
 });
 export type AiUsageSummary = z.infer<typeof AiUsageSummarySchema>;
+
+// ─── Section 15.5 Q&A & Conversations ────────────────────────────────────────
+
+export const AnswerInputSchema = z.object({
+  question: z.string().min(1).max(2000),
+  recentUserQuestions: z.array(z.string().min(1).max(2000)).max(6),
+  claims: z.array(ClaimInputSchema).max(40),
+});
+export type AnswerInput = z.infer<typeof AnswerInputSchema>;
+
+export const AnswerStatementSchema = z.object({
+  text: z.string().min(1).max(2000),
+  claimIds: z.array(UuidSchema),
+});
+export type AnswerStatement = z.infer<typeof AnswerStatementSchema>;
+
+export const AnswerOutputSchema = z.object({
+  status: z.enum(['answered', 'insufficient_evidence', 'conflicting_evidence']),
+  statements: z.array(AnswerStatementSchema).max(12),
+  limitations: z.array(z.string().min(1).max(2000)),
+  suggestedClarification: z.string().min(1).max(1000).nullable(),
+});
+export type AnswerOutput = z.infer<typeof AnswerOutputSchema>;
+
+export const ConversationSummarySchema = z.object({
+  id: UuidSchema,
+  projectId: UuidSchema,
+  userId: UuidSchema,
+  createdAt: z.string(),
+  messageCount: z.number().int().nonnegative().optional(),
+  lastMessageAt: z.string().nullable().optional(),
+});
+export type ConversationSummary = z.infer<typeof ConversationSummarySchema>;
+
+export const PostMessageInputSchema = z.object({
+  question: z.string().min(1).max(2000),
+});
+export type PostMessageInput = z.infer<typeof PostMessageInputSchema>;
+
+export const MessageCitationSchema = z.object({
+  claimId: UuidSchema,
+  statement: z.string().optional(),
+  evidenceState: EvidenceStateSchema.optional(),
+  quote: z.string(),
+  sourceTitle: z.string(),
+  chunkId: UuidSchema.optional(),
+  quoteStart: z.number().int().nonnegative().optional(),
+  quoteEnd: z.number().int().nonnegative().optional(),
+});
+export type MessageCitation = z.infer<typeof MessageCitationSchema>;
+
+export const EnrichedAnswerStatementSchema = z.object({
+  text: z.string(),
+  claimIds: z.array(UuidSchema),
+  citations: z.array(MessageCitationSchema),
+});
+export type EnrichedAnswerStatement = z.infer<typeof EnrichedAnswerStatementSchema>;
+
+export const ConversationMessageSchema = z.object({
+  id: UuidSchema,
+  conversationId: UuidSchema,
+  projectId: UuidSchema,
+  role: z.enum(['user', 'assistant']),
+  body: z.record(z.unknown()),
+  accessEpoch: z.string(),
+  createdAt: z.string(),
+});
+export type ConversationMessage = z.infer<typeof ConversationMessageSchema>;
+
+export const ConversationMessagesResponseSchema = z.object({
+  messages: z.array(ConversationMessageSchema),
+  hasStaleHistory: z.boolean(),
+  historyUnavailableNotice: z.string().nullable(),
+});
+export type ConversationMessagesResponse = z.infer<typeof ConversationMessagesResponseSchema>;

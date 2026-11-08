@@ -25,13 +25,18 @@ export type Action =
   | 'HANDOVER_VIEW'
   | 'HANDOVER_REVIEW'
   | 'HANDOVER_APPROVE'
-  | 'HANDOVER_SHARE';
+  | 'HANDOVER_SHARE'
+  | 'HANDOVER_EXPORT'
+  | 'CONVERSATION_CREATE'
+  | 'CONVERSATION_VIEW'
+  | 'CONVERSATION_ASK';
 
 export interface AuthorisationContext {
   orgId?: string;
   projectId?: string;
   sourceId?: string;
   handoverId?: string;
+  conversationId?: string;
 }
 
 /**
@@ -246,6 +251,83 @@ export async function authorizeAction(
       }
       return 'FORBIDDEN';
     }
+  }
+
+  // Phase 7: Export
+  if (action === 'HANDOVER_EXPORT') {
+    let targetProjectId = projectId;
+    let recipientId: string | null = null;
+
+    if (context.handoverId) {
+      const hRes = await pool.query(
+        'SELECT project_id, recipient_id, status FROM public.handovers WHERE id = $1',
+        [context.handoverId]
+      );
+      if (hRes.rows.length === 0) {
+        return 'NOT_FOUND';
+      }
+      targetProjectId = hRes.rows[0].project_id as string;
+      recipientId = hRes.rows[0].recipient_id as string;
+    }
+
+    if (!targetProjectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(targetProjectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    // Owner, reviewer, or named recipient can export (SPEC 2A.2)
+    const isOwnerOrReviewer =
+      projectMembership.role === 'owner' || projectMembership.role === 'reviewer';
+    const isNamedRecipient = recipientId === user.id;
+
+    if (isOwnerOrReviewer || isNamedRecipient) {
+      return 'ALLOWED';
+    }
+
+    return 'FORBIDDEN';
+  }
+
+  // Phase 7: Conversations & Q&A
+  if (action === 'CONVERSATION_CREATE') {
+    if (!projectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(projectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    // Owner, reviewer, contributor, recipient can all start a conversation (SPEC 2A.2)
+    return 'ALLOWED';
+  }
+
+  if (action === 'CONVERSATION_VIEW' || action === 'CONVERSATION_ASK') {
+    let targetProjectId = projectId;
+
+    if (context.conversationId) {
+      const cRes = await pool.query(
+        'SELECT project_id, user_id FROM public.conversations WHERE id = $1',
+        [context.conversationId]
+      );
+      if (cRes.rows.length === 0) {
+        return 'NOT_FOUND';
+      }
+      // Must be caller's own conversation (SPEC 2A.2: "do not reveal existence")
+      if (cRes.rows[0].user_id !== user.id) {
+        return 'NOT_FOUND';
+      }
+      targetProjectId = cRes.rows[0].project_id as string;
+    }
+
+    if (!targetProjectId) return 'NOT_FOUND';
+
+    const projectMembership = user.projectMemberships.get(targetProjectId);
+    if (!projectMembership) {
+      return 'NOT_FOUND';
+    }
+
+    return 'ALLOWED';
   }
 
   return 'NOT_FOUND';

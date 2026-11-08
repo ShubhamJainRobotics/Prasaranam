@@ -1,0 +1,48 @@
+{
+  "$ref": "#/definitions/ConversationMessage",
+  "definitions": {
+    "ConversationMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/ConversationMessage/properties/id"
+        },
+        "projectId": {
+          "$ref": "#/definitions/ConversationMessage/properties/id"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "assistant"
+          ]
+        },
+        "body": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "accessEpoch": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "conversationId",
+        "projectId",
+        "role",
+        "body",
+        "accessEpoch",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

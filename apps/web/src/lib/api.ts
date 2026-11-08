@@ -101,6 +101,45 @@ export async function apiFetchPaginated<T>(
   return body as PaginatedResult<T>;
 }
 
+export async function apiDownload(endpoint: string, fallbackFilename: string): Promise<void> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  const headers = new Headers();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const errorPayload: ApiErrorPayload = body?.error || {
+      code: response.status === 409 ? 'REGENERATION_REQUIRED' : 'EXPORT_FAILED',
+      message: response.statusText || 'Download failed',
+      details: [],
+    };
+    throw new RelayApiError(response.status, errorPayload);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get('Content-Disposition');
+  let filename = fallbackFilename;
+  if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename="?([^";]+)"?/);
+    if (match && match[1]) filename = match[1];
+  }
+
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(downloadUrl);
+}
+
 export const api = {
   get: <T = unknown>(endpoint: string, options?: RequestInit) =>
     apiFetch<T>(endpoint, { ...options, method: 'GET' }),
@@ -118,4 +157,5 @@ export const api = {
     }),
   delete: <T = unknown>(endpoint: string, options?: RequestInit) =>
     apiFetch<T>(endpoint, { ...options, method: 'DELETE' }),
+  download: (endpoint: string, fallbackFilename: string) => apiDownload(endpoint, fallbackFilename),
 };
