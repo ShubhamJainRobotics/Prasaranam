@@ -37,20 +37,34 @@ if (env.DATABASE_URL) {
 
 const app = createApp({ env, pool });
 
-const server = app.listen(env.PORT, () => {
-  logger.info({ port: env.PORT, nodeEnv: env.NODE_ENV }, 'Relay API server started');
-});
+let server: import('node:http').Server | undefined;
+if (!process.env.VERCEL) {
+  server = app.listen(env.PORT, () => {
+    logger.info({ port: env.PORT, nodeEnv: env.NODE_ENV }, 'Relay API server started');
+  });
+}
 
 async function shutdown(signal: string) {
   logger.info({ signal }, 'Shutting down Relay API server...');
-  server.close(async () => {
+  if (server) {
+    server.close(async () => {
+      if (pool) {
+        await closeDbPool(pool);
+      }
+      logger.info('Relay API shutdown complete');
+      process.exit(0);
+    });
+  } else {
     if (pool) {
       await closeDbPool(pool);
     }
-    logger.info('Relay API shutdown complete');
     process.exit(0);
-  });
+  }
 }
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+export default app;
+export { app, server };
+
