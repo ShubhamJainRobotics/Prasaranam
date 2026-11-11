@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -b",
+    "build": "npm run --workspace=@relay/contracts build && npm run --workspace=@relay/database build && tsc -b",
     "typecheck": "tsc -b --noEmit",
     "start": "node dist/server.js"
   },
