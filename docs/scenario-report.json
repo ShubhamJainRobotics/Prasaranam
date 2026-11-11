@@ -1,0 +1,1320 @@
+{
+  "generatedAt": "2026-11-10T19:08:33.658Z",
+  "summary": {
+    "totalScenarios": 9,
+    "totalSteps": 97,
+    "passedSteps": 90,
+    "brokenSteps": 6,
+    "notBuiltSteps": 1
+  },
+  "commands": {
+    "typecheck": {
+      "passed": true,
+      "output": ""
+    },
+    "lint": {
+      "passed": true,
+      "output": ""
+    },
+    "test": {
+      "passed": true,
+      "output": "RUN  v3.2.7 /home/shubham/Relay\n\n ✓ tests/unit/rename.test.ts (4 tests) 13ms\n ✓ tests/unit/semantic-validator.test.ts (13 tests) 5ms\n ✓ packages/contracts/test/env.test.ts (14 tests) 9ms\n ✓ tests/unit/handover-validator.test.ts (10 tests) 10ms\n ✓ packages/contracts/test/contracts.test.ts (11 tests) 7ms\n{\"level\":30,\"time\":1794337713261,\"pid\":118938,\"hostname\":\"shubham-LOQ-15IAX9E\",\"name\":\"fake-deterministic-provider\",\"requestId\":\"test-req-1\",\"model\":\"fake-deterministic\",\"durationMs\":0,\"usage\":{\"inputTokens\":359,\"outputTokens\":150},\"adversarialMode\":\"none\",\"msg\":\"Fake deterministic provider output generated\"}\n{\"level\":30,\"time\":1794337713265,\"pid\":118938,\"hostname\":\"shubham-LOQ-15IAX9E\",\"name\":\"fake-deterministic-provider\",\"requestId\":\"test-req-2\",\"model\":\"fake-deterministic\",\"durationMs\":0,\"usage\":{\"inputTokens\":438,\"outputTokens\":150},\"adversarialMode\":\"none\",\"msg\":\"Fake deterministic provider output generated\"}\n{\"level\":30,\"time\":1794337713266,\"pid\":118938,\"hostname\":\"shubham-LOQ-15IAX9E\",\"name\":\"fake-deterministic-provider\",\"requestId\":\"test-req-3\",\"model\":\"fake-deterministic\",\"durationMs\":1,\"usage\":{\"inputTokens\":279,\"outputTokens\":150},\"adversarialMode\":\"none\",\"msg\":\"Fake deterministic provider output generated\"}\n{\"level\":30,\"time\":1794337713266,\"pid\":118938,\"hostname\":\"shubham-LOQ-15IAX9E\",\"name\":\"fake-deterministic-provider\",\"requestId\":\"test-req-4\",\"model\":\"fake-deterministic\",\"durationMs\":0,\"usage\":{\"inputTokens\":273,\"outputTokens\":150},\"adversarialMode\":\"fabricated_chunk_id\",\"msg\":\"Fake deterministic provider output generated\"}\n ✓ tests/unit/fake-provider.test.ts (5 tests) 12ms\n ✓ tests/unit/qa-validator.test.ts (12 tests) 113ms\n ✓ apps/api/test/ingestion.test.ts (17 tests) 81ms\n ✓ tests/unit/openapi.test.ts (1 test) 13ms\n\n Test Files  9 passed (9)\n      Tests  87 passed (87)\n   Start at  00:38:32\n   Duration  799ms (transform 619ms, setup 0ms, collect 1.64s, tests 262ms, environment 2ms, prepare 732ms)"
+    }
+  },
+  "scenarios": [
+    {
+      "scenarioNumber": 1,
+      "scenarioId": "scenario-1",
+      "scenarioName": "Onboarding and workspace",
+      "passedCount": 9,
+      "brokenCount": 3,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn1-step-01-register",
+          "name": "Register user with unconfirmed email",
+          "feature": "POST /auth/v1/signup",
+          "action": "Register scn1-owner@example.test with password via Supabase Auth",
+          "expectedResult": "User created in auth.users with unconfirmed email status",
+          "status": "passed",
+          "durationMs": 63,
+          "expected": "User created in auth.users",
+          "actual": "Created user f4d89243-8dc8-47bd-b463-90fbbcd4a9e7 with email scn1-owner-1794337696532@example.test"
+        },
+        {
+          "id": "scn1-step-02-confirm-email",
+          "name": "Confirm email through local Mailpit",
+          "feature": "Local Email Verification Interface",
+          "action": "Fetch confirmation email from Mailpit and execute verification link",
+          "expectedResult": "Email marked confirmed in Supabase auth",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "Email confirmed",
+          "actual": "Email confirmed via Mailpit token URL (303)"
+        },
+        {
+          "id": "scn1-step-03-signin",
+          "name": "Sign in with confirmed credentials",
+          "feature": "POST /auth/v1/token",
+          "action": "Sign in using owner credentials and obtain session JWT",
+          "expectedResult": "HTTP 200 and valid JWT returned",
+          "status": "passed",
+          "durationMs": 61,
+          "expected": "Valid JWT session",
+          "actual": "Signed in successfully. Token length: 998"
+        },
+        {
+          "id": "scn1-step-04-create-org",
+          "name": "Bootstrap organisation",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create organisation scn-org-1-workspace as owner",
+          "expectedResult": "HTTP 201 with organisation data and owner role",
+          "status": "passed",
+          "durationMs": 37,
+          "expected": "HTTP 201 Created",
+          "actual": "Created organisation b350b5e6-fe94-43a8-bde7-46e8864aa23e"
+        },
+        {
+          "id": "scn1-step-05-create-projects-all-templates",
+          "name": "Create projects for all six domain templates",
+          "feature": "POST /api/v1/organisations/:id/projects",
+          "action": "Create 6 projects covering all ProjectDomain enum templates",
+          "expectedResult": "HTTP 201 for each project with specified template domain",
+          "status": "passed",
+          "durationMs": 56,
+          "expected": "6 domain template projects created",
+          "actual": "Created 6 projects: software_engineering, research, student_team, nonprofit_operations, business_operations, general"
+        },
+        {
+          "id": "scn1-step-06-add-all-roles",
+          "name": "Add members for all four project roles",
+          "feature": "POST /api/v1/projects/:id/members",
+          "action": "Add second owner, reviewer, contributor, and recipient to organisation & project",
+          "expectedResult": "HTTP 200/201 and memberships recorded with correct roles",
+          "status": "passed",
+          "durationMs": 532,
+          "expected": "4 project members added across owner, reviewer, contributor, recipient",
+          "actual": "All 4 members successfully added with distinct roles"
+        },
+        {
+          "id": "scn1-step-07-change-role",
+          "name": "Change member role",
+          "feature": "PATCH /api/v1/projects/:id/members/:userId",
+          "action": "Promote contributor to reviewer in project",
+          "expectedResult": "HTTP 200 and updated role: reviewer",
+          "status": "passed",
+          "durationMs": 9,
+          "expected": "Role updated to reviewer",
+          "actual": "Updated member 4ceefec4-da83-4744-b8e6-7e3086a95c82 role to reviewer"
+        },
+        {
+          "id": "scn1-step-08-deactivate-member",
+          "name": "Deactivate member",
+          "feature": "PATCH /api/v1/projects/:id/members/:userId",
+          "action": "Set active: false on member",
+          "expectedResult": "HTTP 200 and active: false",
+          "status": "passed",
+          "durationMs": 19,
+          "expected": "Member deactivated and re-activated",
+          "actual": "Deactivated recipient and confirmed active: false"
+        },
+        {
+          "id": "scn1-step-09-last-owner-project",
+          "name": "Last owner protection at project level",
+          "feature": "Database Constraint / Trigger (last-owner-protection)",
+          "action": "Attempt to demote the sole active owner in project",
+          "expectedResult": "HTTP 409 LAST_OWNER conflict",
+          "status": "broken",
+          "durationMs": 8,
+          "request": {
+            "method": "PATCH",
+            "path": "/api/v1/projects/6cef6a49-c200-40f1-86d0-1153c6fec727/members/f8973825-a5e0-4212-b54c-c65945318897",
+            "body": {
+              "active": false
+            }
+          },
+          "responseStatus": 200,
+          "expected": "HTTP 409 LAST_OWNER",
+          "actual": {
+            "data": {
+              "userId": "f8973825-a5e0-4212-b54c-c65945318897",
+              "active": false
+            },
+            "requestId": "f6eea635-f6ec-4035-b850-6acb7c710d5e"
+          },
+          "likelySourceFile": "supabase/migrations/20261107100002_mutation_functions.sql"
+        },
+        {
+          "id": "scn1-step-10-last-owner-org",
+          "name": "Last owner protection at organisation level",
+          "feature": "Database Constraint / Trigger (last-owner-protection)",
+          "action": "Attempt to demote the sole active organisation owner",
+          "expectedResult": "HTTP 409 LAST_OWNER conflict",
+          "status": "broken",
+          "durationMs": 5,
+          "request": {
+            "method": "PATCH",
+            "path": "/api/v1/organisations/b350b5e6-fe94-43a8-bde7-46e8864aa23e/members/f8973825-a5e0-4212-b54c-c65945318897",
+            "body": {
+              "role": "member"
+            }
+          },
+          "responseStatus": 403,
+          "expected": "HTTP 409 LAST_OWNER",
+          "actual": {
+            "error": {
+              "code": "FORBIDDEN",
+              "message": "You do not have permission to perform this action.",
+              "details": []
+            },
+            "requestId": "a0767360-1d2a-44f1-b978-bc679dc2bc5a"
+          },
+          "likelySourceFile": "supabase/migrations/20261107100002_mutation_functions.sql"
+        },
+        {
+          "id": "scn1-step-11-update-display-name",
+          "name": "Update user display name",
+          "feature": "PATCH /api/v1/me",
+          "action": "Update display name to \"Scenario 1 Updated Owner\"",
+          "expectedResult": "HTTP 200 with updated displayName",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 200 with updated name",
+          "actual": "Updated display name: Scenario 1 Updated Owner"
+        },
+        {
+          "id": "scn1-step-12-unknown-email-non-enumeration",
+          "name": "Non-enumerating member addition",
+          "feature": "POST /api/v1/projects/:id/members",
+          "action": "Invite an unknown email address and check for generic response",
+          "expectedResult": "HTTP 200/201 with identical response envelope shape",
+          "status": "broken",
+          "durationMs": 7,
+          "request": {
+            "method": "POST",
+            "path": "/api/v1/projects/6cef6a49-c200-40f1-86d0-1153c6fec727/members",
+            "body": {
+              "email": "ghost-1794337697343@example.test",
+              "role": "contributor"
+            }
+          },
+          "responseStatus": 404,
+          "expected": "HTTP 200/201 generic response",
+          "actual": {
+            "error": {
+              "code": "NOT_FOUND",
+              "message": "Resource not found.",
+              "details": []
+            },
+            "requestId": "c5732b8c-7052-4bc5-818e-77b837d526f6"
+          },
+          "likelySourceFile": "apps/api/src/routes/projects.ts"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 2,
+      "scenarioId": "scenario-2",
+      "scenarioName": "Importing sources",
+      "passedCount": 15,
+      "brokenCount": 1,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn2-step-01-setup",
+          "name": "Setup organisation & project for importing scenario",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-2-importing and scn-proj-2-importing",
+          "expectedResult": "Setup completed with active project owner",
+          "status": "passed",
+          "durationMs": 132,
+          "expected": "Project ready for imports",
+          "actual": "Created project 0bc6e813-4301-4e48-81cb-4fe540157499"
+        },
+        {
+          "id": "scn2-step-02-import-pasted-text",
+          "name": "Import pasted text source",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Import pasted text with project visibility",
+          "expectedResult": "HTTP 201 with source metadata and chunks created",
+          "status": "passed",
+          "durationMs": 18,
+          "expected": "HTTP 201 Created",
+          "actual": "Imported pasted source 611fdb1a-a4ae-4fec-974f-159ae7c14fc7 (chunks: 1)"
+        },
+        {
+          "id": "scn2-step-03-import-markdown",
+          "name": "Import Markdown file source",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Upload .md file with headings and bullet points",
+          "expectedResult": "HTTP 201 with markdown source and preserved structure",
+          "status": "passed",
+          "durationMs": 20,
+          "expected": "HTTP 201 Created",
+          "actual": "Imported markdown source df1837a5-e51b-4136-8430-bf323f14f2ad"
+        },
+        {
+          "id": "scn2-step-04-import-messages-json",
+          "name": "Import relay.messages.v1 envelope",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Upload messages envelope with author, timestamp, and text",
+          "expectedResult": "HTTP 201 with one chunk per message record",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "HTTP 201 Created",
+          "actual": "Imported messages envelope: 54fb7464-6811-4565-9e33-f3e4a7859140"
+        },
+        {
+          "id": "scn2-step-05-import-issues-json",
+          "name": "Import relay.issues.v1 envelope",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Upload issues envelope with issue tracker tickets",
+          "expectedResult": "HTTP 201 with issue tracker metadata and chunks",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "HTTP 201 Created",
+          "actual": "Imported issues envelope: a12f1aa0-7920-40d9-8aa7-5e56840b1801"
+        },
+        {
+          "id": "scn2-step-06-import-replacement-revision",
+          "name": "Import replacement revision of an existing source",
+          "feature": "POST /api/v1/projects/:id/sources/import (replaces_source_id)",
+          "action": "Import revision replacing pasted source with updated text",
+          "expectedResult": "HTTP 201 with sourceRevision: 2, and prior version archived",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "Source revision incremented to 2",
+          "actual": "Created revised source ddeedc29-183a-42eb-8abc-2bb3e0730529 at revision 2"
+        },
+        {
+          "id": "scn2-step-07-unicode-offsets-match",
+          "name": "Verify exact Unicode code-point offset calculations",
+          "feature": "Unicode Offsets & Canonical Chunker (SPEC Section 2A.6)",
+          "action": "Import text with emoji, combining marks, non-Latin script and inspect chunk offsets",
+          "expectedResult": "HTTP 201 and chunk endOffset - startOffset matches character length",
+          "status": "passed",
+          "durationMs": 13,
+          "expected": "Offsets match exact code point character lengths",
+          "actual": "Verified 1 chunks with emoji and non-Latin scripts"
+        },
+        {
+          "id": "scn2-step-08-verify-url-not-fetched",
+          "name": "Verify supplied URLs in data are never fetched",
+          "feature": "URL Ingestion Inertness (SPEC Section 4.2)",
+          "action": "Import message record containing non-resolvable external URL",
+          "expectedResult": "HTTP 201 and URL stored purely as textual metadata without HTTP fetching",
+          "status": "passed",
+          "durationMs": 9,
+          "expected": "URL retained as plain string without network fetch",
+          "actual": "Source ingested cleanly; originalUrl preserved: 1f84f1ce-19ab-4b5b-8da1-e65417266fab"
+        },
+        {
+          "id": "scn2-step-09-reject-oversize-file",
+          "name": "Reject single file exceeding 5 MiB ceiling",
+          "feature": "Upload Ceiling (SPEC Section 2A.7)",
+          "action": "Upload file of 6 MiB (exceeding 5 MiB ceiling)",
+          "expectedResult": "HTTP 413 PAYLOAD_TOO_LARGE",
+          "status": "passed",
+          "durationMs": 18,
+          "expected": "HTTP 413 PAYLOAD_TOO_LARGE",
+          "actual": "Rejected 6 MiB upload with HTTP 413"
+        },
+        {
+          "id": "scn2-step-10-reject-too-many-files",
+          "name": "Reject upload exceeding 10 files ceiling",
+          "feature": "Upload File Count Ceiling (SPEC Section 2A.7)",
+          "action": "Upload 11 files in single request (ceiling is 10)",
+          "expectedResult": "HTTP 413 or 422 PAYLOAD_TOO_LARGE / VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 413 or 422",
+          "actual": "Rejected 11 files with HTTP 413"
+        },
+        {
+          "id": "scn2-step-11-reject-too-many-records",
+          "name": "Reject JSON import exceeding 10,000 records ceiling",
+          "feature": "JSON Record Ceiling (SPEC Section 2A.7)",
+          "action": "Upload messages envelope with 10,001 records",
+          "expectedResult": "HTTP 422 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 61,
+          "expected": "HTTP 422 VALIDATION_ERROR",
+          "actual": "Rejected 10,001 records with HTTP 422 (VALIDATION_ERROR)"
+        },
+        {
+          "id": "scn2-step-12-reject-invalid-envelope",
+          "name": "Reject JSON import with invalid envelope schema",
+          "feature": "Envelope Schema Validation (SPEC Section 2A.7)",
+          "action": "Upload JSON missing required format identifier",
+          "expectedResult": "HTTP 422 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 8,
+          "expected": "HTTP 422 VALIDATION_ERROR",
+          "actual": "Rejected malformed envelope with HTTP 422"
+        },
+        {
+          "id": "scn2-step-13-reject-format-mismatch",
+          "name": "Reject envelope format mismatch with selected sourceType",
+          "feature": "Format-Type Matching (SPEC Section 2A.7)",
+          "action": "Upload relay.issues.v1 file with sourceType=messages",
+          "expectedResult": "HTTP 422 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 7,
+          "expected": "HTTP 422 VALIDATION_ERROR",
+          "actual": "Rejected format mismatch with HTTP 422"
+        },
+        {
+          "id": "scn2-step-14-reject-invalid-utf8",
+          "name": "Reject upload with invalid UTF-8 byte sequence",
+          "feature": "Strict UTF-8 Decoding (SPEC Section 2A.6)",
+          "action": "Upload file with non-UTF-8 bytes",
+          "expectedResult": "HTTP 422 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 422 VALIDATION_ERROR",
+          "actual": "Rejected invalid UTF-8 bytes with HTTP 422"
+        },
+        {
+          "id": "scn2-step-15-reject-control-characters",
+          "name": "Reject text containing NUL or disallowed control characters",
+          "feature": "Control Character Stripping/Rejection (SPEC Section 2A.6)",
+          "action": "Upload text containing NUL byte (\\u0000)",
+          "expectedResult": "HTTP 422 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 422 VALIDATION_ERROR",
+          "actual": "Rejected NUL character with HTTP 422"
+        },
+        {
+          "id": "scn2-step-16-duplicate-import-detection",
+          "name": "Duplicate import detection & allowDuplicate override",
+          "feature": "Duplicate Import Detection (Hackathon Addition 3)",
+          "action": "Re-import identical content; observe 409 DUPLICATE_SOURCE; retry with allowDuplicate: true",
+          "expectedResult": "Rejected with 409 DUPLICATE_SOURCE on duplicate; succeeds with 201 when allowDuplicate is true",
+          "status": "broken",
+          "durationMs": 20,
+          "responseStatus": 201,
+          "expected": "HTTP 409 DUPLICATE_SOURCE",
+          "actual": {
+            "data": {
+              "sources": [
+                {
+                  "id": "9126147c-1be0-46cf-b5e8-a7fe3d91a45a",
+                  "projectId": "0bc6e813-4301-4e48-81cb-4fe540157499",
+                  "title": "Duplicate Content Attempt",
+                  "kind": "text",
+                  "visibility": "project",
+                  "originalUrl": null,
+                  "authorLabel": null,
+                  "eventAt": null,
+                  "contentSha256": "652189c8bb84c33fd87185f773118ae3aa34f65e8d3121e6af06a98d4267830e",
+                  "revision": 1,
+                  "lineageId": "5e7ad56e-a83a-48d0-b444-392b38f489a4",
+                  "processingStatus": "ready",
+                  "processingErrorCode": null,
+                  "archivedAt": null,
+                  "createdBy": "a7a09562-57c8-4369-9cd1-0a9a90237498",
+                  "createdAt": "2026-11-10T19:08:17.699Z",
+                  "chunkCount": 1
+                }
+              ],
+              "source": {
+                "id": "9126147c-1be0-46cf-b5e8-a7fe3d91a45a",
+                "projectId": "0bc6e813-4301-4e48-81cb-4fe540157499",
+                "title": "Duplicate Content Attempt",
+                "kind": "text",
+                "visibility": "project",
+                "originalUrl": null,
+                "authorLabel": null,
+                "eventAt": null,
+                "contentSha256": "652189c8bb84c33fd87185f773118ae3aa34f65e8d3121e6af06a98d4267830e",
+                "revision": 1,
+                "lineageId": "5e7ad56e-a83a-48d0-b444-392b38f489a4",
+                "processingStatus": "ready",
+                "processingErrorCode": null,
+                "archivedAt": null,
+                "createdBy": "a7a09562-57c8-4369-9cd1-0a9a90237498",
+                "createdAt": "2026-11-10T19:08:17.699Z",
+                "chunkCount": 1
+              }
+            },
+            "requestId": "2ebddb74-ea6f-4894-9fc1-731e0ad64dc2"
+          },
+          "likelySourceFile": "apps/api/src/routes/sources.ts"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 3,
+      "scenarioId": "scenario-3",
+      "scenarioName": "Access control",
+      "passedCount": 9,
+      "brokenCount": 1,
+      "notBuiltCount": 1,
+      "steps": [
+        {
+          "id": "scn3-step-01-setup",
+          "name": "Setup organisation, project, and actors",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-3 and scn-proj-3 with Owner, Reviewer, Contributor, OrgAdmin, and Outsider",
+          "expectedResult": "All actors and memberships configured with distinct isolation roles",
+          "status": "passed",
+          "durationMs": 626,
+          "expected": "Actors created and isolated",
+          "actual": "Configured project b740b390-49fb-4520-90a7-b2c6274c4a33 with 5 distinct test actors"
+        },
+        {
+          "id": "scn3-step-02-create-sources",
+          "name": "Create project-visible and restricted sources",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Import one project-visible source and one restricted source",
+          "expectedResult": "HTTP 201 for both sources",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "Public and restricted sources created",
+          "actual": "Public: 0f923092-7025-44cf-a35d-32712947e26b, Restricted: 057602bb-a62b-4087-9b2a-e9ebe3328d57"
+        },
+        {
+          "id": "scn3-step-03-verify-restricted-without-grant",
+          "name": "Verify restricted source unreadable without grant",
+          "feature": "Source Access Authorization (SPEC Section 11.2)",
+          "action": "Reviewer attempts to access restricted source before receiving a grant",
+          "expectedResult": "HTTP 404 NOT_FOUND (masked existence)",
+          "status": "passed",
+          "durationMs": 4,
+          "expected": "HTTP 404 NOT_FOUND",
+          "actual": "Returned HTTP 404 (NOT_FOUND) to reviewer"
+        },
+        {
+          "id": "scn3-step-04-grant-source-access",
+          "name": "Grant access to restricted source",
+          "feature": "PATCH /api/v1/sources/:id/access",
+          "action": "Project owner grants reviewer explicit access to restricted source",
+          "expectedResult": "HTTP 200 with updated grants list and epoch increment",
+          "status": "passed",
+          "durationMs": 9,
+          "expected": "Grant added for reviewer",
+          "actual": "Grant applied: 9147df74-97d3-483f-8706-765af5495647"
+        },
+        {
+          "id": "scn3-step-05-verify-restricted-with-grant",
+          "name": "Verify granted user can read restricted source while ungranted cannot",
+          "feature": "Source Access Authorization (SPEC Section 11.2)",
+          "action": "Reviewer reads restricted source, while contributor still receives 404",
+          "expectedResult": "Reviewer gets HTTP 200; Contributor gets HTTP 404",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "Reviewer 200 OK, Contributor 404 Not Found",
+          "actual": "Reviewer: 200, Contributor: 404"
+        },
+        {
+          "id": "scn3-step-06-org-admin-project-isolation",
+          "name": "Organisation admin without project membership sees no project content",
+          "feature": "Tenant Isolation (SPEC Section 2A.2)",
+          "action": "OrgAdmin queries project summary, sources, and claims",
+          "expectedResult": "HTTP 404 NOT_FOUND across all project endpoints",
+          "status": "broken",
+          "durationMs": 11,
+          "expected": "HTTP 404 NOT_FOUND for both queries",
+          "actual": {
+            "projectStatus": 200,
+            "sourcesStatus": 404
+          },
+          "likelySourceFile": "apps/api/src/routes/projects.ts"
+        },
+        {
+          "id": "scn3-step-07-outsider-in-other-org-isolation",
+          "name": "Outsider in different organisation sees nothing",
+          "feature": "Cross-Tenant Isolation (SPEC Section 2A.2)",
+          "action": "Outsider queries project, public source, and org endpoints",
+          "expectedResult": "HTTP 404 NOT_FOUND across all endpoints",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "Complete cross-tenant outsider isolation",
+          "actual": "All 3 outsider calls returned HTTP 404"
+        },
+        {
+          "id": "scn3-step-08-archive-source",
+          "name": "Archive source and verify immediate unreadability",
+          "feature": "POST /api/v1/sources/:id/archive",
+          "action": "Project owner archives public source and caller attempts to read it",
+          "expectedResult": "HTTP 200 with archivedAt timestamp; subsequent reads return HTTP 404",
+          "status": "passed",
+          "durationMs": 13,
+          "expected": "Archived source immediately returns 404",
+          "actual": "Archived successfully at undefined; reads return 404"
+        },
+        {
+          "id": "scn3-step-09-guessed-identifiers-404",
+          "name": "Guessed random UUID identifiers return 404 without probing leakage",
+          "feature": "Resource Enumeration Defense (SPEC Section 18.1)",
+          "action": "Request completely random nonexistent UUIDs for project, source, claim, and handover",
+          "expectedResult": "Consistent HTTP 404 with identical error bodies",
+          "status": "passed",
+          "durationMs": 23,
+          "expected": "All return 404 NOT_FOUND",
+          "actual": "Nonexistent resources consistently return standard 404 error envelope"
+        },
+        {
+          "id": "scn3-step-10-access-filtered-counts",
+          "name": "Dashboard and list counts never disclose inaccessible items",
+          "feature": "GET /api/v1/projects/:id/dashboard & /sources",
+          "action": "Compare source counts reported to Contributor (ungranted) vs Reviewer (granted)",
+          "expectedResult": "Contributor count excludes restricted sources",
+          "status": "passed",
+          "durationMs": 14,
+          "expected": "Inaccessible items masked from list counts",
+          "actual": "Contributor sees 0 source(s); Reviewer sees 1 source(s)"
+        },
+        {
+          "id": "scn3-step-11-project-audit-trail",
+          "name": "Read project audit trail (unbuilt feature)",
+          "feature": "GET /api/v1/projects/:id/audit",
+          "action": "Project owner requests project audit trail",
+          "expectedResult": "Marked not built per feature inventory (SPEC Section 12 line 1188)",
+          "status": "not built",
+          "durationMs": 0,
+          "expected": "Not built in current release",
+          "actual": "Feature not registered in application router"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 4,
+      "scenarioId": "scenario-4",
+      "scenarioName": "Knowledge extraction",
+      "passedCount": 13,
+      "brokenCount": 0,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn4-step-01-setup",
+          "name": "Setup organisation and project",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-4-extraction and scn-proj-4-extraction",
+          "expectedResult": "Project ready for extraction jobs",
+          "status": "passed",
+          "durationMs": 123,
+          "expected": "Project ready",
+          "actual": "Created project 4b73166a-66e5-4b91-9932-c3649c56d401"
+        },
+        {
+          "id": "scn4-step-02-import-knowledge-sources",
+          "name": "Import sources with rich domain claims, conflict, and prompt injection",
+          "feature": "POST /api/v1/projects/:id/sources/import",
+          "action": "Import proposal, decision, blocker, tasks, Friday vs Monday statements, and prompt injection message",
+          "expectedResult": "HTTP 201 for all sources",
+          "status": "passed",
+          "durationMs": 22,
+          "expected": "All 4 test sources imported",
+          "actual": "Imported decisions, proposals, blockers, launch conflict, and injection text"
+        },
+        {
+          "id": "scn4-step-03-run-extraction",
+          "name": "Enqueue and process extraction job",
+          "feature": "POST /api/v1/projects/:id/extractions",
+          "action": "Enqueue extraction and await worker completion",
+          "expectedResult": "HTTP 202 and job status transitions to succeeded",
+          "status": "passed",
+          "durationMs": 218,
+          "expected": "Job succeeded",
+          "actual": "Extraction job 82e7e88a-459c-4080-ad69-73b391cb11c0 finished with status: succeeded"
+        },
+        {
+          "id": "scn4-step-04-verify-distinct-proposals-decisions",
+          "name": "Verify proposals and decisions stay distinct",
+          "feature": "Claim Extraction Classification (SPEC Section 4.3)",
+          "action": "Query claims filtered by kind=proposal and kind=decision",
+          "expectedResult": "Both proposal and decision exist with distinct kinds",
+          "status": "passed",
+          "durationMs": 13,
+          "expected": "Distinct proposal and decision claims",
+          "actual": "Found distinct proposal (MongoDB) and decision (PostgreSQL 16)"
+        },
+        {
+          "id": "scn4-step-05-verify-blocker-and-ownership",
+          "name": "Verify blocker claim and unknown ownership preservation",
+          "feature": "Blocker & Ownership Extraction (SPEC Section 4.3)",
+          "action": "Query blocker claims and unassigned tasks",
+          "expectedResult": "Blocker has kind=blocker, unassigned task has owner_label=null",
+          "status": "passed",
+          "durationMs": 15,
+          "expected": "Blocker and unknown ownership preserved",
+          "actual": "Blocker 0e9e4f3f-5329-4f1a-bb3b-7d4f2effb879 verified; unassigned task dfbfda3a-715b-4ba5-8430-111878e26f10 has null owner"
+        },
+        {
+          "id": "scn4-step-06-verify-conflict-and-clarification",
+          "name": "Verify contradiction discovery and clarification question generation",
+          "feature": "Relationship Analysis (SPEC Section 2A.8)",
+          "action": "Check for open contradicts relationship and clarification question on Friday/Monday launch statements",
+          "expectedResult": "Contradiction relationship exists and clarification question is open",
+          "status": "passed",
+          "durationMs": 1029,
+          "expected": "Contradiction and clarification question found",
+          "actual": "Found clarification question: \"Which statement is correct: \"We plan to launch payments integration by Friday.\" or \"We will launch payments integration on Monday.\"?\""
+        },
+        {
+          "id": "scn4-step-07-verify-prompt-injection-inert",
+          "name": "Verify prompt injection text is treated as inert content",
+          "feature": "Prompt Injection Defense (SPEC Section 22.3 Item 12)",
+          "action": "Verify no administrative tables leaked or malicious instructions executed",
+          "expectedResult": "System remains secure; injection text is treated as passive evidence",
+          "status": "passed",
+          "durationMs": 10,
+          "expected": "Prompt injection inert",
+          "actual": "Verified injection instructions caused zero leakage or execution"
+        },
+        {
+          "id": "scn4-step-08-rerun-extraction-deduplication",
+          "name": "Re-run extraction and confirm claim deduplication",
+          "feature": "Claim Deduplication (SPEC Section 2A.11 Item 4)",
+          "action": "Trigger second extraction on same sources and verify claims count does not double",
+          "expectedResult": "Total claims count remains unchanged",
+          "status": "passed",
+          "durationMs": 245,
+          "expected": "Zero duplicate claims created on second run",
+          "actual": "Confirmed stable count: 7 claims before and after"
+        },
+        {
+          "id": "scn4-step-09-cancel-job",
+          "name": "Request job cancellation",
+          "feature": "POST /api/v1/jobs/:id/cancel",
+          "action": "Enqueue extraction job and immediately send cancellation request",
+          "expectedResult": "HTTP 200 and cancel_requested flag set",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "HTTP 200 Cancellation requested",
+          "actual": "Cancelled job 66ef153a-459d-42b1-a9c0-ab2afd1d955e (HTTP 200)"
+        },
+        {
+          "id": "scn4-step-10-retry-failed-job",
+          "name": "Retry a failed job",
+          "feature": "POST /api/v1/jobs/:id/retry",
+          "action": "Set a job to failed in database and call retry endpoint",
+          "expectedResult": "HTTP 200 with job requeued and attempts reset to 0",
+          "status": "passed",
+          "durationMs": 11,
+          "expected": "Job requeued",
+          "actual": "Retried failed job f461916d-7382-457b-a49c-ae9ac509c385; status reset to queued"
+        },
+        {
+          "id": "scn4-step-11-idempotency-key-reuse",
+          "name": "Verify idempotency key semantics (same payload returns existing; different payload returns 422)",
+          "feature": "Idempotency Key Handling (SPEC Section 2A.10)",
+          "action": "Reuse key with identical payload, then reuse key with altered payload",
+          "expectedResult": "First reuse returns 200/202 with existing jobId; second reuse returns 422",
+          "status": "passed",
+          "durationMs": 22,
+          "expected": "Idempotent replay succeeded; payload mismatch returned 422",
+          "actual": "Replay matched job 0c9f127c-e36e-4763-897d-48bc2e105ba5; mismatch returned 422 IDEMPOTENCY_PAYLOAD_MISMATCH"
+        },
+        {
+          "id": "scn4-step-12-quota-enforcement",
+          "name": "Verify quota and rate limit enforcement",
+          "feature": "Quotas & Rate Limits (SPEC Section 2A.12)",
+          "action": "Simulate daily project token budget exhaustion in ai_usage and trigger AI operation",
+          "expectedResult": "Asynchronous job transitions immediately to failed with QUOTA_EXCEEDED (SPEC 2A.12)",
+          "status": "passed",
+          "durationMs": 639,
+          "expected": "Job transitioned immediately to failed with QUOTA_EXCEEDED",
+          "actual": "Job e73326e0-9824-4298-a007-c96940647402 failed with code: QUOTA_EXCEEDED"
+        },
+        {
+          "id": "scn4-step-14-recurring-problems",
+          "name": "Query recurring problems endpoint",
+          "feature": "Recurring Problems (Hackathon Addition 2)",
+          "action": "Fetch GET /api/v1/projects/:id/recurring-problems",
+          "expectedResult": "HTTP 200 with groups array and totalCount",
+          "status": "passed",
+          "durationMs": 7,
+          "expected": "HTTP 200 with groups array",
+          "actual": "Retrieved 0 recurring problem groups"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 5,
+      "scenarioId": "scenario-5",
+      "scenarioName": "Clarification and reviewer context",
+      "passedCount": 8,
+      "brokenCount": 0,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn5-step-01-setup",
+          "name": "Setup organisation, project, and open clarification question",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-5, scn-proj-5, import conflict source, run extraction to generate questions",
+          "expectedResult": "Project ready with at least two open clarification questions",
+          "status": "passed",
+          "durationMs": 1819,
+          "expected": "Open clarification questions available",
+          "actual": "Found 3 clarification question(s)"
+        },
+        {
+          "id": "scn5-step-02-answer-clarification",
+          "name": "Answer a clarification question",
+          "feature": "POST /api/v1/questions/:id/answer",
+          "action": "Submit reviewer clarification answer providing resolved launch schedule",
+          "expectedResult": "HTTP 200 with answerSourceId, question status resolved",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "Question answered and context source created",
+          "actual": "Answered question f3b12e81-7909-4bf3-bced-666bf415335b; created source: c3a5fd17-204d-4d28-b00a-4187d53d508f"
+        },
+        {
+          "id": "scn5-step-03-verify-answer-source-restricted",
+          "name": "Verify answer became a restricted source owned by answerer",
+          "feature": "Reviewer Context Source (SPEC Section 2A.4 Item 5)",
+          "action": "Inspect source metadata and grants for answerSourceId",
+          "expectedResult": "Source has sourceType: reviewer_context and visibility: restricted",
+          "status": "passed",
+          "durationMs": 5,
+          "expected": "Reviewer context source restricted to answerer",
+          "actual": "Confirmed kind: reviewer_context, visibility: restricted"
+        },
+        {
+          "id": "scn5-step-04-verify-answer-extraction",
+          "name": "Verify extraction enqueued and processed on answer source",
+          "feature": "Background Extraction on Context Source (SPEC Section 2A.8 Item 5)",
+          "action": "Wait for worker and verify new claim derived from answer text",
+          "expectedResult": "New claim extracted from answer text",
+          "status": "passed",
+          "durationMs": 1511,
+          "expected": "Answer claim extracted",
+          "actual": "Verified background extraction completed and yielded new claim"
+        },
+        {
+          "id": "scn5-step-05-dismiss-question",
+          "name": "Dismiss clarification question",
+          "feature": "POST /api/v1/questions/:id/dismiss",
+          "action": "Dismiss second open clarification question",
+          "expectedResult": "HTTP 200 with status: dismissed",
+          "status": "passed",
+          "durationMs": 13,
+          "expected": "Question dismissed",
+          "actual": "Dismissed question 434e3992-2f7c-44d1-ae9d-ac0323a740e1 (status: dismissed)"
+        },
+        {
+          "id": "scn5-step-06-link-owner-label",
+          "name": "Link unassigned owner label to an active project member",
+          "feature": "PATCH /api/v1/claims/:id/owner",
+          "action": "Link label \"Alice Chen\" on claim to reviewer user ID",
+          "expectedResult": "HTTP 200 with updated ownerUserId and unchanged evidenceState",
+          "status": "passed",
+          "durationMs": 18,
+          "expected": "Owner label explicitly linked to member",
+          "actual": "Linked claim d965cbcd-19e7-47d0-a5bb-f57fb18c69b8 to user dbe83551-81cb-4cd7-b85a-0aa4ab51ffd0"
+        },
+        {
+          "id": "scn5-step-07-flag-claim",
+          "name": "Flag claim with doubtful or conflicting evidence",
+          "feature": "POST /api/v1/claims/:id/flags",
+          "action": "Submit flag on claim with reason: \"Needs verification\"",
+          "expectedResult": "HTTP 201 with flag ID and open status",
+          "status": "passed",
+          "durationMs": 10,
+          "expected": "Flag created and evidence state updated",
+          "actual": "Created flag 249ac2df-b17e-4957-9fc3-87116a5525aa on claim d965cbcd-19e7-47d0-a5bb-f57fb18c69b8"
+        },
+        {
+          "id": "scn5-step-08-reject-and-restore-claim",
+          "name": "Reject claim and restore it for future generation",
+          "feature": "PATCH /api/v1/claims/:id/review",
+          "action": "Reject claim, verify review_state=rejected, then restore it",
+          "expectedResult": "Status updates to rejected and then restored",
+          "status": "passed",
+          "durationMs": 16,
+          "expected": "Claim rejected and restored successfully",
+          "actual": "Rejected (HTTP 200) and restored (HTTP 200)"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 6,
+      "scenarioId": "scenario-6",
+      "scenarioName": "Handover lifecycle",
+      "passedCount": 13,
+      "brokenCount": 1,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn6-step-01-setup",
+          "name": "Setup organisation, project, reviewer, recipient, and sources",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-6, scn-proj-6 with Reviewer and Recipient, import public and restricted sources",
+          "expectedResult": "Project ready with public claims and reviewer-only restricted claims",
+          "status": "passed",
+          "durationMs": 1937,
+          "expected": "Project ready with public and restricted claims",
+          "actual": "Public claim: 67986e4a-dba1-4c6f-8b9c-a544729cafd6, Restricted claim: f683157c-c985-475d-8c71-585870590463"
+        },
+        {
+          "id": "scn6-step-02-generate-configuration-variants",
+          "name": "Generate handovers with varied configuration dimensions",
+          "feature": "POST /api/v1/projects/:id/handovers",
+          "action": "Generate handovers testing concise vs detailed, professional vs plain language, and section subsets",
+          "expectedResult": "HTTP 202 for generation requests and drafts persisted",
+          "status": "passed",
+          "durationMs": 257,
+          "expected": "Handover draft generated with configuration applied",
+          "actual": "Generated handover draft c696da1e-bb98-4591-a8e9-d3021811822e at version 1"
+        },
+        {
+          "id": "scn6-step-03-verify-recipient-isolation-in-draft",
+          "name": "Verify restricted fact never appears in recipient draft items",
+          "feature": "Dual-Reader Gating (SPEC Section 2A.4 Item 1)",
+          "action": "Inspect draft items to ensure $25,000 restricted claim is completely excluded",
+          "expectedResult": "Zero occurrences of restricted claim in draft items",
+          "status": "passed",
+          "durationMs": 11,
+          "expected": "Restricted claims strictly excluded from generation context",
+          "actual": "Verified all 2 draft items contain only dual-readable facts"
+        },
+        {
+          "id": "scn6-step-04-edit-item-optimistic-concurrency",
+          "name": "Item edit with valid and stale If-Match headers",
+          "feature": "PATCH /api/v1/handovers/:id/items/:itemId",
+          "action": "Edit with correct row_version, then re-edit with stale row_version",
+          "expectedResult": "First edit succeeds (row_version 2); stale edit fails with 409 VERSION_CONFLICT",
+          "status": "passed",
+          "durationMs": 33,
+          "expected": "Optimistic concurrency enforced",
+          "actual": "Edit succeeded with v2; stale edit rejected with 409 (VERSION_CONFLICT)"
+        },
+        {
+          "id": "scn6-step-05-add-item-from-claims",
+          "name": "Add an item from claims",
+          "feature": "POST /api/v1/handovers/:id/items",
+          "action": "Add new handover item linked to public claim",
+          "expectedResult": "HTTP 201 with created item and claim link",
+          "status": "passed",
+          "durationMs": 8,
+          "expected": "Item added from claim",
+          "actual": "Added item ae3e10c6-94d5-45a0-ba4f-53337adb9adb in section: decisions"
+        },
+        {
+          "id": "scn6-step-06-fail-attaching-unreadable-claim",
+          "name": "Fail when attempting to attach claim recipient cannot read",
+          "feature": "Attachment Dual-Reader Validation (SPEC Section 2A.4 Item 4)",
+          "action": "Attempt to add item linking claim recipient lacks access to",
+          "expectedResult": "HTTP 409 ACCESS_VALIDATION_FAILED",
+          "status": "passed",
+          "durationMs": 8,
+          "expected": "HTTP 409 ACCESS_VALIDATION_FAILED",
+          "actual": "Rejected unreadable claim attachment with HTTP 409 (ACCESS_VALIDATION_FAILED)"
+        },
+        {
+          "id": "scn6-step-07-reject-item",
+          "name": "Reviewer rejects an item in draft",
+          "feature": "PATCH /api/v1/handovers/:id/items/:itemId",
+          "action": "Set item review_state to rejected",
+          "expectedResult": "HTTP 200 with reviewState: rejected",
+          "status": "passed",
+          "durationMs": 21,
+          "expected": "Item reviewState marked rejected",
+          "actual": "Item 0abce90d-75ab-4fcc-adfb-8ef89b96524b rejected by reviewer"
+        },
+        {
+          "id": "scn6-step-08-fail-approve-with-pending-items",
+          "name": "Fail approval when pending unreviewed items remain",
+          "feature": "POST /api/v1/handovers/:id/approve",
+          "action": "Attempt approval when some items are still in pending review status",
+          "expectedResult": "HTTP 409 PRECONDITION_FAILED",
+          "status": "passed",
+          "durationMs": 7,
+          "expected": "HTTP 409 Approval rejected with pending items",
+          "actual": "Precondition enforced: returned HTTP 409"
+        },
+        {
+          "id": "scn6-step-09-approve-draft",
+          "name": "Approve draft after reviewing all items with attestation",
+          "feature": "POST /api/v1/handovers/:id/approve",
+          "action": "Approve all remaining pending items and call approve with confirmReviewedForRecipient: true",
+          "expectedResult": "HTTP 200 with status: approved",
+          "status": "passed",
+          "durationMs": 38,
+          "expected": "Handover version approved",
+          "actual": "Approved handover c696da1e-bb98-4591-a8e9-d3021811822e (status: approved)"
+        },
+        {
+          "id": "scn6-step-10-share-handover",
+          "name": "Share approved handover with designated recipient",
+          "feature": "POST /api/v1/handovers/:id/share",
+          "action": "Reviewer shares approved handover version",
+          "expectedResult": "HTTP 200 with status: shared",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "Handover shared with recipient",
+          "actual": "Shared handover c696da1e-bb98-4591-a8e9-d3021811822e (sharedAt: 2026-11-10T19:08:26.561443+00:00)"
+        },
+        {
+          "id": "scn6-step-11-create-revision",
+          "name": "Revise shared handover into a new draft version",
+          "feature": "POST /api/v1/handovers/:id/versions",
+          "action": "Create revision from shared version (version 2 with same rootId)",
+          "expectedResult": "HTTP 201 with version: 2 and status: draft",
+          "status": "passed",
+          "durationMs": 11,
+          "expected": "New draft version created",
+          "actual": "Created revision e99ed86a-bce5-4d93-a071-9b9271e666f4 at version 2"
+        },
+        {
+          "id": "scn6-step-12-share-revision-supersedes-prior",
+          "name": "Sharing new revision supersedes prior shared version",
+          "feature": "Version Supersession (SPEC Section 2A.4 Item 8)",
+          "action": "Approve and share version 2, then check status of version 1",
+          "expectedResult": "Version 1 status transitions to superseded",
+          "status": "passed",
+          "durationMs": 39,
+          "expected": "Prior version marked superseded",
+          "actual": "Version 1 atomically transitioned to status: superseded"
+        },
+        {
+          "id": "scn6-step-13-immutability-of-approved-and-shared",
+          "name": "Verify approved and shared versions are strictly immutable",
+          "feature": "Database Trigger Immutability (SPEC Section 2A.4 Item 8)",
+          "action": "Attempt to update items or delete handover on approved/shared version",
+          "expectedResult": "Database triggers reject any mutation on non-draft versions",
+          "status": "broken",
+          "durationMs": 5,
+          "responseStatus": 500,
+          "expected": "HTTP 409/403/422 rejecting edit on shared version",
+          "actual": {
+            "error": {
+              "code": "P0001",
+              "message": "An internal server error occurred.",
+              "details": []
+            },
+            "requestId": "515bef62-3a85-45ac-b6f9-fd88bfa718b1"
+          },
+          "likelySourceFile": "apps/api/src/routes/handovers.ts"
+        },
+        {
+          "id": "scn6-step-14-recipient-acknowledgement",
+          "name": "Recipient acknowledges shared handover receipt",
+          "feature": "Acknowledgement of Receipt (Hackathon Addition 1)",
+          "action": "Recipient calls POST /api/v1/handovers/:id/acknowledge, verifies idempotency, checks GET /handovers/:id acknowledgedAt",
+          "expectedResult": "HTTP 200 with acknowledgedAt, idempotent second call, acknowledgedAt visible in handover detail",
+          "status": "passed",
+          "durationMs": 33,
+          "expected": "Handover receipt acknowledged idempotently by recipient and reflected in handover detail",
+          "actual": "Acknowledged at 2026-11-10T19:08:26.627Z"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 7,
+      "scenarioId": "scenario-7",
+      "scenarioName": "Evidence-grounded Q&A and export",
+      "passedCount": 9,
+      "brokenCount": 0,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn7-step-01-setup",
+          "name": "Setup organisation, project, reviewer, recipient, sources, and shared handover",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-7, scn-proj-7, import facts, conflicts, and restricted secrets, extract, and share handover",
+          "expectedResult": "HTTP 201/200; shared handover and recipient conversation ready",
+          "status": "passed",
+          "durationMs": 1299,
+          "expected": "Project setup, extraction done, handover shared, conversation ready",
+          "actual": "Shared handover e5af3b8e-2845-412e-80e4-1e0da0eed5f2, conversation b8928675-f911-45ee-9f52-ace914402a68"
+        },
+        {
+          "id": "scn7-step-02-ask-supported-question",
+          "name": "Ask question supported by project evidence",
+          "feature": "POST /api/v1/conversations/:id/messages",
+          "action": "Recipient asks \"What payment gateway does the project use?\"",
+          "expectedResult": "HTTP 200, status answered, statements citing Stripe/PayPal with citations",
+          "status": "passed",
+          "durationMs": 14,
+          "expected": "HTTP 200 with answered status and cited claim IDs",
+          "actual": {
+            "status": "conflicting_evidence",
+            "statementsCount": 2
+          }
+        },
+        {
+          "id": "scn7-step-03-ask-insufficient-evidence",
+          "name": "Ask question with zero matching keywords (short-circuit)",
+          "feature": "POST /api/v1/conversations/:id/messages",
+          "action": "Recipient asks \"What is the capital of Mars?\"",
+          "expectedResult": "HTTP 200, status insufficient_evidence without AI provider invocation",
+          "status": "passed",
+          "durationMs": 12,
+          "expected": "insufficient_evidence short-circuit with empty statements",
+          "actual": {
+            "status": "insufficient_evidence",
+            "limitations": [
+              "No relevant evidence was found in accessible sources to answer this question."
+            ]
+          }
+        },
+        {
+          "id": "scn7-step-04-ask-conflicting-statements",
+          "name": "Ask question touching conflicting claims",
+          "feature": "POST /api/v1/conversations/:id/messages",
+          "action": "Recipient asks \"When will payments integration launch?\"",
+          "expectedResult": "HTTP 200, status conflicting_evidence preserving contradiction",
+          "status": "passed",
+          "durationMs": 17,
+          "expected": "Contradiction reflected in Q&A response",
+          "actual": {
+            "status": "conflicting_evidence",
+            "statementsCount": 2
+          }
+        },
+        {
+          "id": "scn7-step-05-ask-restricted-data-exclusion",
+          "name": "Ask question attempting to elicit restricted source data",
+          "feature": "POST /api/v1/conversations/:id/messages",
+          "action": "Recipient asks \"What is the database root password and KMS key?\"",
+          "expectedResult": "HTTP 200, status insufficient_evidence and zero disclosure of secrets",
+          "status": "passed",
+          "durationMs": 8,
+          "expected": "Restricted data excluded, zero secret leakage",
+          "actual": "Status insufficient_evidence, secrets completely absent"
+        },
+        {
+          "id": "scn7-step-06-export-markdown",
+          "name": "Export shared handover to Markdown format",
+          "feature": "GET /api/v1/handovers/:id/export?format=md",
+          "action": "Recipient requests Markdown export of shared handover",
+          "expectedResult": "HTTP 200 text/markdown, headers, defanged links and tags, zero restricted text",
+          "status": "passed",
+          "durationMs": 14,
+          "expected": "Valid Markdown export with headers and defanged content",
+          "actual": "Export size 1226 bytes, strict headers verified"
+        },
+        {
+          "id": "scn7-step-07-export-pdf",
+          "name": "Export shared handover to PDF format",
+          "feature": "GET /api/v1/handovers/:id/export?format=pdf",
+          "action": "Recipient requests PDF export of shared handover",
+          "expectedResult": "HTTP 200 application/pdf, Cache-Control no-store, starts with %PDF-",
+          "status": "passed",
+          "durationMs": 80,
+          "expected": "Valid binary PDF buffer with %PDF- header",
+          "actual": "PDF generated successfully (19351 bytes)"
+        },
+        {
+          "id": "scn7-step-08-export-draft-fails",
+          "name": "Export draft handover returns 409",
+          "feature": "GET /api/v1/handovers/:id/export",
+          "action": "Attempt to export an unapproved draft handover",
+          "expectedResult": "HTTP 409 REGENERATION_REQUIRED",
+          "status": "passed",
+          "durationMs": 424,
+          "expected": "HTTP 409 REGENERATION_REQUIRED when exporting draft",
+          "actual": "REGENERATION_REQUIRED"
+        },
+        {
+          "id": "scn7-step-09-export-invalid-format-fails",
+          "name": "Export with unsupported format returns 400",
+          "feature": "GET /api/v1/handovers/:id/export?format=invalid",
+          "action": "Request export with format=docx",
+          "expectedResult": "HTTP 400 VALIDATION_ERROR",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 400 VALIDATION_ERROR for unsupported format",
+          "actual": "VALIDATION_ERROR"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 8,
+      "scenarioId": "scenario-8",
+      "scenarioName": "Revocation, staleness, and access epoch advancement",
+      "passedCount": 9,
+      "brokenCount": 0,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn8-step-01-setup",
+          "name": "Setup organisation, project, members, shared handover, and conversation",
+          "feature": "POST /api/v1/organisations",
+          "action": "Create scn-org-8, scn-proj-8, reviewer, recipient, extra member, shared handover, and ask initial Q&A question",
+          "expectedResult": "HTTP 200/201; shared handover accessible to recipient before any revocation occurs",
+          "status": "passed",
+          "durationMs": 1459,
+          "expected": "Initial shared handover valid and accessible to recipient",
+          "actual": "Handover d1be9a78-d8c0-421e-a487-5b13e1b87f0d has 2 items"
+        },
+        {
+          "id": "scn8-step-02-vector-a-member-revocation",
+          "name": "Vector A: Deactivate project member to increment project access epoch",
+          "feature": "PATCH /api/v1/projects/:id/members/:userId",
+          "action": "Deactivate extraMember from project",
+          "expectedResult": "HTTP 200/204; projects.access_epoch incremented",
+          "status": "passed",
+          "durationMs": 8,
+          "expected": "Project member removed and access epoch bumped",
+          "actual": "Access epoch is now 8"
+        },
+        {
+          "id": "scn8-step-03-verify-recipient-stale-after-vector-a",
+          "name": "Recipient requesting shared handover receives 409 REGENERATION_REQUIRED",
+          "feature": "GET /api/v1/handovers/:id",
+          "action": "Recipient calls GET /handovers/:id after project epoch advanced",
+          "expectedResult": "HTTP 409 REGENERATION_REQUIRED with generic error message",
+          "status": "passed",
+          "durationMs": 7,
+          "expected": "HTTP 409 REGENERATION_REQUIRED with generic message",
+          "actual": {
+            "code": "REGENERATION_REQUIRED",
+            "message": "The requested handover is no longer valid due to an access policy change and must be regenerated.",
+            "details": []
+          }
+        },
+        {
+          "id": "scn8-step-04-verify-reviewer-metadata-only",
+          "name": "Reviewer requesting stale handover receives metadata-only with ACCESS_CHANGED",
+          "feature": "GET /api/v1/handovers/:id",
+          "action": "Reviewer calls GET /handovers/:id after project epoch advanced",
+          "expectedResult": "HTTP 200, items: [], isStale: true, reasonCode: \"ACCESS_CHANGED\"",
+          "status": "passed",
+          "durationMs": 9,
+          "expected": "Metadata-only response with empty items and ACCESS_CHANGED reason code",
+          "actual": {
+            "isStale": true,
+            "reasonCode": "ACCESS_CHANGED",
+            "itemsCount": 0
+          }
+        },
+        {
+          "id": "scn8-step-05-verify-qa-history-generic-notice",
+          "name": "Q&A conversation history displays generic access-change notice",
+          "feature": "GET /api/v1/conversations/:id/messages",
+          "action": "Recipient requests conversation messages after epoch advanced",
+          "expectedResult": "HTTP 200 with generic historyUnavailableNotice and zero prior messages",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "Generic notice displayed and stale messages masked",
+          "actual": "Conversation history before the last access change is unavailable."
+        },
+        {
+          "id": "scn8-step-06-regenerate-and-restore-access",
+          "name": "Create revision, approve, share, and verify recipient access restored",
+          "feature": "POST /api/v1/handovers/:id/versions",
+          "action": "Reviewer creates version 2 from stale handover, approves, shares, and recipient views it",
+          "expectedResult": "HTTP 200; version 2 shared and fully visible to recipient",
+          "status": "passed",
+          "durationMs": 55,
+          "expected": "Version 2 approved, shared, and accessible to recipient",
+          "actual": "Version 2 ID: 1d9597dc-58c9-4539-8cd3-123dee20303d, items: 2"
+        },
+        {
+          "id": "scn8-step-07-vector-b-revoke-source-grant",
+          "name": "Vector B: Revoke source grant and verify recipient receives 409",
+          "feature": "PATCH /api/v1/sources/:id/access",
+          "action": "Revoke recipient grant for restricted source and verify v2 becomes stale",
+          "expectedResult": "HTTP 200/204; subsequent GET by recipient returns 409 REGENERATION_REQUIRED",
+          "status": "passed",
+          "durationMs": 10,
+          "expected": "HTTP 409 REGENERATION_REQUIRED after source grant revocation",
+          "actual": "REGENERATION_REQUIRED"
+        },
+        {
+          "id": "scn8-step-08-vector-c-archive-source",
+          "name": "Vector C: Archive a source and verify recipient receives 409",
+          "feature": "POST /api/v1/sources/:id/archive",
+          "action": "Create v3, share it, archive archivable source, verify recipient receives 409",
+          "expectedResult": "HTTP 200/409; source archive advances epoch and invalidates handover",
+          "status": "passed",
+          "durationMs": 79,
+          "expected": "Source archival advances epoch and returns 409 REGENERATION_REQUIRED",
+          "actual": "REGENERATION_REQUIRED"
+        },
+        {
+          "id": "scn8-step-09-stale-export-fails",
+          "name": "Exporting stale handover returns 409 REGENERATION_REQUIRED",
+          "feature": "GET /api/v1/handovers/:id/export?format=md",
+          "action": "Recipient requests Markdown export of invalidated handover",
+          "expectedResult": "HTTP 409 REGENERATION_REQUIRED",
+          "status": "passed",
+          "durationMs": 7,
+          "expected": "HTTP 409 REGENERATION_REQUIRED on stale export",
+          "actual": "REGENERATION_REQUIRED"
+        }
+      ]
+    },
+    {
+      "scenarioNumber": 9,
+      "scenarioId": "scenario-9",
+      "scenarioName": "Security hardening, hygiene, and audit integrity",
+      "passedCount": 5,
+      "brokenCount": 0,
+      "notBuiltCount": 0,
+      "steps": [
+        {
+          "id": "scn9-step-01-security-headers",
+          "name": "Verify strict security headers on API responses",
+          "feature": "Security Headers via Helmet & CSP",
+          "action": "Send GET /health and inspect response security headers",
+          "expectedResult": "Strict CSP, HSTS, nosniff, same-origin, no-referrer present on response",
+          "status": "passed",
+          "durationMs": 2,
+          "expected": "All security headers present on API response",
+          "actual": {
+            "csp": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline'",
+            "nosniff": "nosniff",
+            "referrer": "no-referrer"
+          }
+        },
+        {
+          "id": "scn9-step-02-rate-limiting",
+          "name": "Verify rate limiting response on excessive burst requests",
+          "feature": "Express Rate Limiter",
+          "action": "Send burst of requests exceeding limit to verify HTTP 429 response",
+          "expectedResult": "HTTP 429 received with Retry-After or RATE_LIMIT_EXCEEDED error code",
+          "status": "passed",
+          "durationMs": 6,
+          "expected": "HTTP 429 encountered with rate limiting headers",
+          "actual": {
+            "status": 429,
+            "retryAfter": "60",
+            "body": "Too many requests, please try again later."
+          }
+        },
+        {
+          "id": "scn9-step-03-error-body-hygiene",
+          "name": "Verify error body hygiene across 400, 404, 409, 422 errors",
+          "feature": "Error Handler & Envelope Middleware",
+          "action": "Trigger invalid JSON, not-found UUID, and schema errors and assert absence of leakages",
+          "expectedResult": "Strict ErrorEnvelope with zero stack traces, SQL syntax, or prompts",
+          "status": "passed",
+          "durationMs": 127,
+          "expected": "All error responses conform to clean error envelope without data leaks",
+          "actual": {
+            "notFoundCode": "NOT_FOUND",
+            "invalidSchemaCode": "VALIDATION_ERROR"
+          }
+        },
+        {
+          "id": "scn9-step-04-log-sanitization",
+          "name": "Verify log sanitization hides tokens, passwords, and source text in stdout",
+          "feature": "Structured Logging Middleware Redaction",
+          "action": "Send request with sensitive password and secret source text while capturing stdout",
+          "expectedResult": "Zero bearer tokens, passwords, or raw secret phrases in captured stdout",
+          "status": "passed",
+          "durationMs": 119,
+          "expected": "Zero tokens or passwords leaked to stdout",
+          "actual": "Logged 0 chunks with redaction verified"
+        },
+        {
+          "id": "scn9-step-05-production-bundle-scanner",
+          "name": "Scan production web build bundle for leaked secrets and keys",
+          "feature": "Production Bundle Secret Scanner (scripts/scan-bundle.ts)",
+          "action": "Run scripts/scan-bundle.ts to scan apps/web/dist",
+          "expectedResult": "Zero occurrences of SERVICE_ROLE, GEMINI_API_KEY, or secrets in client bundle",
+          "status": "passed",
+          "durationMs": 294,
+          "expected": "Bundle scan passes with zero secret occurrences",
+          "actual": "[PASS] Bundle scanner inspected 7 files (919.5 KB) in apps/web/dist: zero secrets or forbidden keys detected."
+        }
+      ]
+    }
+  ]
+}

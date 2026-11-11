@@ -530,7 +530,7 @@ test.describe('Section 22.4 Full Payments Demonstration Journey', () => {
 
     // 4B. Evidence-grounded Q&A
     await samiraPage.goto(`http://localhost:5173/app/projects/${projectId}/ask`);
-    await expect(samiraPage.getByRole('heading', { name: 'Ask Relay' })).toBeVisible();
+    await expect(samiraPage.getByRole('heading', { name: 'Ask Prasaranam' })).toBeVisible();
 
     const questionInput = samiraPage.getByPlaceholder(/Ask an evidence-grounded question/i);
     const askButton = samiraPage.getByRole('button', { name: /^Ask$/i });

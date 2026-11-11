@@ -1,4 +1,4 @@
-# Relay Security Model
+# Prasaranam Security Model
 
 This document specifies the security architecture, trust boundaries, privilege separation, and documented security limitations of the Relay platform.
 

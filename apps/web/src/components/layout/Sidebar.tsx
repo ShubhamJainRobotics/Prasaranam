@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               Handovers
             </NavLink>
             <NavLink to={`/app/projects/${projectId}/ask`} className={linkClass}>
-              Ask Relay
+              Ask Prasaranam
             </NavLink>
             <NavLink to={`/app/projects/${projectId}/members`} className={linkClass}>
               Members

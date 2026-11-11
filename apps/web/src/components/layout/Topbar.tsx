@@ -28,9 +28,9 @@ export const Topbar: React.FC = () => {
           className="flex items-center gap-2 font-bold text-lg text-[var(--color-primary)] hover:opacity-90 transition-opacity"
         >
           <div className="h-7 w-7 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-black text-sm">
-            R
+            P
           </div>
-          <span className="tracking-tight text-[var(--color-text)]">Relay</span>
+          <span className="tracking-tight text-[var(--color-text)]">Prasaranam</span>
         </Link>
       </div>
 

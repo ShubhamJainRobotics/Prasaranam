@@ -772,3 +772,30 @@ export async function recordMessage(
     accessEpoch.toString(),
   ]);
 }
+
+// ─── Hackathon Addition: Handover Acknowledgement ────────────────────────────
+
+export interface HandoverAcknowledgementRecord {
+  id: string;
+  handover_id: string;
+  user_id: string;
+  acknowledged_at: string;
+}
+
+export async function acknowledgeHandover(
+  db: pg.Pool | pg.PoolClient,
+  actorId: string,
+  handoverId: string
+): Promise<HandoverAcknowledgementRecord> {
+  const sql = 'SELECT * FROM app_private.acknowledge_handover($1, $2);';
+  if ('connect' in db && typeof db.connect === 'function') {
+    return withTransaction(db as pg.Pool, async (client) => {
+      const res = await client.query(sql, [actorId, handoverId]);
+      return res.rows[0] as HandoverAcknowledgementRecord;
+    });
+  } else {
+    const client = db as pg.PoolClient;
+    const res = await client.query(sql, [actorId, handoverId]);
+    return res.rows[0] as HandoverAcknowledgementRecord;
+  }
+}

@@ -1,4 +1,4 @@
-# Relay Operations & Maintenance Runbook
+# Prasaranam Operations & Maintenance Runbook
 
 This runbook provides operational instructions for operators maintaining the Relay knowledge handover service in production.
 

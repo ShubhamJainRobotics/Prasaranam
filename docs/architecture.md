@@ -1,4 +1,4 @@
-# Relay Architecture and System Design
+# Prasaranam Architecture and System Design
 
 Relay is a production-grade, evidence-grounded, permission-aware knowledge handover system. It assists outgoing engineers and team leads in generating high-integrity handovers for incoming members while ensuring cryptographic provenance, strict tenant isolation, and zero unauthorized leakage of restricted material.
 
@@ -140,7 +140,7 @@ sequenceDiagram
     DB-->>Recipient: 200 OK (Immutable Shared Handover)
 ```
 
-### 2.4 Evidence-Grounded Q&A (Ask Relay)
+### 2.4 Evidence-Grounded Q&A (Ask Prasaranam)
 
 ```mermaid
 sequenceDiagram

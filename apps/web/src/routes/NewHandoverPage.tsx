@@ -179,7 +179,7 @@ export const NewHandoverPage: React.FC = () => {
 
       <PageHeader
         title="Configure Handover Generation"
-        description="Select recipient and sections. Relay will synthesize an actionable draft using only evidence accessible to both you and the recipient."
+        description="Select recipient and sections. Prasaranam will synthesize an actionable draft using only evidence accessible to both you and the recipient."
       />
 
       {activeJobId ? (
@@ -190,8 +190,8 @@ export const NewHandoverPage: React.FC = () => {
               Synthesizing Evidence & Generating Handover Draft...
             </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Relay is assembling authorized claims, validating evidence quotations, and compiling
-              structured sections for the recipient.
+              Prasaranam is assembling authorized claims, validating evidence quotations, and
+              compiling structured sections for the recipient.
             </p>
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">

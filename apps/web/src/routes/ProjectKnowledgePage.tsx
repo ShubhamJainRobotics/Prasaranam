@@ -25,6 +25,7 @@ import type {
   WorkState,
   EvidenceState,
   ReviewState,
+  RecurringProblemGroup,
 } from '@relay/contracts';
 
 export const ProjectKnowledgePage: React.FC = () => {
@@ -32,7 +33,46 @@ export const ProjectKnowledgePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'claims' | 'timeline' | 'dependencies'>('claims');
+  const [activeTab, setActiveTab] = useState<'claims' | 'timeline' | 'dependencies' | 'recurring'>(
+    'claims'
+  );
+
+  // Recurring problems state
+  const [recurringGroups, setRecurringGroups] = useState<RecurringProblemGroup[]>([]);
+  const [loadingRecurring, setLoadingRecurring] = useState(false);
+  const [recurringError, setRecurringError] = useState<string | null>(null);
+
+  const fetchRecurringProblems = useCallback(async () => {
+    if (!projectId) return;
+    setLoadingRecurring(true);
+    setRecurringError(null);
+    try {
+      const res = await apiFetch<{ groups: RecurringProblemGroup[] }>(
+        `/projects/${projectId}/recurring-problems`
+      );
+      setRecurringGroups(res.groups || []);
+    } catch (err: unknown) {
+      setRecurringError((err as Error).message || 'Failed to load recurring problems');
+    } finally {
+      setLoadingRecurring(false);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    if (activeTab === 'recurring') {
+      fetchRecurringProblems();
+    }
+  }, [activeTab, fetchRecurringProblems]);
+
+  const handleOpenClaimEvidence = async (claimId: string) => {
+    try {
+      const detail = await apiFetch<ClaimDetail>(`/claims/${claimId}`);
+      setDrawerClaim(detail);
+      setIsDrawerOpen(true);
+    } catch {
+      showToast('Failed to load claim evidence', 'error');
+    }
+  };
 
   // Filter states
   const [search, setSearch] = useState('');
@@ -353,6 +393,18 @@ export const ProjectKnowledgePage: React.FC = () => {
         >
           <span>Blockers & Dependencies</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('recurring')}
+          className={`pb-3 -mb-px flex items-center gap-2 ${
+            activeTab === 'recurring'
+              ? 'border-b-2 border-teal-700 text-teal-900 font-semibold'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <span>Recurring Problems</span>
+        </button>
       </div>
 
       {activeTab === 'claims' && (
@@ -422,6 +474,81 @@ export const ProjectKnowledgePage: React.FC = () => {
 
       {activeTab === 'dependencies' && (
         <DependencyList claims={claims} onSelectClaim={handleSelectClaim} />
+      )}
+
+      {activeTab === 'recurring' && (
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 font-medium">
+            Possible recurring problem, grouped by similar wording; please confirm
+          </div>
+          {loadingRecurring ? (
+            <LoadingSkeleton lines={4} />
+          ) : recurringError ? (
+            <ErrorState message={recurringError} onRetry={fetchRecurringProblems} />
+          ) : recurringGroups.length === 0 ? (
+            <EmptyState
+              title="No Recurring Problems Found"
+              description="No blockers or risks with similar wording across multiple sources were detected in this project."
+            />
+          ) : (
+            <div className="space-y-4">
+              {recurringGroups.map((group, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-rose-50 text-rose-800 border border-rose-200">
+                          Recurring Pattern
+                        </span>
+                        <span className="text-xs text-slate-500 font-medium">
+                          {group.distinctSourceCount} distinct sources &bull;{' '}
+                          {group.claimIds.length} claims
+                        </span>
+                      </div>
+                      <h4 className="text-base font-semibold text-slate-900">
+                        {group.representativeStatement}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100">
+                    <div className="text-xs font-medium text-slate-500 mb-2">
+                      Member claims (click to view supporting evidence):
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {group.claimIds.map((cid) => (
+                        <button
+                          key={cid}
+                          type="button"
+                          onClick={() => handleOpenClaimEvidence(cid)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-900 border border-slate-200 hover:border-teal-300 transition-colors cursor-pointer"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5 text-teal-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          <span>Claim {cid.slice(0, 8)}...</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Claim Detail Modal / Slide-over */}

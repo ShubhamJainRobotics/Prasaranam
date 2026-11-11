@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Relay API
+  title: Prasaranam API
   version: 0.1.0
   description: >
-    Production REST API for Relay: an evidence-grounded, permission-aware
+    Production REST API for Prasaranam: an evidence-grounded, permission-aware
     knowledge-handover application with AI assistance and cryptographic verification.
 servers:
   - url: http://localhost:4000
@@ -493,6 +493,12 @@ paths:
       responses:
         '201':
           description: Source imported and chunked
+        '409':
+          description: Duplicate content detected (DUPLICATE_SOURCE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
 
   /api/v1/sources/{id}:
     get:
@@ -612,6 +618,24 @@ paths:
       responses:
         '200':
           description: List of claims with evidence
+
+  /api/v1/projects/{id}/recurring-problems:
+    get:
+      summary: Get computed recurring problems grouped by token overlap
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of recurring problem groups
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 
   /api/v1/claims/{id}:
     get:
@@ -1052,6 +1076,26 @@ paths:
         '200':
           description: Handover shared
 
+  /api/v1/handovers/{id}/acknowledge:
+    post:
+      summary: Acknowledge receipt of a shared handover by the named recipient
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Handover acknowledged
+        '403':
+          description: Only the named recipient may acknowledge
+        '409':
+          description: Handover invalid or regeneration required
+
   /api/v1/handovers/{id}/reviews:
     get:
       summary: Get audit review history for handover
@@ -1200,6 +1244,23 @@ components:
           properties:
             code:
               type: string
+              enum:
+                - UNAUTHORIZED
+                - FORBIDDEN
+                - NOT_FOUND
+                - VERSION_CONFLICT
+                - STALE_CONTEXT
+                - REGENERATION_REQUIRED
+                - ACCESS_VALIDATION_FAILED
+                - LAST_OWNER
+                - ILLEGAL_STATE
+                - PAYLOAD_TOO_LARGE
+                - VALIDATION_ERROR
+                - RATE_LIMIT_EXCEEDED
+                - QUOTA_EXCEEDED
+                - SERVICE_UNAVAILABLE
+                - INTERNAL_ERROR
+                - DUPLICATE_SOURCE
             message:
               type: string
             details:

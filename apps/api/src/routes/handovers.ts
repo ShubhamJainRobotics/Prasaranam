@@ -19,6 +19,7 @@ import {
   createRevision,
   approveHandover,
   shareHandover,
+  acknowledgeHandover,
 } from '@relay/database';
 import { decodeCursor, encodeCursor } from '../lib/pagination.js';
 import { renderHandoverMarkdown, renderHandoverPdf, type ExportMetadata } from '../export/index.js';
@@ -172,10 +173,12 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
             h.row_version as "rowVersion",
             h.created_at as "createdAt",
             h.updated_at as "updatedAt",
+            ha.acknowledged_at as "acknowledgedAt",
             (SELECT count(*)::int FROM public.handover_items hi WHERE hi.handover_id = h.id) as "itemCount"
           FROM public.handovers h
           LEFT JOIN public.profiles pr ON pr.id = h.recipient_id
           LEFT JOIN public.profiles pdep ON pdep.id = h.departing_user_id
+          LEFT JOIN public.handover_acknowledgements ha ON ha.handover_id = h.id AND ha.user_id = h.recipient_id
           WHERE h.project_id = $1
             AND app_private.can_read_handover(h.id, $2) = true
             ${cursorClause}
@@ -222,11 +225,13 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
              h.*,
              pr.display_name as "recipientName",
              pdep.display_name as "departingUserName",
-             p.access_epoch as "currentProjectEpoch"
+             p.access_epoch as "currentProjectEpoch",
+             ha.acknowledged_at as "acknowledgedAt"
            FROM public.handovers h
            JOIN public.projects p ON p.id = h.project_id
            LEFT JOIN public.profiles pr ON pr.id = h.recipient_id
            LEFT JOIN public.profiles pdep ON pdep.id = h.departing_user_id
+           LEFT JOIN public.handover_acknowledgements ha ON ha.handover_id = h.id AND ha.user_id = h.recipient_id
            WHERE h.id = $1`,
           [handoverId]
         );
@@ -366,6 +371,7 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
                 items: [],
                 isStale: true,
                 reasonCode: 'ACCESS_CHANGED',
+                acknowledgedAt: h.acknowledgedAt ?? null,
               },
               requestId: req.id,
             });
@@ -448,6 +454,7 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
             rowVersion: h.row_version,
             createdAt: h.created_at,
             updatedAt: h.updated_at,
+            acknowledgedAt: h.acknowledgedAt ?? null,
             configuration: h.configuration,
             items,
             isStale: false,
@@ -880,6 +887,70 @@ export function createHandoverRoutes(pool: DbPool, _env: ServerEnvironment): Rou
               error: {
                 code: 'ACCESS_VALIDATION_FAILED',
                 message: 'One or more cited claims cannot be read by the recipient.',
+                details: [],
+              },
+              requestId: req.id,
+            });
+            return;
+          }
+          throw err;
+        }
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // ─── POST /handovers/:id/acknowledge ──────────────────────────────────────
+  router.post(
+    '/handovers/:id/acknowledge',
+    requireAction(pool, 'HANDOVER_ACKNOWLEDGE', (req) => ({ handoverId: req.params.id })),
+    async (req, res, next) => {
+      try {
+        const handoverId = req.params.id as string;
+        const actorId = req.user!.id;
+
+        try {
+          const ackRes = await acknowledgeHandover(pool, actorId, handoverId);
+          res.status(200).json({
+            data: {
+              id: ackRes.id,
+              handoverId: ackRes.handover_id,
+              userId: ackRes.user_id,
+              acknowledgedAt: ackRes.acknowledged_at,
+            },
+            requestId: req.id,
+          });
+        } catch (err: unknown) {
+          const errMsg = (err as Error).message || String(err);
+          if (errMsg.includes('HANDOVER_NOT_FOUND') || errMsg.includes('PROJECT_NOT_FOUND')) {
+            res.status(404).json({
+              error: {
+                code: 'NOT_FOUND',
+                message: 'Resource not found.',
+                details: [],
+              },
+              requestId: req.id,
+            });
+            return;
+          }
+          if (errMsg.includes('FORBIDDEN')) {
+            res.status(403).json({
+              error: {
+                code: 'FORBIDDEN',
+                message: 'You do not have permission to acknowledge this handover.',
+                details: [],
+              },
+              requestId: req.id,
+            });
+            return;
+          }
+          if (errMsg.includes('REGENERATION_REQUIRED')) {
+            res.status(409).json({
+              error: {
+                code: 'REGENERATION_REQUIRED',
+                message:
+                  'The requested handover is no longer valid due to an access policy change and must be regenerated.',
                 details: [],
               },
               requestId: req.id,

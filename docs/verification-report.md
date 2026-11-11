@@ -1,4 +1,4 @@
-# Relay Independent Verification & Audit Report
+# Prasaranam Independent Verification & Audit Report
 
 **Session:** Phase 9 Independent Verification  
 **Date:** November 8, 2026  

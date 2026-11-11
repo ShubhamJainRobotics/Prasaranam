@@ -135,9 +135,16 @@ export const PasteSourceInputSchema = z
     authorLabel: z.string().max(200).optional(),
     eventAt: StrictIsoTimestampSchema.optional(),
     replacesSourceId: z.string().uuid().optional(),
+    allowDuplicate: z.boolean().optional(),
   })
   .strict();
 export type PasteSourceInput = z.infer<typeof PasteSourceInputSchema>;
+
+export const DuplicateSourceErrorDetailsSchema = z.object({
+  existingSourceId: z.string().uuid(),
+  existingSourceTitle: z.string(),
+});
+export type DuplicateSourceErrorDetails = z.infer<typeof DuplicateSourceErrorDetailsSchema>;
 
 export const SetSourceAccessSchema = z
   .object({

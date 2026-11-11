@@ -1,4 +1,4 @@
-# Relay Threat Model & Security Analysis
+# Prasaranam Threat Model & Security Analysis
 
 This document provides a comprehensive security assessment of Relay using the STRIDE threat modeling framework, detailing threat scenarios, attack vectors, architectural mitigations, and explicit residual limitations.
 

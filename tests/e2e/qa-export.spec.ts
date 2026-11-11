@@ -181,7 +181,7 @@ test.describe('Evidence-Grounded Q&A and Handover Export E2E Flow', () => {
     // ─── Phase 2: Navigate to Ask Relay page ─────────────────────────────────────
     console.log('E2E STEP 2: Navigating to Ask Relay page');
     await page.goto(`/app/projects/${projectId}/ask`);
-    await expect(page.getByRole('heading', { name: 'Ask Relay' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ask Prasaranam' })).toBeVisible();
 
     // Verify chat UI elements
     const questionInput = page.getByPlaceholder(/Ask an evidence-grounded question/i);

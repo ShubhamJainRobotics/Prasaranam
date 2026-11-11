@@ -9,6 +9,7 @@ import { StaleHandoverNotice } from '../components/handover/StaleHandoverNotice.
 import { ExportMenu } from '../components/handover/ExportMenu.js';
 import { EvidenceDrawer } from '../components/knowledge/EvidenceDrawer.js';
 import { api } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext.js';
 import type {
   HandoverDetail,
   HandoverSummary,
@@ -41,6 +42,35 @@ export const HandoverDetailPage: React.FC = () => {
     null
   );
   const [isEvidenceDrawerOpen, setIsEvidenceDrawerOpen] = useState(false);
+
+  const { user, profile } = useAuth();
+  const [acknowledging, setAcknowledging] = useState(false);
+  const [ackError, setAckError] = useState<string | null>(null);
+
+  const isRecipient = Boolean(
+    (user?.id && handover?.recipientId === user.id) ||
+    (profile?.id && handover?.recipientId === profile.id)
+  );
+
+  const handleAcknowledge = async () => {
+    if (!handover) return;
+    setAcknowledging(true);
+    setAckError(null);
+    try {
+      const res = await api.post<{ data: { acknowledgedAt: string } }>(
+        `/handovers/${handover.id}/acknowledge`
+      );
+      const ackAt =
+        res && 'data' in res && (res as any).data?.acknowledgedAt
+          ? (res as any).data.acknowledgedAt
+          : new Date().toISOString();
+      setHandover((prev) => (prev ? { ...prev, acknowledgedAt: ackAt } : null));
+    } catch (err: unknown) {
+      setAckError((err as Error).message || 'Failed to acknowledge handover');
+    } finally {
+      setAcknowledging(false);
+    }
+  };
 
   const fetchHandover = async (id: string) => {
     try {
@@ -273,6 +303,39 @@ export const HandoverDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Recipient Acknowledgement Section */}
+        {isRecipient && handover.status === 'shared' && (
+          <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl">
+            <div>
+              <div className="text-xs font-semibold text-slate-800">Recipient Acknowledgement</div>
+              <div className="text-xs text-slate-500">
+                {handover.acknowledgedAt
+                  ? `Acknowledged on ${new Date(handover.acknowledgedAt).toLocaleString()}`
+                  : 'Please confirm that you have read and received this handover.'}
+              </div>
+              {ackError && <div className="text-xs text-rose-600 mt-1">{ackError}</div>}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={handleAcknowledge}
+                disabled={acknowledging || Boolean(handover.acknowledgedAt)}
+                className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+                  handover.acknowledgedAt
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-default'
+                    : 'bg-teal-700 hover:bg-teal-800 text-white shadow-xs cursor-pointer'
+                }`}
+              >
+                {handover.acknowledgedAt
+                  ? `Acknowledged (${new Date(handover.acknowledgedAt).toLocaleDateString()})`
+                  : acknowledging
+                    ? 'Acknowledging...'
+                    : 'I have read this handover'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Handover Sections */}

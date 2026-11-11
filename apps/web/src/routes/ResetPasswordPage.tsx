@@ -47,9 +47,9 @@ export const ResetPasswordPage: React.FC = () => {
             className="inline-flex items-center gap-2 mb-4 font-bold text-xl text-[var(--color-primary)]"
           >
             <div className="h-8 w-8 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-black text-sm">
-              R
+              P
             </div>
-            <span className="text-[var(--color-text)] tracking-tight">Relay</span>
+            <span className="text-[var(--color-text)] tracking-tight">Prasaranam</span>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">
             Set a new password

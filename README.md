@@ -1,14 +1,14 @@
-# Relay
+# Prasaranam
 
 > Evidence-Grounded, Permission-Aware Knowledge Handover Platform
 
-Relay converts scattered, authorised project activity into evidence-backed, human-reviewed, recipient-specific knowledge handovers. Built with cryptographic provenance, strict multi-tenant isolation, access-epoch invalidation, and automated AI assistance powered by Google Gemini and deterministic fake adapters.
+Prasaranam converts scattered, authorised project activity into evidence-backed, human-reviewed, recipient-specific knowledge handovers. Built with cryptographic provenance, strict multi-tenant isolation, access-epoch invalidation, and automated AI assistance powered by Google Gemini and deterministic fake adapters.
 
 ---
 
 ## 1. Prerequisites
 
-Before running Relay locally or in production, ensure your development machine has:
+Before running Prasaranam locally or in production, ensure your development machine has:
 
 - **Node.js**: `v24.x` (LTS)
 - **npm**: `v11.x` or `v12.x`
@@ -85,13 +85,13 @@ The seed script (`npm run demo:seed`) creates the synthetic Payments Platform sc
 
 The bootstrap script prints secure local passwords during setup. Standard local testing accounts:
 
-| User              | Role                             | Purpose                                                                      |
-| ----------------- | -------------------------------- | ---------------------------------------------------------------------------- |
-| **Alex Chen**     | Project Owner                    | Oversees payments project, manages membership, views audit trail.            |
-| **Dana Vance**    | Departing Contributor / Reviewer | Creates handover drafts, reviews items, signs reviewer attestation.          |
-| **Samira Patel**  | Incoming Engineer (Recipient)    | Recipient of shared handover; asks grounded Q&A via Ask Relay; exports PDF.  |
-| **Marcus Brody**  | Incoming Operations (Recipient)  | Operations lead assigned to deployment and infrastructure handovers.         |
-| **Taylor Jordan** | Outsider                         | Belongs to a different organisation; verifies cross-tenant isolation (404s). |
+| User              | Role                             | Purpose                                                                          |
+| ----------------- | -------------------------------- | -------------------------------------------------------------------------------- |
+| **Alex Chen**     | Project Owner                    | Oversees payments project, manages membership, views audit trail.                |
+| **Dana Vance**    | Departing Contributor / Reviewer | Creates handover drafts, reviews items, signs reviewer attestation.              |
+| **Samira Patel**  | Incoming Engineer (Recipient)    | Recipient of shared handover; asks grounded Q&A via Ask Prasaranam; exports PDF. |
+| **Marcus Brody**  | Incoming Operations (Recipient)  | Operations lead assigned to deployment and infrastructure handovers.             |
+| **Taylor Jordan** | Outsider                         | Belongs to a different organisation; verifies cross-tenant isolation (404s).     |
 
 ### 4.2 Guided Demonstration Steps
 
@@ -120,7 +120,7 @@ The bootstrap script prints secure local passwords during setup. Standard local 
 7. **Grounded Q&A & Export**:
    - Log in as **Samira Patel** (`samira.patel@relay.local`).
    - Open the shared handover and export as Markdown and PDF.
-   - Go to Ask Relay (`/app/projects/{id}/ask`).
+   - Go to Ask Prasaranam (`/app/projects/{id}/ask`).
    - Ask: _“What database do we use for payments?”_ -> Answer cites PostgreSQL 16 ADR with code-point quote.
    - Ask an off-topic question: _“What is the weather in Tokyo?”_ -> Model returns `insufficient_evidence` with zero hallucination.
 8. **Epoch Invalidation**:

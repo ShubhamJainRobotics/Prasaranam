@@ -1,4 +1,4 @@
-# Relay Production Deployment Guide
+# Prasaranam Production Deployment Guide
 
 This guide details the deployment of Relay across containerized environments, cloud providers, and managed Supabase infrastructure.
 

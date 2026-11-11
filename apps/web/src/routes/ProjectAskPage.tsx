@@ -60,12 +60,12 @@ export const ProjectAskPage: React.FC = () => {
         items={[
           { label: 'Projects', href: '/app' },
           { label: project.name, href: `/app/projects/${projectId}` },
-          { label: 'Ask Relay' },
+          { label: 'Ask Prasaranam' },
         ]}
       />
 
       <PageHeader
-        title="Ask Relay"
+        title="Ask Prasaranam"
         description="Query project knowledge with strict evidence grounding. Answers cite only sources you are permitted to read."
       />
 

@@ -16,5 +16,6 @@ export const ErrorCodeSchema = z.enum([
   'QUOTA_EXCEEDED',
   'SERVICE_UNAVAILABLE',
   'INTERNAL_ERROR',
+  'DUPLICATE_SOURCE',
 ]);
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;

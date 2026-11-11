@@ -189,6 +189,22 @@ export const ProjectHandoversPage: React.FC = () => {
                     )}
                     <div>Created: {new Date(h.createdAt).toLocaleDateString()}</div>
                   </div>
+
+                  {isReviewerOrOwner && (
+                    <div className="mb-4">
+                      <span
+                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md ${
+                          h.acknowledgedAt
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}
+                      >
+                        {h.acknowledgedAt
+                          ? `Acknowledged by recipient on ${new Date(h.acknowledgedAt).toLocaleDateString()}`
+                          : 'Not yet acknowledged'}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">

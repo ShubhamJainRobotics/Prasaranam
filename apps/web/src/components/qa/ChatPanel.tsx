@@ -330,7 +330,7 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
                 >
                   <div className="flex items-center space-x-1.5 mb-1 text-[11px] text-slate-500">
                     <span className="font-medium text-slate-600">
-                      {isUser ? 'You' : 'Relay Knowledge Assistant'}
+                      {isUser ? 'You' : 'Prasaranam Knowledge Assistant'}
                     </span>
                     <span>•</span>
                     <span>
@@ -368,7 +368,7 @@ export const ChatPanel: React.FC<Props> = ({ projectId }) => {
           {isAsking && (
             <div className="flex flex-col items-start space-y-1">
               <div className="text-[11px] text-slate-500 font-medium">
-                Relay Knowledge Assistant
+                Prasaranam Knowledge Assistant
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-xl rounded-tl-none p-4 max-w-xl w-full">
                 <div className="flex items-center space-x-2 text-xs text-slate-500 mb-2">

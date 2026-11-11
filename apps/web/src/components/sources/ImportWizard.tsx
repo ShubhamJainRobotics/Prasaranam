@@ -39,6 +39,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   const [originalUrl, setOriginalUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<{ title: string } | null>(null);
 
   if (!isOpen) return null;
 
@@ -48,9 +49,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeImport = async (allowDuplicate = false) => {
     setErrorMessage(null);
+    setDuplicateWarning(null);
     setIsSubmitting(true);
 
     try {
@@ -75,6 +76,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
         if (authorLabel.trim()) formData.append('authorLabel', authorLabel.trim());
         if (eventAt.trim()) formData.append('eventAt', new Date(eventAt).toISOString());
         if (originalUrl.trim()) formData.append('originalUrl', originalUrl.trim());
+        if (allowDuplicate) formData.append('allowDuplicate', 'true');
 
         await apiFetch(`/projects/${projectId}/sources/import`, {
           method: 'POST',
@@ -95,6 +97,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           content: pasteContent,
           visibility,
           grantUserIds: visibility === 'restricted' ? selectedGrants : [],
+          allowDuplicate,
         };
 
         if (authorLabel.trim()) payload.authorLabel = authorLabel.trim();
@@ -110,10 +113,20 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       onImportCompleted();
       onClose();
     } catch (err: any) {
-      setErrorMessage(err.message || 'An error occurred during import.');
+      if (err.code === 'DUPLICATE_SOURCE') {
+        const title = err.details?.[0]?.existingSourceTitle || 'an existing source';
+        setDuplicateWarning({ title });
+      } else {
+        setErrorMessage(err.message || 'An error occurred during import.');
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await executeImport(false);
   };
 
   return (
@@ -157,6 +170,32 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
             {errorMessage && (
               <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
                 {errorMessage}
+              </div>
+            )}
+
+            {duplicateWarning && (
+              <div className="p-4 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 space-y-3">
+                <div className="text-xs font-semibold">
+                  This content already exists as &quot;{duplicateWarning.title}&quot;
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDuplicateWarning(null)}
+                    disabled={isSubmitting}
+                    className="px-3 py-1.5 border border-amber-300 bg-white hover:bg-amber-100 text-xs font-medium rounded-md text-amber-900 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => executeImport(true)}
+                    disabled={isSubmitting}
+                    className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-medium rounded-md transition-colors cursor-pointer"
+                  >
+                    {isSubmitting ? 'Importing...' : 'Import anyway'}
+                  </button>
+                </div>
               </div>
             )}
 

@@ -22,7 +22,9 @@ export type Action =
   | 'PROJECT_VIEW_JOBS'
   | 'PROJECT_VIEW_HANDOVERS'
   | 'PROJECT_CREATE_HANDOVER'
+  | 'PROJECT_VIEW_RECURRING_PROBLEMS'
   | 'HANDOVER_VIEW'
+  | 'HANDOVER_ACKNOWLEDGE'
   | 'HANDOVER_REVIEW'
   | 'HANDOVER_APPROVE'
   | 'HANDOVER_SHARE'
@@ -271,6 +273,31 @@ export async function authorizeAction(
       }
       return 'FORBIDDEN';
     }
+  }
+
+  // Hackathon addition: Acknowledge a shared handover (recipient-only action; the
+  // SQL function also enforces this — here we just check basic project membership)
+  if (action === 'HANDOVER_ACKNOWLEDGE') {
+    if (context.handoverId) {
+      const hRes = await pool.query('SELECT project_id FROM public.handovers WHERE id = $1', [
+        context.handoverId,
+      ]);
+      if (hRes.rows.length === 0) return 'NOT_FOUND';
+      const targetProjectId = hRes.rows[0].project_id as string;
+      const projectMembership = user.projectMemberships.get(targetProjectId);
+      if (!projectMembership) return 'NOT_FOUND';
+      // Any active project member may attempt; the SQL function enforces recipient-only
+      return 'ALLOWED';
+    }
+    return 'NOT_FOUND';
+  }
+
+  // Hackathon addition: View recurring problems (any active project member)
+  if (action === 'PROJECT_VIEW_RECURRING_PROBLEMS') {
+    if (!projectId) return 'NOT_FOUND';
+    const projectMembership = user.projectMemberships.get(projectId);
+    if (!projectMembership) return 'NOT_FOUND';
+    return 'ALLOWED';
   }
 
   // Phase 7: Export

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ProjectRoleSchema, ProjectDomainSchema } from './enums.js';
+import { UuidSchema } from './params.js';
 
 export const createProjectSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -32,3 +33,27 @@ export const updateProjectMemberSchema = z.object({
 });
 
 export type UpdateProjectMemberInput = z.infer<typeof updateProjectMemberSchema>;
+
+// ─── Recurring Problems (Hackathon Addition) ──────────────────────────────────
+
+export const RecurringProblemEvidenceRefSchema = z.object({
+  claimId: UuidSchema,
+  sourceTitle: z.string().optional(),
+  quote: z.string().optional(),
+});
+export type RecurringProblemEvidenceRef = z.infer<typeof RecurringProblemEvidenceRefSchema>;
+
+export const RecurringProblemGroupSchema = z.object({
+  representativeStatement: z.string(),
+  claimIds: z.array(UuidSchema),
+  distinctSourceCount: z.number().int(),
+  earliestObservedAt: z.string().nullable(),
+  latestObservedAt: z.string().nullable(),
+  evidenceRefs: z.array(RecurringProblemEvidenceRefSchema),
+});
+export type RecurringProblemGroup = z.infer<typeof RecurringProblemGroupSchema>;
+
+export const RecurringProblemsResponseSchema = z.object({
+  groups: z.array(RecurringProblemGroupSchema),
+});
+export type RecurringProblemsResponse = z.infer<typeof RecurringProblemsResponseSchema>;

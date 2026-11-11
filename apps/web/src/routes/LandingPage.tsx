@@ -17,13 +17,13 @@ export const LandingPage: React.FC = () => {
             style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-text)' }}
             aria-hidden="true"
           >
-            R
+            P
           </div>
           <span
             className="text-xl font-semibold tracking-tight"
             style={{ color: 'var(--color-text)' }}
           >
-            Relay
+            Prasaranam
           </span>
         </div>
         <nav aria-label="Main Navigation">
@@ -59,8 +59,8 @@ export const LandingPage: React.FC = () => {
           className="text-lg sm:text-xl max-w-2xl mb-10 leading-relaxed"
           style={{ color: 'var(--color-text-muted)' }}
         >
-          Relay reconstructs decisions, tasks, blockers, and risks from authorised project activity,
-          producing recipient-specific handovers that humans review before sharing.
+          Prasaranam reconstructs decisions, tasks, blockers, and risks from authorised project
+          activity, producing recipient-specific handovers that humans review before sharing.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-16">
@@ -141,8 +141,8 @@ export const LandingPage: React.FC = () => {
         }}
       >
         <p>
-          &copy; {new Date().getFullYear()} Relay Platform. Designed with accessible contrast and
-          evidence-first architecture.
+          &copy; {new Date().getFullYear()} Prasaranam Platform. Designed with accessible contrast
+          and evidence-first architecture.
         </p>
       </footer>
     </div>

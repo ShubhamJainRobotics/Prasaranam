@@ -227,7 +227,7 @@ export const ProjectQuestionsPage: React.FC = () => {
       {questions.length === 0 ? (
         <EmptyState
           title={`No ${statusFilter === 'all' ? '' : statusFilter} questions found`}
-          description="Click 'Generate Questions' to let Relay identify knowledge gaps and ambiguities in the project."
+          description="Click 'Generate Questions' to let Prasaranam identify knowledge gaps and ambiguities in the project."
           action={{
             label: 'Generate Questions',
             onClick: handleGenerateQuestions,

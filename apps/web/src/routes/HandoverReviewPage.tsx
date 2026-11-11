@@ -621,7 +621,7 @@ export const HandoverReviewPage: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
             <h3 className="text-base font-semibold text-slate-900">Add Reviewer Context Source</h3>
             <p className="text-xs text-slate-500">
-              Add authoritative notes or clarification evidence. Relay will ingest this as an
+              Add authoritative notes or clarification evidence. Prasaranam will ingest this as an
               explicit source and enqueue its extraction.
             </p>
 

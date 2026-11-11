@@ -48,7 +48,7 @@ export const AppEntryPage: React.FC = () => {
     return (
       <div className="max-w-lg mx-auto py-16">
         <EmptyState
-          title="Welcome to Relay"
+          title="Welcome to Prasaranam"
           description="You do not belong to any organisations yet. Create your first organisation to get started with projects and handovers."
           action={{
             label: 'Create Organisation',

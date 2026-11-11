@@ -135,6 +135,8 @@ export const HandoverSummarySchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   itemCount: z.number().int().optional(),
+  // Hackathon addition: acknowledgement timestamp (null if recipient has not yet acknowledged)
+  acknowledgedAt: z.string().nullable().optional(),
 });
 export type HandoverSummary = z.infer<typeof HandoverSummarySchema>;
 
@@ -222,3 +224,13 @@ export const ExportHandoverQuerySchema = z.object({
   format: z.enum(['md', 'pdf']),
 });
 export type ExportHandoverQuery = z.infer<typeof ExportHandoverQuerySchema>;
+
+// ─── Acknowledgement (Hackathon Addition) ─────────────────────────────────────
+
+export const AcknowledgeHandoverResponseSchema = z.object({
+  id: UuidSchema,
+  handoverId: UuidSchema,
+  userId: UuidSchema,
+  acknowledgedAt: z.string(),
+});
+export type AcknowledgeHandoverResponse = z.infer<typeof AcknowledgeHandoverResponseSchema>;

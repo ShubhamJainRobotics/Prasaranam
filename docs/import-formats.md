@@ -1,4 +1,4 @@
-# Relay Source Import Formats Specification
+# Prasaranam Source Import Formats Specification
 
 This document details the source ingestion formats supported by Relay, their canonical representations, chunking rules, character limits, and security constraints in accordance with `docs/SPEC.md` Sections 2A.6, 2A.7, 4.2, and 9.2.
 

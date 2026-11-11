@@ -5,7 +5,7 @@ test.describe('Landing Page E2E', () => {
     await page.goto('/');
 
     // 1. Verify page title
-    await expect(page).toHaveTitle(/Relay/);
+    await expect(page).toHaveTitle(/Prasaranam/);
 
     // 2. Verify main heading
     const heading = page.getByRole('heading', { level: 1 });

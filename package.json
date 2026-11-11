@@ -29,7 +29,11 @@
     "bootstrap:local": "tsx scripts/bootstrap-local.ts",
     "verify:env": "tsx scripts/verify-environment.ts",
     "scan:bundle": "tsx scripts/scan-bundle.ts",
-    "openapi:lint": "redocly lint --config .redocly.yaml docs/openapi.yaml"
+    "openapi:lint": "redocly lint --config .redocly.yaml docs/openapi.yaml",
+    "inventory": "tsx scripts/feature-inventory.ts",
+    "scenarios:seed": "tsx scripts/run-scenarios.ts --seed-only",
+    "scenarios:run": "tsx scripts/run-scenarios.ts --run",
+    "scenarios:reset": "tsx scripts/run-scenarios.ts --reset-only"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

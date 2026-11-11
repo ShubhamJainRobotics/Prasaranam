@@ -175,6 +175,53 @@ export function createSourcesRouter(pool: DbPool): Router {
               );
             }
 
+            // Check for duplicate source if allowDuplicate is not set
+            const allowDuplicate =
+              req.body.allowDuplicate === 'true' || req.body.allowDuplicate === true;
+            if (!allowDuplicate) {
+              let replacesLineageId: string | null = null;
+              if (replacesSourceId) {
+                const linRes = await pool.query(
+                  'SELECT lineage_id FROM public.sources WHERE id = $1',
+                  [replacesSourceId]
+                );
+                if (linRes.rows.length > 0) {
+                  replacesLineageId = linRes.rows[0].lineage_id;
+                }
+              }
+
+              const dupRes = await pool.query(
+                `SELECT id, title, lineage_id
+                 FROM public.sources
+                 WHERE project_id = $1
+                   AND content_sha256 = $2
+                   AND archived_at IS NULL
+                   AND app_private.can_read_source(id, $3) = true
+                 LIMIT 1`,
+                [projectId, ingestRes.contentSha256, actorId]
+              );
+
+              if (dupRes.rows.length > 0) {
+                const dup = dupRes.rows[0];
+                if (!replacesLineageId || dup.lineage_id !== replacesLineageId) {
+                  res.status(409).json({
+                    error: {
+                      code: 'DUPLICATE_SOURCE',
+                      message: `This content already exists as "${dup.title}".`,
+                      details: [
+                        {
+                          existingSourceId: dup.id,
+                          existingSourceTitle: dup.title,
+                        },
+                      ],
+                    },
+                    requestId,
+                  });
+                  return;
+                }
+              }
+            }
+
             const sourceId = await importSource(pool, {
               actorId,
               projectId,
@@ -248,6 +295,51 @@ export function createSourcesRouter(pool: DbPool): Router {
             eventAt: input.eventAt,
             originalUrl: input.originalUrl,
           });
+
+          // Check for duplicate source if allowDuplicate is not set
+          if (!input.allowDuplicate) {
+            let replacesLineageId: string | null = null;
+            if (input.replacesSourceId) {
+              const linRes = await pool.query(
+                'SELECT lineage_id FROM public.sources WHERE id = $1',
+                [input.replacesSourceId]
+              );
+              if (linRes.rows.length > 0) {
+                replacesLineageId = linRes.rows[0].lineage_id;
+              }
+            }
+
+            const dupRes = await pool.query(
+              `SELECT id, title, lineage_id
+               FROM public.sources
+               WHERE project_id = $1
+                 AND content_sha256 = $2
+                 AND archived_at IS NULL
+                 AND app_private.can_read_source(id, $3) = true
+               LIMIT 1`,
+              [projectId, ingestRes.contentSha256, actorId]
+            );
+
+            if (dupRes.rows.length > 0) {
+              const dup = dupRes.rows[0];
+              if (!replacesLineageId || dup.lineage_id !== replacesLineageId) {
+                res.status(409).json({
+                  error: {
+                    code: 'DUPLICATE_SOURCE',
+                    message: `This content already exists as "${dup.title}".`,
+                    details: [
+                      {
+                        existingSourceId: dup.id,
+                        existingSourceTitle: dup.title,
+                      },
+                    ],
+                  },
+                  requestId,
+                });
+                return;
+              }
+            }
+          }
 
           const sourceId = await importSource(pool, {
             actorId,
