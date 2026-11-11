@@ -13,7 +13,6 @@
     "@relay/database": "*",
     "@relay/api": "*",
     "@google/genai": "^3.0.0",
-    "dotenv": "^16.4.7",
     "pg": "^8.13.3",
     "pino": "^9.6.0",
     "zod": "^3.24.2"

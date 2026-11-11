@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import dotenv from 'dotenv';
 import { serverEnvironmentSchema } from '@relay/contracts';
 import { createDbPool, closeDbPool, type DbPool } from '@relay/database';
 import { RelayWorker } from './worker.js';
@@ -15,7 +14,9 @@ const envCandidates = [
 ];
 for (const candidate of envCandidates) {
   if (fs.existsSync(candidate)) {
-    dotenv.config({ path: candidate });
+    if (typeof (process as unknown as { loadEnvFile?: (p: string) => void }).loadEnvFile === 'function') {
+      (process as unknown as { loadEnvFile: (p: string) => void }).loadEnvFile(candidate);
+    }
     break;
   }
 }
