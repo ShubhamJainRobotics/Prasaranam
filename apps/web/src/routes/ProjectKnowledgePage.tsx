@@ -519,7 +519,7 @@ export const ProjectKnowledgePage: React.FC = () => {
                       Member claims (click to view supporting evidence):
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {group.claimIds.map((cid) => (
+                      {group.claimIds.map((cid: string) => (
                         <button
                           key={cid}
                           type="button"

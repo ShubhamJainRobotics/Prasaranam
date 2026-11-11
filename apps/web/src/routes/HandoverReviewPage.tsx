@@ -336,8 +336,8 @@ export const HandoverReviewPage: React.FC = () => {
 
   const items = handover.items || [];
   const totalItems = items.length;
-  const reviewedItems = items.filter((i) => i.reviewState !== 'pending').length;
-  const approvedItems = items.filter((i) => i.reviewState === 'approved').length;
+  const reviewedItems = items.filter((i: any) => i.reviewState !== 'pending').length;
+  const approvedItems = items.filter((i: any) => i.reviewState === 'approved').length;
 
   // Group items by section
   const sectionKeys = handover.configuration.includedSections || [];
@@ -359,7 +359,7 @@ export const HandoverReviewPage: React.FC = () => {
 
       {/* Render sections */}
       <div className="space-y-6">
-        {sectionKeys.map((secKey) => (
+        {sectionKeys.map((secKey: string) => (
           <HandoverSection
             key={secKey}
             sectionKey={secKey}
